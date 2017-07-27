@@ -194,6 +194,7 @@ if(isset($_GET['checked'])&&isset($_GET['id_order'])){
 					$message = " QC ไม่ผ่านลองใหม่อีกครั้ง";
 					echo "erreo :".$message;
 				}
+				endTransection();
 			}
 			else
 			{

@@ -73,6 +73,7 @@ if( isset( $_GET['saveConsign'] ) && isset( $_POST['id_order_consign'] ) )
 
 	while( $rs = dbFetchArray($qs) )
 	{
+		set_time_limit(150);
 		$id_pa 	= $rs['id_product_attribute'];
 		$id_pd	= $product->get_id_product($id_pa);
 		$usz		= update_stock_zone($rs['qty'] *-1, $id_zone, $id_pa);

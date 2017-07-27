@@ -1,5 +1,5 @@
 <?php
-
+	ini_set('memory_limit', '256M');
 	$disc = is_numeric($_GET['discount']) == FALSE ? 0 : $_GET['discount'];
 	$vat = getConfig('VAT');
 	$qr = "SELECT tbl_stock.id_product_attribute, barcode, reference, product_code, product_name, default_category_id, id_product_group, cost, price, id_color, id_size, id_attribute, SUM( qty ) AS qty FROM tbl_stock ";
@@ -56,6 +56,7 @@
 		$n = 1;
 		while( $rs = dbFetchObject($qs) )
 		{
+			set_time_limit(150);
 			$cost_ex	= $rs->cost;
 			$cost_inc 	= addVAT($rs->cost, $vat);
 			$price_ex 	= removeVAT($rs->price, $vat);

@@ -2379,7 +2379,7 @@ function cancle_consign($id_order)
 			if( $rs['move_out'] > 0 && $rs['move_in'] == 0 )
 			{				
 				//----- เพิ่มรายการเข้าตาราง ยกเลิก
-				if( ! cancle_product( $rs['move_in'], $id_product, $rs['id_product_attribute'], $id_order, $rs['id_zone'], $rs['id_warehouse'], $id_emp ) ){ $sc = FALSE;  }
+				if( ! cancle_product( $rs['move_out'], $id_product, $rs['id_product_attribute'], $id_order, $rs['id_zone'], $rs['id_warehouse'], $id_emp ) ){ $sc = FALSE;  }
 				
 			}
 			

@@ -134,32 +134,26 @@
 		$order->state_change($order->id_order, 11, $id_user); 
 	}
 	
-	$qs = dbQuery("SELECT id_product_attribute, product_qty FROM tbl_order_detail WHERE id_order = ".$id_order);
+	$qs = dbQuery("SELECT * FROM tbl_order_detail WHERE id_order = ".$id_order);
 	$row1 = 0;
-	while( $list = dbFetchArray( $qs ) ) :
-		$id_pa  		= $list['id_product_attribute'];
+	while( $rs = dbFetchObject( $qs ) ) :
 		$product 	= new product();
-		$product->product_attribute_detail($id_pa);
-		$product->product_detail($product->id_product);
-		$barcode 	= $product->barcode;
-		$product_code = $product->reference." : ".$product->product_name;
-		$order_qty = $list['product_qty'];
-		$prepared	= sumPreparedQty($id_order, $id_pa);
-		$checked	= sumCheckedQty($id_order, $id_pa);
+		$prepared	= sumPreparedQty($id_order, $rs->id_product_attribute);
+		$checked	= sumCheckedQty($id_order, $rs->id_product_attribute);
 		$balance_qty = $prepared - $checked;
 		if( $prepared != $checked)	:	?>
-        	<tr id="row<?php echo $id_pa; ?>" <?php echo $order_qty > $prepared ? 'style="color:#FF0000;"' : ''; ?>>
-            	<td align="center" class="barcode"><?php echo $barcode; ?></td>
-                <td><?php echo $product_code; ?></td>
-                <td align="center"><?php echo number_format( $order_qty ); ?></td>
-                <td align="center"><p id="prepare<?php echo $id_pa; ?>"><?php echo number_format($prepared); ?></p></td>
-                <td align="center" id="checked<?php echo $id_pa; ?>"><?php echo number_format($checked); ?></td>
+        	<tr id="row<?php echo $rs->id_product_attribute; ?>" <?php echo $rs->product_qty > $prepared ? 'style="color:#FF0000;"' : ''; ?>>
+            	<td align="center" class="barcode"><?php echo $rs->barcode; ?></td>
+                <td><?php echo $rs->product_reference ." : ".$rs->product_name; ?></td>
+                <td align="center"><?php echo number_format( $rs->product_qty ); ?></td>
+                <td align="center"><p id="prepare<?php echo $rs->id_product_attribute; ?>"><?php echo number_format($prepared); ?></p></td>
+                <td align="center" id="checked<?php echo $rs->id_product_attribute; ?>"><?php echo number_format($checked); ?></td>
                 <td align="center">
-                <?php if( $checked > $order_qty ) : ?>
+                <?php if( $checked > $rs->product_qty ) : ?>
                 	<button type="button" class="btn btn-xs btn-warning"><i class="fa fa-pencil"></i> แก้ไข</button>
                     <input type="hidden" name="must_edit" value="1" />
 				<?php else : ?>
-                	<button type="button" class="btn btn-xs btn-default btn-pop" data-container="body" data-toggle="popover" data-placement="right" data-html="true" data-content="<?php echo product_from_zone($id_order, $id_pa); ?>">
+                	<button type="button" class="btn btn-xs btn-default btn-pop" data-container="body" data-toggle="popover" data-placement="right" data-html="true" data-content="<?php echo product_from_zone($id_order, $rs->id_product_attribute); ?>">
                     	จากโซน
                     </button>
                 <?php endif; ?>	
@@ -195,24 +189,25 @@
         <th style='width:10%; text-align:center;'>จากโซน</th>
 	</thead>
 <?php    
-	$qs = dbQuery("SELECT SUM(qty) AS qty, id_product_attribute FROM tbl_qc WHERE id_order = ".$id_order." AND valid = 1 GROUP BY id_product_attribute ORDER BY id_product_attribute ASC ");
+	//$qs = dbQuery("SELECT SUM(qty) AS qty, id_product_attribute FROM tbl_qc WHERE id_order = ".$id_order." AND valid = 1 GROUP BY id_product_attribute ORDER BY id_product_attribute ASC ");
+	$qs = "SELECT SUM(qty) AS qty, tbl_qc.id_product_attribute AS id_pa, product_reference AS reference, product_name, barcode ";
+	$qs .= "FROM tbl_qc ";
+	$qs .= "JOIN tbl_order_detail ON tbl_qc.id_product_attribute = tbl_order_detail.id_product_attribute ";
+	$qs .= "WHERE tbl_qc.id_order = ".$id_order." AND valid = 1 GROUP BY tbl_qc.id_product_attribute ORDER BY tbl_qc.id_product_attribute ASC";
+	$qs = dbQuery($qs);
 	$n=0;
 	if( dbNumRows($qs) > 0 ) : 
-		while($list = dbFetchArray( $qs ) ) : 
-			$id_pa  		= $list['id_product_attribute'];
+		while($rs = dbFetchObject( $qs ) ) : 
+			$id_pa  		= $rs->id_pa;
 			$order_qty 	= sumOrderQty($id_order, $id_pa);
 			$product		= new product();
-			$product->product_attribute_detail($id_pa);
-			$product->product_detail($product->id_product);
-			$barcode 	= $product->barcode;
-			$product_code = $product->reference." : ".$product->product_name;
-			$prepared		= sumPreparedQty($id_order, $id_pa);
-			$checked		= sumCheckedQty($id_order, $id_pa);
+			$prepared	= sumPreparedQty($id_order, $id_pa);
+			$checked	= sumCheckedQty($id_order, $id_pa);
 			$balance_qty = $prepared - $checked;
 			if( $prepared == $checked OR ($order_qty != 0 && $order_qty < $checked) ) :	?>
             <tr id="row<?php echo $id_pa; ?>" <?php echo $order_qty > $prepared ? 'style="color:#FF0000;"' : ''; ?>>
-            	<td align="center"><?php echo $barcode; ?></td>
-                <td><?php echo $product_code; ?></td>
+            	<td align="center"><?php echo $rs->barcode; ?></td>
+                <td><?php echo $rs->reference . ' " '.$rs->product_name;  ?></td>
                 <td align="center"><?php echo number_format( $order_qty ); ?></td>
                 <td align="center"><?php echo number_format($prepared); ?></td>
                 <td align="center" id="checked<?php echo $id_pa; ?>"><?php echo number_format($checked); ?></td>
@@ -229,8 +224,8 @@
             </tr>
 <?php	elseif( number_format( $order_qty ) == 0 ) :	?>
 			<tr id="row<?php echo $id_pa; ?>" <?php echo $order_qty > $prepared ? 'style="color:#FF0000;"' : ''; ?>>
-            	<td align="center"><?php echo $barcode; ?></td>
-                <td><?php echo $product_code; ?></td>
+            	<td align="center"><?php echo $rs->barcode; ?></td>
+                <td><?php echo $rs->reference . ' " '.$rs->product_name; ?></td>
                 <td align="center"><?php echo number_format( $order_qty ); ?></td>
                 <td align="center"><?php echo number_format($prepared); ?></td>
                 <td align="center" id="checked<?php echo $id_pa; ?>"><?php echo number_format($checked); ?></td>

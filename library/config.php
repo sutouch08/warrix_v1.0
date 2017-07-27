@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 'Off');
+ini_set('display_errors', 'on');
 date_default_timezone_set('Asia/Bangkok');
 //ob_start("ob_gzhandler");
 ob_start();

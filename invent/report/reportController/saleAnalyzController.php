@@ -7,6 +7,7 @@ require "../../function/report_helper.php";
 
 if( isset( $_GET['soldProductDeepAnalyz'] ) )
 {
+	ini_set('memory_limit', '1024M');
 	$role	= $_GET['role'];
 	$role_in = $role == 0 ? '1,5' : $role;
 	$roleName = $role == 1 ? 'ขายปกติ' : ( $role == 5 ? 'ฝากขาย' : 'ทั้งหมด' );

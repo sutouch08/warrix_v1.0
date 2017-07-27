@@ -105,7 +105,7 @@ function doLogin()
 			setcookie("user_id", $rs['id_employee'], $time, COOKIE_PATH); 
 			setcookie("UserName",$rs['first_name'], $time, COOKIE_PATH); 
 			setcookie("profile_id",$rs['id_profile'], $time, COOKIE_PATH);
-			dbQuery("UPDATE tbl_employee SET last_login = NOW() WHERE id_employee = ".$row['id_employee']);
+			dbQuery("UPDATE tbl_employee SET last_login = NOW() WHERE id_employee = ".$rs['id_employee']);
 			$sc = TRUE;
 		}
 	}

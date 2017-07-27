@@ -10,7 +10,6 @@
   	if($add==1){ $can_add = "";}else{ $can_add = "style='display:none;'"; }
 	if($edit==1){ $can_edit = "";}else{ $can_edit = "style='display:none;'"; }
 	if($delete==1){ $can_delete = "";}else{ $can_delete ="style='display:none;'"; }	
-	include "function/order_helper.php";
 	?>
 <div class="container">
 <!-- page place holder -->
@@ -119,47 +118,6 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 	<div class='col-xs-1'><button class='btn btn-default' type='button' id='add_detail' onclick='submit_detail()'>&nbsp&nbsp;เพิ่ม&nbsp;&nbsp</button></div>
 	</div></form>
 	<hr style='border-color:#CCC; margin-top: 15px; margin-bottom:15px;' />";
-	?>
-    <!----------------------------------------- Category Menu ---------------------------------->
-<div class='row'>
-	<div class='col-sm-12'>
-		<ul class='nav navbar-nav' role='tablist' style='background-color:#EEE'>
-		<?php echo categoryTabMenu('order'); ?>
-		</ul>
-	</div><!---/ col-sm-12 ---->
-</div><!---/ row -->
-<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:0px;' />
-<div class='row'>
-	<div class='col-sm-12'>		
-		<div class='tab-content' style="min-height:1px; padding:0px;">
-		<?php echo getCategoryTab(); ?>
-		</div>
-	</div>
-</div>
-<!------------------------------------ End Category Menu ------------------------------------>	
-<form id="gridForm">
-	<div class='modal fade' id='order_grid' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
-		<div class='modal-dialog' id='modal'>
-			<div class='modal-content'>
-	  			<div class='modal-header'>
-					<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
-					<h4 class='modal-title' id='modal_title'>title</h4>
-                    <center><span style="color: red;">ใน ( ) = ยอดคงเหลือทั้งหมด   ไม่มีวงเล็บ = สั่งได้ทันที</span></center>
-                    <input type="hidden" name="id_order" value="<?php echo $id_order; ?>" />
-				 </div>
-				 <div class='modal-body' id='modal_body'></div>
-				 <div class='modal-footer'>
-					<button type='button' class='btn btn-default' data-dismiss='modal'>ปิด</button>
-					<button type='button' class='btn btn-primary' onClick="addToOrder(<?php echo $id_order; ?>)" >เพิ่มในรายการ</button>
-				 </div>
-			</div>
-		</div>
-	</div>
-</form>
-
-<?php
-	/*
-	
 	//เริ่ม order 
 	echo"
 	<div class='row'>
@@ -196,7 +154,6 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 <div class='row'><div class='col-lg-12 col-md-12 col-sm-12 col-sx-12'>
 <hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />	
 <div class='tab-content'>";	
-
 $query = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category !=0");
 	$rc = dbNumRows($query);
 	$r =0;
@@ -228,8 +185,6 @@ $query = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_c
 	}	
 	echo"</div> <button data-toggle='modal' data-target='#order_grid' id='btn_toggle' style='display:none;'>toggle</button>
 </div></div>";	
-
-
 //0จบ
 echo"			
 	<form action='controller/requisitionController.php?add_to_order' method='post'>
@@ -248,11 +203,6 @@ echo"
 									</div>
 								  </div>
 								</div></form>";
-								
-								
-								
-		*/						
-								
 	echo"<hr style='border-color:#CCC; margin-top: 15px; margin-bottom:15px;' />
 	<div class='row'>
 	<table class='table' id='order_detail'>
@@ -469,55 +419,6 @@ echo"
 <?php 		
 }
 ?>
-<script id="orderProductTemplate" type="text/x-handlebars-template" >
-	{{#each this }}
-		{{#if @last}}
-			<tr>
-				 <td colspan="7" align="right"><h4>จำนวนรวม</h4></td>
-				 <td  align="right"><h4>{{ total_qty }}</h4></td> 
-				 <td align="center"><h4>ชิ้น</h4></td>  
-			</tr>
-		{{else}}
-    	<tr style="font-size:12px;">
-        	<td align="center" style="vertical-align:middle;">{{ no }}</td>
-            <td align="center" style="vertical-align:middle;">{{{ img }}}</td>
-            <td align="center" style="vertical-align:middle;">{{ barcode }}</td> 
-            <td style="vertical-align:middle;">{{ product }}</td>
-            <td align="center" style="vertical-align:middle;">{{ price }}</td>
-            <td align="center" style="vertical-align:middle;">{{ qty }}</td>
-            <td align="center" style="vertical-align:middle;">{{ discount }}</td>
-            <td align="center" style="vertical-align:middle;">{{ amount }}</td>
-            <td align="right" style="vertical-align:middle;">
-            	<button type="button" class="btn btn-danger btn-xs" onClick="deleteRow({{ id }}, '{{ product }}')"><i class="fa fa-trash"></i></button>
-            </td>
-      	</tr>
-		{{/if}}
-	{{/each}}		
-</script>
-<script>
-	function expandCategory(el)
-	{
-		var className = 'open';
-		if (el.classList)
-		{
-    		el.classList.add(className)
-		}else if (!hasClass(el, className)){
-			el.className += " " + className
-		}
-	}
-
-	function collapseCategory(el)
-	{
-		var className = 'open';
-		if (el.classList)
-		{
-			el.classList.remove(className)
-		}else if (hasClass(el, className)) {
-			var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
-			el.className=el.className.replace(reg, ' ')
-  		}
-	}
-</script>
 <script language="javascript"> 
 function goTo(page, id_order){
 	if( page == 'add'){
@@ -889,7 +790,7 @@ function getData(id_product){
 				$("#modal").css("width",table_w+"px");
 				$("#modal_title").html(title);
 				$("#modal_body").html(data);
-				$("#order_grid").modal('show');
+				$("#btn_toggle").click();
 			}else{
 				alert("NO DATA");
 			}		
@@ -911,51 +812,4 @@ $(document).ready(function(e) {
 		}
 	});			
 });
-
-//---------------------------  เพิ่มการสั่งซื้อสินค้า  -----------------------//
-function addToOrder(id_order) {
-    $("#order_grid").modal("hide");
-    load_in();
-    $.ajax({
-        url: "controller/orderController.php?addToOrder",
-        type: "POST",
-        cache: "false",
-        data: $("#gridForm").serialize(),
-        success: function(rs) {
-            load_out();
-            var rs = $.trim(rs);
-            var arr = rs.split(' | ');
-            var c = arr.length;
-            if (c == 1 && arr[0] == 'success') {
-                swal({ title: "สำเร็จ", text: "เพิ่มรายการเรียบร้อยแล้ว", type: "success", timer: 1000 });
-                setTimeout(function(){ window.location.reload(); }, 1200);
-            } else if (c == 2 && arr[0] == 'fail') {
-                swal("ข้อผิดพลาด!!", "เพิ่มสินค้าในรายการไม่สำเร็จ กรุณาตรวจสอบ แล้วลองใหม่อีกครั้ง", "error");
-                $("#order_grid").modal("show");
-            } else if (c == 2 && arr[0] == 'overstock') {
-                swal("ข้อผิดพลาด!!", arr[1] + " มีสินค้าคงเหลือไม่เพียงพอ กรุณาตรวจสอบแล้วสั่งใหม่อีกครั้ง", "error");
-                $("#order_grid").modal("show");
-            }
-        }
-    });
-}
-
-//---------------------------  โหลดตารางรายการสั่งสินค้าใหม่  --------------------------//
-function reloadOrderProduct(id_order) {
-    $.ajax({
-        url: "controller/orderController.php?getOrderProductTable",
-        type: "POST",
-        cache: "false",
-        data: { "id_order": id_order },
-        success: function(rs) {
-            var rs = $.trim(rs);
-            if (rs != 'fail' && rs != '') {
-                var source = $("#orderProductTemplate").html();
-                var data = $.parseJSON(rs);
-                var output = $("#orderProductTable");
-                render(source, data, output);
-            }
-        }
-    });
-}
 </script>

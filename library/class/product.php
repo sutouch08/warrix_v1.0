@@ -548,6 +548,34 @@ $this->cover_image = $this->getCoverImage($id_pd,2);
 
 }
 
+public function productDetail($id_pd)
+{
+	$qs = dbQuery("SELECT * FROM tbl_product WHERE id_product = ".$id_pd);
+	if( dbNumRows($qs) == 1 )
+	{
+		return dbFetchObject($qs);	
+	}
+	else
+	{
+		return FALSE;	
+	}
+}
+
+
+
+public function productAttributeDetail($id_pa)
+{
+	$qs = $this->get_product_attribute_detail($id_pa);
+	if( dbNumRows($qs) == 1 )
+	{
+		return dbFetchObject($qs);
+	}
+	else
+	{
+		return FALSE;	
+	}
+}
+
 public function product_attribute_detail($id_pa, $id_cus = 0)
 {
 	$id_customer = $id_cus == 0 ? $this->id_customer : $id_cus;
