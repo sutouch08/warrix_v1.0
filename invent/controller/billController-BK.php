@@ -3,6 +3,9 @@ require "../../library/config.php";
 require "../../library/functions.php";
 require "../function/tools.php";
 require "../function/bill_helper.php";
+require "../function/support_helper.php";
+require "../function/sponsor_helper.php";
+require "../function/lend_helper.php";
 
 
 
@@ -20,95 +23,140 @@ if( isset($_GET['check_order_state']) && isset($_GET['id_order']) )
 
 
 
-if( isset( $_GET['confirm_order'] ) && isset( $_GET['id_order'] ) )
-{
+
+if(isset($_GET['confirm_order'])&&isset($_GET['id_order']))
+{ 
+	//-----  ยืนยันว่าเปิดบิลแล้ว ตัดยอดออกจาก Buffer แล้วเพิ่มรายการลง stock movement
 	$id_order 		= $_GET['id_order'];
 	$id_employee 	= $_GET['id_employee'];
 	$bill_discount 	= bill_discount($id_order);
 	$order 			= new order($id_order);	
 	$state 			= get_current_state($id_order);
-	$sc				= TRUE;
-	$message		= 'success';
-	if( $state == 10 )
+	$sc 				= 'success';
+	if( $state != 10)
 	{
-		//--- เปลี่ยนเป็นเปิดบิลแล้วก่อน กันคนอื่นมาเปิดซ้ำกัน
-		order_state_change($id_order, 9, $id_employee); 
-		
-		//--------- Query From QC
-		$qr = "SELECT qc.id_product_attribute AS id_pa, SUM( qc.qty ) AS qty, tmp.id_zone, tmp.id_warehouse ";
-		$qr .= "FROM tbl_qc AS qc ";
-		$qr .= "JOIN tbl_temp AS tmp ";
-		$qr .= "USING (id_temp) ";
-		$qr .= "WHERE qc.id_order = ".$id_order." AND qc.valid = 1 ";
-		$qr .= "GROUP BY qc.id_product_attribute, tmp.id_zone";
-		
-		$qs = dbQuery($qr);
-		
-		//------ กรณีฝากขาย
-		if( $order->role == 5 )
-		{
-			include 'subController/consignProcess.php';
-		}
-		
-		//------ กรณีขายทั่วไป
-		if( $order->role == 1 )
-		{
-			include 'subController/orderProcess.php';
-		}
-		
-		//----- กรณีสปอนเซอร์สโมสร
-		if( $order->role == 4 )
-		{
-			include '../function/sponsor_helper.php';
-			include 'subController/sponsorProcess.php';
-		}
-		
-		//----- กรณีเบิกอภินันท์
-		if( $order->role == 7 )
-		{
-			include '../function/support_helper.php';
-			include 'subController/supportProcess.php';	
-		}
-		
-		//----- กรณี ยืมสินค้า
-		if( $order->role == 3 )
-		{
-			include '../function/lend_helper.php';
-			include 'subController/lendProcess.php';	
-		}
-		
-		//------ กรณีเบิกแปรสภาพ
-		if( $order->role == 2 OR $order->role == 6 )
-		{
-			include 'subController/orderProcess.php';
-		}		
-		
-		
-		//------ ถ้าไม่สำเร็จ ย้อนสถานะไปเป้นรอเปิดบิลเหมือนเดิม
-		if( $sc === FALSE )
-		{
-			//-----  ย้อนสถานะไปเป้นรอเปิดบิลเหมือนเดิม
-			$sc = dbQuery("UPDATE tbl_order SET current_state = 10 WHERE id_order = ".$id_order);
-			
-			//------ กันเหนียว
-			if( $sc === FALSE )
-			{
-				dbQuery("UPDATE tbl_order SET current_state = 10 WHERE id_order = ".$id_order);
-			}
-			
-			//------ ลบล่องรอยใน order stage change
-			dbQuery("DELETE FROM tbl_order_state_change WHERE id_order = ".$id_order." AND id_order_state = 9 AND id_employee = ".$id_employee);	
-		}
+		$sc = 'สถานะออเดอร์ถูกเปลี่ยนไปแล้ว';
 	}
 	else
 	{
-		$message = 'สถานะเอกสารถูกเปลี่ยนไปแล้ว';	
+		$st = order_state_change($id_order, 9, $id_employee);
+		startTransection();
+		$success = TRUE;
+		
+		//----- ถ้าเป็นฝากขาย ลบยอดใน temp แล้วไปเพิ่มใน โซน ฝากขาย
+		if( $order->role == 5 )
+		{
+			//----- หา id_zone ฝากขาย จาก tbl_order_consignment
+			$id_zone		= getConsignmentIdZone( $id_order ); 
+			if( $id_zone !== FALSE )
+			{
+				$qr = "SELECT tbl_qc.id_product_attribute, SUM(tbl_qc.qty) AS qty, id_zone, id_warehouse FROM tbl_qc JOIN tbl_temp ON tbl_qc.id_temp = tbl_temp.id_temp ";
+				$qr .= "WHERE tbl_qc.id_order = ".$id_order." AND valid = 1 GROUP BY tbl_qc.id_product_attribute, tbl_temp.id_zone";
+				$qs = dbQuery($qr);
+				while( $row = dbFetchArray($qs) )
+				{
+					set_time_limit(60);
+					$id_pa					= $row['id_product_attribute']; 
+					$qty 						= $row['qty'];
+					$date_upd 				= dbDate($order->date_add, TRUE);
+					$new_qty 				= $qty * (-1);
+					$from_zone 			= $row['id_zone'];
+					$id_warehouse 		= $row['id_warehouse'];
+					$product 				= new product();
+					$id_product 			= $product->getProductId($id_pa);
+					$tmp_status				= 4;				 //----- สถานะของ temp = 4  คือ เปิดบิลแล้ว
+					$rt 						= updateTemp(4, 2, $id_order, $id_pa, $qty);
+					$ra 						= update_buffer_zone($new_qty, $id_product, $id_pa, $id_order, $from_zone, $id_warehouse, $id_employee);
+					$rb 						= stock_movement("out", 2, $id_pa, $id_warehouse, $qty, $order->reference, $date_upd, $from_zone);
+					$rc 						= update_stock_zone($qty, $id_zone, $id_pa);
+					$re 						= stock_movement("in", 1, $id_pa, 2, $qty, $order->reference, $date_upd, $id_zone);
+					if( $ra !== TRUE || $rb !== TRUE || $rc !== TRUE || $re !== TRUE ){ $success = FALSE; }
+				}
+			
+			}
+			
+		}
+		else
+		{		
+				$qs = dbQuery("SELECT tbl_qc.id_product_attribute, SUM(tbl_qc.qty) AS qty, id_zone, id_warehouse FROM tbl_qc JOIN tbl_temp ON tbl_qc.id_temp = tbl_temp.id_temp WHERE tbl_qc.id_order = ".$id_order." AND valid = 1 GROUP BY tbl_qc.id_product_attribute, tbl_temp.id_zone");
+		
+			while( $row = dbFetchArray($qs) )
+			{
+				set_time_limit(60);
+				$id_product_attribute = $row['id_product_attribute']; 
+				$qty = $row['qty'];
+				$date_upd = dbDate($order->date_add, TRUE);
+				$new_qty = $qty*(-1);
+				$from_zone = $row['id_zone'];
+				$id_warehouse = $row['id_warehouse'];
+				$product = new product();
+				$id_product = $product->getProductId($id_product_attribute);
+				$ra = updateTemp(4, 2, $id_order, $id_product_attribute, $qty);
+				$rb = update_buffer_zone($new_qty, $id_product, $id_product_attribute, $id_order, $from_zone, $id_warehouse, $id_employee);
+				$rc = stock_movement("out", 3, $id_product_attribute, $id_warehouse, $qty, $order->reference, $date_upd, $from_zone);
+				if( $ra !== TRUE || $rb !== TRUE || $rc !== TRUE ){ $success = FALSE; }
+			}
+			$rs = order_sold($id_order);
+			if( $rs !== TRUE ){ $success = FALSE; }
+		}
+		
+		if($order->role == 7)
+		{
+			$order_amount 		=  $order->getCurrentOrderAmount($id_order);		/// ตรวจสอบยอดเงินสั่งซื้อ
+			$qc_amount 			= $order->qc_amount($id_order);							/// ตรวจสอบยอดเงินที่ qc ได้
+			if($order_amount != $qc_amount)
+			{											/// ถ้าไม่เท่ากันให้ทำการปรับปรุงยอดงบประมาณคงเหลือ
+				$id_budget 			= get_id_support_budget_by_order($id_order);
+				$amount 				= $order_amount - $qc_amount;							/// ยอดต่างระหว่างยอดเงินสั่งซื้อ กับ ยอดเงิน qc 
+				$balance 			= get_support_balance($id_budget);						/// ดึงยอดงบประมาณคงเหลือขึ้นม
+				$balance 			+= $amount;													/// บวกยอดต่างกลับเข้าไป กรณีที่ ยอดสั่งมากกว่ายอด qc ต้องคืนยอดต่างกลับเข้างบ
+				update_support_balance($id_budget, $balance);					///  ปรับปรุงยอดงบประมาณคงเหลือ
+			}		
+			update_order_support_amount($id_order, $qc_amount);			/// ปรับปรุงยอดออเดอร์ใน order_support
+			update_order_support_status($id_order, 1); 						/// อัพเดท สภานะของ order_support  0 = notvalid /  1 = valid / 2 = cancle
+		}
+		
+		
+		if($order->role == 4)
+		{
+			$order_amount 		=  $order->getCurrentOrderAmount($id_order); 	/// ตรวจสอบยอดเงินสั่งซื้อ
+			$qc_amount = $order->qc_amount($id_order);							/// ตรวจสอบยอดเงินที่ qc ได้
+			if($order_amount != $qc_amount)
+			{											/// ถ้าไม่เท่ากันให้ทำการปรับปรุงยอดงบประมาณคงเหลือ
+				$id_budget 			= get_id_sponsor_budget_by_order($id_order);	
+				$amount 				= $order_amount - $qc_amount;							/// ยอดต่างระหว่างยอดเงินสั่งซื้อ กับ ยอดเงิน qc 
+				$balance 			= get_sponsor_balance($id_budget);						/// ดึงยอดงบประมาณคงเหลือขึ้นมา
+				$balance 			+= $amount;													/// บวกยอดต่างกลับเข้าไป กรณีที่ ยอดสั่งมากกว่ายอด qc ต้องคืนยอดต่างกลับเข้างบ
+				update_sponsor_balance($id_budget, $balance);					///  ปรับปรุงยอดงบประมาณคงเหลือ
+			}
+			update_order_sponsor_amount($id_order, $qc_amount);			/// ปรับปรุงยอดออเดอร์ใน order_sponsor
+			update_order_sponsor_status($id_order, 1); 						///  อัพเดทสถานะของ order_sponsor  0 = notvalid /  1 = valid / 2 = cancle
+		}
+			
+		if( $order->role == 3)
+		{
+			$rs = update_lend_qty($id_order);
+			if( $rs !== TRUE ){ $success = FALSE; }					
+		}
+			
+		clear_buffer($id_order); /// เคลียร์ buffer กรณีจัดขาดจัดเกินหรือแก้ไขออเดอร์ที่จัดแล้วเหลือสินค้าที่จัดแล้วค้างอยู่ที่ Buffer ให้ย้ายไปอยู่ใน cancle แทน
+			
+		if( $success === TRUE )
+		{  
+			commitTransection();		
+			endTransection();
+		}
+		else
+		{
+			dbRollback();	
+			endTransection();
+			dbQuery("UPDATE tbl_order SET current_state = 10 WHERE id_order = ".$id_order);
+			dbQuery("DELETE FROM tbl_order_state_change WHERE id_order = ".$id_order." AND id_order_state = 9 AND id_employee = ".$id_employee);
+			$sc = "ทำรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+		}
 	}
-	
-	echo $message;
+	echo $sc;
 }
-
-
 
 
 

@@ -824,4 +824,15 @@ function isVisual($id_pa){
     }
     return $sc;
 }
+
+function getBarcode($id_pa)
+{
+	$sc = "";
+	$qs = dbQuery("SELECT barcode FROM tbl_product_attribute WHERE id_product_attribute = ".$id_pa);
+	if( dbNumRows($qs) == 1 )
+	{
+		list( $sc ) = dbFetchArray($qs);
+	}
+	return $sc;
+}
 ?>

@@ -331,6 +331,10 @@ switch($page){
 			$content = "report/product_backlog_by_supplier.php";
 			$pageTitle = "รายงานสินค้าค้างรับ แยกตามผู้ขาย";
 			break;
+		case 'product_backlog' :
+			$content = 'report/product_backlog.php';
+			$pageTitle = 'รายงานสินค้าค้างรับแบบละเอียด';
+			break;
 	//*****  รายงานติดตาม  *****//
 		case "stock_backlogs":
 			$content = "report/stock_backlogs.php";

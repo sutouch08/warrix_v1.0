@@ -131,7 +131,8 @@
                      <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ระบบซื้อ</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=po_backlog"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ใบสั่งซื้อค้างรับ แยกตามผู้ขาย</a></li>
-                            <li><a href="index.php?content=product_backlog_by_supplier"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สินค้าค้างรับ แยกตามผู้ขาย</a></li>
+                            <li><a href="index.php?content=product_backlog_by_supplier"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สค้างรับแยกตามผู้ขาย แสดงรุ่นสินค้าและเลขที่เอกสาร</a></li>
+                            <li><a href="index.php?content=product_backlog"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สินค้าค้างรับ แบบละเอียด</a></li>
                             <li class="divider"></li>
                         	<li><a href="index.php?content=sale_summary"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สรุปสินค้าค้างรับ แยกตามเลขที่เอกสาร(ห้ามใช้)</a></li>
                             <li><a href="index.php?content=product_summary_backlog_by_product"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สรุปสินค้าค้างรับ แยกตามรุ่นสินค้า</a></li>

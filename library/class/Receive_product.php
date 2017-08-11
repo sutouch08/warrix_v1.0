@@ -165,11 +165,13 @@ public function roll_back_action($id)
 
 public function get_items($id)
 {
-	$qs 	= "SELECT id_receive_product_detail, id_receive_product, tbl_receive_product_detail.id_product, tbl_receive_product_detail.id_product_attribute, qty, id_warehouse, id_zone, id_employee, tbl_receive_product_detail.date_add, ";
-	$qs	.= "tbl_receive_product_detail.date_upd, tbl_receive_product_detail.status ";
-	$qs	.= "FROM tbl_receive_product_detail LEFT JOIN tbl_product_attribute ON tbl_receive_product_detail.id_product_attribute = tbl_product_attribute.id_product_attribute LEFT JOIN tbl_size ON tbl_product_attribute.id_size = tbl_size.id_size ";
-	$qs	.= "LEFT JOIN tbl_attribute ON tbl_product_attribute.id_attribute = tbl_attribute.id_attribute ";
-	$qs 	.= "WHERE id_receive_product = ".$id." ORDER BY tbl_receive_product_detail.id_product ASC, tbl_product_attribute.id_color ASC, tbl_size.position ASC, tbl_attribute.position ASC";
+	$qs 	= "SELECT rd, id_receive_product, rd.id_product, rd.id_product_attribute, rd.qty, rd.id_warehouse, rd.id_zone, rd.id_employee, rd.date_add, ";
+	$qs	.= "rd.date_upd, rd.status ";
+	$qs	.= "FROM tbl_receive_product_detail AS rd ";
+	$qs 	.= "LEFT JOIN tbl_product_attribute AS p ON rd.id_product_attribute = p.id_product_attribute ";
+	$qs 	.= "LEFT JOIN tbl_size AS s ON p.id_size = s.id_size ";
+	$qs	.= "LEFT JOIN tbl_attribute AS a ON p.id_attribute = a.id_attribute ";
+	$qs 	.= "WHERE rd.id_receive_product = ".$id." ORDER BY rd.id_product ASC, p.id_color ASC, s.position ASC, a.position ASC";
 	$qs 	= dbQuery($qs);
 	return $qs;
 }

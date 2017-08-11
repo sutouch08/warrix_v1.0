@@ -189,10 +189,11 @@
         <th style='width:10%; text-align:center;'>จากโซน</th>
 	</thead>
 <?php    
-	//$qs = dbQuery("SELECT SUM(qty) AS qty, id_product_attribute FROM tbl_qc WHERE id_order = ".$id_order." AND valid = 1 GROUP BY id_product_attribute ORDER BY id_product_attribute ASC ");
+	
 	$qs = "SELECT SUM(qty) AS qty, tbl_qc.id_product_attribute AS id_pa, product_reference AS reference, product_name, barcode ";
 	$qs .= "FROM tbl_qc ";
 	$qs .= "JOIN tbl_order_detail ON tbl_qc.id_product_attribute = tbl_order_detail.id_product_attribute ";
+	$qs .= "AND tbl_qc.id_order = tbl_order_detail.id_order ";
 	$qs .= "WHERE tbl_qc.id_order = ".$id_order." AND valid = 1 GROUP BY tbl_qc.id_product_attribute ORDER BY tbl_qc.id_product_attribute ASC";
 	$qs = dbQuery($qs);
 	$n=0;

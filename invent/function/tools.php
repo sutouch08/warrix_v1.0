@@ -2325,6 +2325,7 @@ function rollback_consign($id_order)
 	$reference = get_order_reference($id_order);
 	$id_emp		= getCookie('user_id') == FALSE ? 0 : getCookie('user_id');
 	$qs = dbQuery("SELECT * FROM tbl_stock_movement WHERE reference = '".$reference."'"); 
+	//------ ถ้ามีการบันทึกเรียบร้อย
 	if(dbNumRows($qs) > 0 )
 	{
 		while($rs = dbFetchArray($qs) )
@@ -2348,6 +2349,23 @@ function rollback_consign($id_order)
 			
 			if( ! $rc ){ $sc = FALSE; }
 		}
+	}
+	else
+	{
+		//------------- ถ้าบันทึกไม่ผ่านให้ไปดูที่ cancle และ buffer
+		$qs = dbQuery("SELECT * FROM tbl_cancle WHERE id_order = ".$id_order);
+		if( dbNumRows($qs) > 0 )
+		{
+			while( $rs = dbFetchObject($qs) )
+			{
+				$rd = update_buffer_zone($rs->qty, $rs->id_product, $rs->id_product_attribute, $rs->id_order, $rs->id_zone, $rs->id_warehouse, $rs->id_employee);
+				if( $rd === TRUE )
+				{
+					dbQuery("DELETE FROM tbl_cancle WHERE id_order = ".$rs->id_order." AND id_product_attribute = ".$rs->id_product_attribute." AND id_zone = ".$rs->id_zone." AND qty = ".$rs->qty);	
+				}
+			}
+		}
+		
 	}
 	return $sc;
 }
@@ -2636,6 +2654,7 @@ function sold_product($id_order, $id_pa, $qty)
 	$id_sale	= get_id_sale_by_customer($id_cus);
 	$role		= $order->role;
 	$id_emp	= $order->id_employee;
+	$date_upd = dbDate($order->date_add, TRUE);
 	
 	$sc	= TRUE;
 	$ds		= get_detail_from_order($id_order, $id_pa); /// ตรวจสอบว่ามีสินค้านี้อยูทในออเดอร์หรือป่าว
@@ -2658,10 +2677,10 @@ function sold_product($id_order, $id_pa, $qty)
 		$qr = "INSERT INTO tbl_order_detail_sold ";
 		$qr .= "(id_order, reference, id_role, id_customer, id_employee, id_sale, id_product, ";
 		$qr .= "id_product_attribute, product_name, product_reference, barcode, product_price, ";
-		$qr .= "order_qty, sold_qty, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, cost, total_cost)";
+		$qr .= "order_qty, sold_qty, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, date_upd, cost, total_cost)";
 		$qr .= " VALUES ";
 		$qr .= "(".$id_order.", '".$ref."', ".$role.", ".$id_cus.", ".$id_emp.", ".$id_sale.", ".$id_pd.", ".$id_pa.", '".$p_name."', '".$p_ref."', '".$barcode."', ";
-		$qr .= $price.", ".$order_qty.", ".$qty.", ".$p_dis.", ".$a_dis.", ".$dis_amount.", ".$final_price.", ".$total_amount.", ".$cost.", ".$total_cost.")";		
+		$qr .= $price.", ".$order_qty.", ".$qty.", ".$p_dis.", ".$a_dis.", ".$dis_amount.", ".$final_price.", ".$total_amount.", '".$date_upd."', ".$cost.", ".$total_cost.")";		
 		$sc = dbQuery($qr);
 	}
 	else
@@ -2684,6 +2703,7 @@ function order_sold($id_order)
 	$id_sale	= get_id_sale_by_customer($id_cus);
 	$role		= $order->role;
 	$id_emp	= $order->id_employee;
+	$date_upd = dbDate($order->date_add, TRUE);
 	
 	$result	= TRUE;
 	
@@ -2724,10 +2744,10 @@ function order_sold($id_order)
 				$qr = "INSERT INTO tbl_order_detail_sold ";
 				$qr .= "(id_order, reference, id_role, id_customer, id_employee, id_sale, id_product, ";
 				$qr .= "id_product_attribute, product_name, product_reference, barcode, product_price, ";
-				$qr .= "order_qty, sold_qty, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, cost, total_cost)";
+				$qr .= "order_qty, sold_qty, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, date_upd, cost, total_cost)";
 				$qr .= " VALUES ";
 				$qr .= "(".$id_order.", '".$ref."', ".$role.", ".$id_cus.", ".$id_emp.", ".$id_sale.", ".$id_pd.", ".$id_pa.", '".$p_name."', '".$p_ref."', '".$barcode."', ";
-				$qr .= $price.", ".$order_qty.", ".$qty.", ".$p_dis.", ".$a_dis.", ".$dis_amount.", ".$final_price.", ".$total_amount.", ".$cost.", ".$total_cost.")";
+				$qr .= $price.", ".$order_qty.", ".$qty.", ".$p_dis.", ".$a_dis.", ".$dis_amount.", ".$final_price.", ".$total_amount.", '".$date_upd."', ".$cost.", ".$total_cost.")";
 				
 				$sc = dbQuery($qr);
 				if( ! $sc )

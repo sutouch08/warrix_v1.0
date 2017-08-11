@@ -7,6 +7,33 @@ require "../../function/report_helper.php";
 require "../../function/po_helper.php";
 
 //-------------------------------------( รายงานสินค้าค้างรับ แยกตามผู้ขาย แสดงใบสั่งซื้อ ) ----------------------------------//
+//------------ Get Report product backlog 
+if( isset( $_GET['productBacklog'] ) && isset( $_GET['report'] ) )
+{
+	if( $_POST['viewOption'] == 1 )
+	{
+		include 'report/reportProductBacklogByItems.php';	
+	}
+	else
+	{
+		include 'report/reportProductBacklogByProducts.php';	
+	}
+}
+
+
+if( isset( $_GET['productBacklog'] ) && isset( $_GET['export'] ) )
+{
+	if( $_GET['viewOption'] == 1 )
+	{
+		include 'export/exportProductBacklogByItems.php';	
+	}
+	else
+	{
+		include 'export/exportProductBacklogByProducts.php';	
+	}	
+}
+
+
 //----------- Get Report product backlog by supplier -----------------------//
 if( isset( $_GET['productBacklogBySupplier'] ) && isset( $_GET['report'] ) )
 {

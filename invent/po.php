@@ -43,7 +43,9 @@
 		$btn .= "<button type='button' class='btn btn-info btn-sm' onclick='print_po()' ><i class='fa fa-print'></i>&nbsp; พิมพ์</button>"; 
 		$btn .= "<button type='button' class='btn btn-info btn-sm' onclick='print_barcode()' ><i class='fa fa-barcode'></i>&nbsp; พิมพ์</button>"; 
 	}else{
+		$btn .= '<button type="button" class="btn btn-sm btn-info" onclick="updateReceived()"><i class="fa fa-retweet"></i> &nbsp; คำนวนยอดรับสินค้าใหม่</button>';
 		if($add){ $btn .= "<button type='button' class='btn btn-success btn-sm' onclick='add()' ><i class='fa fa-plus'></i>&nbsp; เพิ่มใหม่</button>"; }
+		
 	}
   
 	?>
@@ -1629,6 +1631,17 @@ function close_po()
 	});
 }
 
+function updateReceived(){
+	load_in();
+	$.ajax({
+		url:"controller/poController.php?updateReceivedQty",
+		type:"GET", cache:"false",
+		success: function(rs){
+			load_out();
+			swal({ title: 'Updated', text: 'ปรับปรุงยอดรับสินค้าเรียบร้อยแล้ว', type: 'success', timer: 1000 });
+		}
+	});
+}
 
 </script>
 </div><!--- container -->

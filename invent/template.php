@@ -9,6 +9,24 @@ if( isset( $_POST['get_rows'] ) )
 	createCookie('get_rows', $_POST['get_rows'], 3600*24*60);	
 }
 
+function get_rows()
+{
+	$get_rows 	= isset( $_POST['get_rows'] ) ? $_POST['get_rows'] : ( getCookie('get_rows') ? getCookie('get_rows') : 50);
+	return $get_rows;
+}
+
+function get_page()
+{
+	$page	= isset( $_GET['Page'] ) ? $_GET['Page'] : 1;
+	return $page;
+}
+
+function row_no()
+{
+	$no	= (get_rows() * (get_page() -1)) + 1 ;	
+	return $no;	
+}
+
 	
 ?>
 <!DOCTYPE HTML>

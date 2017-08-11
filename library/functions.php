@@ -637,7 +637,7 @@ function stock_movement($type, $reason, $id, $id_wh, $qty, $reference, $date_upd
 			$qr = dbQuery("INSERT INTO tbl_stock_movement (id_reason, id_product_attribute,id_warehouse, move_out, reference, date_upd, id_zone) VALUES (".$reason.", ".$id.", ".$id_wh.", ".$qty.", '".$reference."', '".$date_upd."', ".$id_zone.")");
 		}
 	}
-	drop_zero_movement();
+	//drop_zero_movement();
 	return $qr;	
 }
 

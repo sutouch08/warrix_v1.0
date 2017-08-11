@@ -379,12 +379,32 @@ function process_bill_discount() /// inspected discount value
 	}
 }
 
-function save_iv(){
+/*function save_iv(){
 	load_in();
 	$("#iv_button").attr("disabled","disabled");
 	var id_order = $("#id_order").val();
 	var id_employee = $("#id_employee").val();
 	window.location.href = "controller/billController.php?confirm_order&id_order="+id_order+"&id_employee="+id_employee;
+}*/
+
+function save_iv(){
+	var id_order = $("#id_order").val();
+	var id_employee = $("#id_employee").val();
+	load_in();
+	$.ajax({
+		url:"controller/billController.php?confirm_order&id_order="+id_order+"&id_employee="+id_employee,
+		type:"GET", cache:"false",
+		success: function(rs){
+			load_out();
+			var rs = $.trim(rs);
+			if( rs == 'success' ){
+				swal({ title: 'สำเร็จ', text: 'บันทึกเอกสารเรียบร้อยแล้ว', type: 'success', timer: 1000 });
+				setTimeout(function(){ window.location.reload(); }, 1200);
+			}else{
+				swal('ข้อผิดพลาด !', rs, 'error');
+			}
+		}
+	});
 }
 
 function valid_password(){

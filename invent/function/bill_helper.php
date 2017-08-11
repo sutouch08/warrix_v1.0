@@ -105,9 +105,9 @@ function getConsignmentIdZone($id_order)
 
 
 //----------------------------  เปลี่นสถานะใน temp ใช้ในการเปิดบิล
-function updateTemp($status, $id_order, $id_pa, $limit)
+function updateTemp($status, $current_status, $id_order, $id_pa, $limit)
 {
-	return dbQuery("UPDATE tbl_temp SET status = ".$status." WHERE id_temp IN( SELECT id_temp FROM (SELECT id_temp FROM tbl_temp WHERE id_order = ".$id_order." AND id_product_attribute = ".$id_pa." LIMIT ".$limit.") tmp)"); 	
+	return dbQuery("UPDATE tbl_temp SET status = ".$status." WHERE id_order = ".$id_order." AND id_product_attribute = ".$id_pa." AND status = ".$current_status." LIMIT ".$limit);
 }
 
 

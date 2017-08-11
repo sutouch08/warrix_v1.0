@@ -523,6 +523,28 @@ if( isset( $_GET['getZone'] ) && isset( $_REQUEST['term'] ) )
 	echo json_encode($ds);
 }
 
+
+//------------- Transfer
+if( isset( $_GET['getTransferZone'] ) && isset( $_REQUEST['term'] ) )
+{
+	$id_wh = $_GET['id_warehouse'];
+	$qs = dbQuery("SELECT id_zone, zone_name FROM tbl_zone WHERE id_warehouse = ".$id_wh." AND zone_name LIKE '%".$_REQUEST['term']."%' ORDER BY zone_name ASC");
+	if( dbNumRows($qs) > 0 )
+	{
+		while( $rs = dbFetchObject($qs) )
+		{
+			$ds[] = $rs->zone_name.' | '.$rs->id_zone;	
+		}
+	}
+	else
+	{
+		$ds[] = 'ไม่พบข้อมูล';	
+	}
+	
+	echo json_encode($ds);
+}
+
+
 /********************* รายชื่อผู้จัดส่ง *********************/
 if( isset( $_GET['get_sender'] ) )
 {

@@ -3,6 +3,27 @@ require "../../library/config.php";
 require "../../library/functions.php";
 require "../function/tools.php";
 
+
+if( isset( $_GET['updateReceivedQty'] ) )
+{
+	$qr = "SELECT r.id_po, rd.id_product_attribute, SUM( rd.qty) AS received ";
+	$qr .= "FROM tbl_receive_product_detail AS rd ";
+	$qr .= "JOIN tbl_receive_product AS r USING( id_receive_product ) ";
+	$qr .= "GROUP BY r.id_po, rd.id_product_attribute";
+	
+	$qs = dbQuery($qr);
+	if( dbNumRows($qs) > 0 )
+	{
+		while( $rs = dbFetchObject($qs) )
+		{
+			$qa = dbQuery("UPDATE tbl_po_detail SET received = ".$rs->received." WHERE id_po = ".$rs->id_po." AND id_product_attribute = ".$rs->id_product_attribute);
+		}
+	}
+	echo 'updated';
+}
+
+
+
 if( isset( $_GET['get_role_detail'] ) && isset( $_POST['id_po_role'] ) )
 {
 	$qs = dbQuery("SELECT * FROM tbl_po_role WHERE id_po_role = ".$_POST['id_po_role']);
