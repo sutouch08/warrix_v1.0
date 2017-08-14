@@ -3,7 +3,8 @@ require "../../library/config.php";
 require "../../library/functions.php";
 require "../function/tools.php";
 require "../function/bill_helper.php";
-
+include "../function/support_helper.php";
+include "../function/sponsor_helper.php";
 
 
 if( isset($_GET['check_order_state']) && isset($_GET['id_order']) )

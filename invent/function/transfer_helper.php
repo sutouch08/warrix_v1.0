@@ -1,4 +1,56 @@
 <?php
+function validTransferDetail($id_tranfer_detail, $id_zone_to)
+{
+	$sc = TRUE;
+	$qr = dbQuery("SELECT * FROM tbl_tranfer_detail WHERE id_tranfer_detail = ".$id_tranfer_detail." AND ( id_zone_to = 0 OR id_zone_to = ".$id_zone_to." ) AND valid = 0");
+	if( dbNumRows($qr) == 1 )
+	{
+		$rs = dbFetchObject($qr);
+		if( $rs->id_zone_to == 0 )
+		{
+			dbQuery("UPDATE tbl_tranfer_detail SET id_zone_to = ".$id_zone_to." WHERE id_tranfer_detail = ".$id_tranfer_detail);	
+		}
+		
+		$qs = dbQuery("SELECT qty FROM tbl_tranfer_temp WHERE id_tranfer_detail = ".$id_tranfer_detail);
+		
+		if( dbNumRows($qs) == 0 )
+		{
+			$sc = dbQuery("UPDATE tbl_tranfer_detail SET valid = 1 WHERE id_tranfer_detail = ".$id_tranfer_detail);
+		}
+		else
+		{
+			list( $qty ) = dbFetchArray($qs);
+			if( $qty == 0 )
+			{
+				$sc = dbQuery("UPDATE tbl_tranfer_detail SET valid = 1 WHERE id_tranfer_detail = ".$id_tranfer_detail);
+			}
+		}
+	}
+	else
+	{
+		$sc = FALSE;	
+	}
+	return $sc;
+}
+
+function updateTransferTemp($id_tranfer_detail, $qty)
+{
+	$tempQty = 0;
+	$qs = dbQuery("SELECT qty FROM tbl_tranfer_temp WHERE id_tranfer_detail = ".$id_tranfer_detail);
+	if( dbNumRows($qs) == 1 )
+	{
+		list( $tempQty ) = dbFetchArray($qs);
+		$tempQty += $qty;
+	}
+	if( $tempQty == 0 )
+	{
+		return dbQuery("DELETE FROM tbl_tranfer_temp WHERE id_tranfer_detail = ".$id_tranfer_detail);
+	}
+	else
+	{
+		return dbQuery("UPDATE tbl_tranfer_temp SET qty = qty + ".$qty." WHERE id_tranfer_detail = ".$id_tranfer_detail);
+	}
+}
 
 function isEnough($id_zone, $id_pa, $qty){
 	$sc = FALSE;

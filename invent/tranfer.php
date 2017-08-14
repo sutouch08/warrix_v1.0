@@ -26,9 +26,6 @@
     <?php if( isset( $_GET['add'] ) OR isset( $_GET['edit'] ) OR isset( $_GET['view_detail'] ) ) : ?>
     			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
     <?php endif; ?>    
-    <?php if( isset( $_GET['view_detail'] ) ) : ?>
-    			<button type="button" class="btn btn-sm btn-info" onclick="printTransfer()"><i class="fa fa-print"></i> พิมพ์</button>
-    <?php endif; ?>
             </p>
         </div>
     </div><!--/ row -->
@@ -37,7 +34,14 @@
 <?php 
 	if( isset( $_GET['add'] ) OR isset( $_GET['edit'] ) )
 	{
-		include 'include/transfer_add.php';
+		if( isset( $_GET['barcode'] ) )
+		{
+			include 'include/transfer_add_barcode.php';
+		}
+		else
+		{
+			include 'include/transfer_add.php';
+		}
 	}
 	else if( isset( $_GET['view_detail'] ) )
 	{
@@ -51,3 +55,4 @@
 </div><!--/ container -->
 
 <script src="script/transfer.js"></script>
+<script src="../library/js/beep.js"></script>

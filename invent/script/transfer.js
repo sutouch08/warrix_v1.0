@@ -1,4 +1,124 @@
 // JavaScript Document
+
+function getMoveOut(){
+	$(".moveIn-zone").addClass('hide');
+	$(".moveOut-zone").removeClass('hide');
+	$(".control-btn").addClass('hide');	
+	$("#moveIn-input").addClass('hide');
+	$("#transfer-table").addClass('hide');
+	$("#fromZone-barcode").focus();
+}
+
+function getMoveIn(){
+	$(".moveIn-zone").removeClass('hide');
+	$(".moveOut-zone").addClass('hide');
+	$(".control-btn").addClass('hide');	
+	hideTransferTable();
+	getTempTable();
+	showTempTable();
+	$("#toZone-barcode").focus();
+}
+
+$("#barcode-item-from").keyup(function(e) {
+    if( e.keyCode == 13 ){
+		var id_zone_from	= $("#id_zone_from").val();
+		var id_tranfer = $("#id_tranfer").val();
+		if( id_zone_from.length == 0 ){
+			swal("กรุณาระบุโซนปลายทาง");
+			return false;
+		}
+		
+		var qty = parseInt($("#qty-from").val());
+		
+		var udz = ($("#underZero").is(':checked') == true ? 1 : 0 );
+		var barcode = $(this).val();
+		var curQty	= parseInt($("#qty_"+barcode).val());
+		console.log(qty);
+		console.log(curQty);
+		$(this).val('');
+		
+		if( qty != '' && qty != 0 ){
+			if( qty <= curQty || udz == 1 ){
+				$.ajax({
+					url:"controller/tranferController.php?addBarcodeToTransfer",
+					type:"POST", cache:"false", data:{"id_tranfer" : id_tranfer, "id_zone_from" : id_zone_from, "qty" : qty, "barcode" : barcode, "underZero" : udz },
+					success: function(rs){
+						var rs = $.trim(rs);
+						if( rs == 'success'){
+							curQty = curQty - qty;
+							$("#qty-label_"+barcode).text(curQty);
+							$("#qty_"+barcode).val(curQty);
+							$("#qty-from").val(1);
+							$("#barcode-item-from").focus();
+						}else{
+							swal("ข้อผิดพลาด", rs, "error");	
+						}
+					}
+				});
+			}else{
+				swal("จำนวนในโซนไม่เพียงพอ");	
+			}
+		}
+	}
+});
+
+
+$("#barcode-item-to").keyup(function(e) {
+    if( e.keyCode == 13 ){
+		var barcode = $(this).val();
+		var id_zone_to	= $("#id_zone_to").val();
+		var id_tranfer = $("#id_tranfer").val();
+		var id_tranfer_detail = $("#row_"+barcode).val();
+		if( id_zone_to.length == 0 ){
+			swal("กรุณาระบุโซนปลายทาง");
+			return false;
+		}
+		
+		var qty = parseInt($("#qty-to").val());
+
+		var curQty	= parseInt($("#qty-"+barcode).val());
+		
+		$(this).val('');
+		
+		if( isNaN(curQty) ){
+			swal("สินค้าไม่ถูกต้อง");
+			return false;	
+		}
+		
+		console.log(qty);
+		console.log(curQty);
+		
+		
+		if( qty != '' && qty != 0 ){
+			if( qty <= curQty ){
+				$.ajax({
+					url:"controller/tranferController.php?moveBarcodeToZone",
+					type:"POST", cache:"false", data:{"id_tranfer_detail" : id_tranfer_detail, "id_tranfer" : id_tranfer, "id_zone_to" : id_zone_to, "qty" : qty, "barcode" : barcode },
+					success: function(rs){
+						var rs = $.trim(rs);
+						if( rs == 'success'){
+							curQty = curQty - qty;
+							if(curQty == 0 ){
+								$("#row-temp-"+id_tranfer_detail).remove();
+							}else{
+								$("#qty-label-"+barcode).text(curQty);
+								$("#qty-"+barcode).val(curQty);
+							}
+							$("#qty-to").val(1);
+							$("#barcode-item-to").focus();
+						}else{
+							swal("ข้อผิดพลาด", rs, "error");	
+						}
+					}
+				});
+			}else{
+				swal("จำนวนในโซนไม่เพียงพอ");	
+			}
+		}
+	}
+});
+
+
 function deleteTransfer(id_tranfer, reference){
 	swal({
 		title: 'คุณแน่ใจ ?',
@@ -132,7 +252,7 @@ function move_in(id_tranfer_detail, id_zone_from){
 		},success: function(rs){
 			var rs = $.trim(rs);
 			if( rs == 'success' ){
-				$("#row-label-"+id_tranfer_detail).text($("#toZone").val());	
+				$("#row-label-"+id_tranfer_detail).text($("#zoneName-label").text());	
 			}else{
 				swal("ข้อผิดพลาด !", rs, "error");	
 			}
@@ -164,7 +284,21 @@ function getTransferTable(){
 }
 
 
-
+function getTempTable(){
+	var id_tranfer = $("#id_tranfer").val();
+	$.ajax({
+		url:"controller/tranferController.php?getTempTable",
+		type:"GET", cache:"false",data:{ "id_tranfer" : id_tranfer },
+		success: function(rs){
+			if( isJson(rs) ){
+				var source 	= $("#tempTableTemplate").html();
+				var data		= $.parseJSON(rs);
+				var output	= $("#temp-list");
+				render(source, data, output);
+			}
+		}
+	});
+}
 
 
 //------------  เพิ่มรายการลงใน tranfer detail แล้ว เพิ่มลงใน tranfer_temp  และ update stock ตามรายการที่ใส่ตัวเลข
@@ -172,15 +306,29 @@ function addToTransfer(){
 	var id_tranfer	= $("#id_tranfer").val();
 	var id_zone		= $("#id_zone_from").val();
 	var count = countInput();
+	var id_tranfer	= $("#id_tranfer").val();
+	var id_zone		= $("#id_zone_from").val();
+	var ds = [];
+	$('.input-qty').each(function(index, element) {
+        var qty = $(this).val();
+		var arr = $(this).attr('id').split('_');
+		var id = arr[1];
+		var pa = $("#id_pa_"+id);
+		var udz = $("#underZero_"+id);
+		if( qty != '' && qty != 0 ){
+			ds.push({ "name" : $(this).attr('name'), "value" : qty });
+			ds.push({ "name" : pa.attr('name'), "value" : pa.val() });
+			ds.push({ "name" : udz.attr('name'), "value" : (udz.is(':checked') == true ? 1 : 0) });
+		}
+    });
 	if( count > 0 ){
 		$.ajax({
 			url:"controller/tranferController.php?addToTransfer&id_tranfer="+id_tranfer+"&id_zone="+id_zone,
-			type:"POST", cache:"false", data: $("#productForm").serializeArray() ,
+			type:"POST", cache:"false", data: ds ,
 			success: function(rs){
 				var rs = $.trim(rs);
 				if( rs == 'success' ){
 					swal({title: 'success', text: 'เพิ่มรายการเรียบร้อยแล้ว', type: 'success', timer: 1000 });
-					getTransferTable();
 					setTimeout( function(){ showTransferTable(); }, 1200);
 				}else{
 					swal("ข้อผิดพลาด", "เพิ่มรายการไม่สำเร็จ", "error");	
@@ -191,8 +339,6 @@ function addToTransfer(){
 		swal('ข้อผิดพลาด !', 'กรุณาระบุจำนวนในรายการที่ต้องการย้าย อย่างน้อย 1 รายการ', 'warning');
 	}
 }
-
-
 
 
 
@@ -217,7 +363,6 @@ function addAllToTransfer(){
 				var rs = $.trim(rs);
 				if( rs == 'success' ){
 					swal({title: 'success', text: 'เพิ่มรายการเรียบร้อยแล้ว', type: 'success', timer: 1000 });
-					getTransferTable();
 					setTimeout( function(){ showTransferTable(); }, 1200);
 				}else{
 					swal("ข้อผิดพลาด", "เพิ่มรายการไม่สำเร็จ", "error");	
@@ -273,12 +418,12 @@ function validQty(id, qty){
 function getProductInZone(){
 	var id_zone = $("#id_zone_from").val();
 	if( id_zone.length > 0 ){
-		load_in();
+		//load_in();
 		$.ajax({
 			url:"controller/tranferController.php?getProductInZone&id_zone="+id_zone,
 			type:"GET", cache:"false",
 			success: function(rs){
-				load_out();
+				//load_out();
 				var rs = 	$.trim(rs);
 				if( isJson(rs) ){
 					var source = $("#zoneTemplate").html();
@@ -337,20 +482,158 @@ $("#toZone").autocomplete({
 
 
 $("#fromZone").keyup(function(e) {
+    if( e.keyCode == 13 ){	
+		setTimeout(function(){ getProductInZone(); }, 100);				
+	}
+});
+
+function newFromZone(){
+	$("#id_zone_from").val("");
+	$("#fromZone-barcode").val("");
+	$("#zone-table").addClass('hide');
+	$("#fromZone-barcode").focus();	
+}
+
+function getZoneFrom(){
+	var txt = $("#fromZone-barcode").val();
+	if( txt != ""){
+		var id_wh = $("#id_wh_from").val();
+		$.ajax({
+			url:"controller/tranferController.php?getZone",
+			type:"GET", cache:"false", data:{ "txt" : txt, "id_warehouse" : id_wh},
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( isJson(rs) ){
+					var ds = $.parseJSON(rs);
+					$("#id_zone_from").val(ds.id_zone);
+					$("#zoneName").text(ds.zone_name);
+					$("#fromZone-barcode").val("");
+					getProductInZone();			
+				}else{
+					swal("ข้อผิดพลาด", rs, "error");	
+					$("#id_zone_from").val("");
+					$("#zone-table").addClass('hide');
+					beep();
+				}
+			}
+		});
+	}
+}
+
+$("#fromZone-barcode").keyup(function(e) {
     if( e.keyCode == 13 ){
-		setTimeout(function(){ getProductInZone(); }, 100);
+		getZoneFrom();		
+		setTimeout(function(){ $("#barcode-item-from").focus(); }, 500);
 	}
 });
 
 
 
+
+function newToZone(){
+	$("#id_zone_to").val("");
+	$("#toZone-barcode").val("");
+	$("#zone-table").addClass('hide');
+	$("#toZone-barcode").focus();	
+}
+
+
+
+function getZoneTo(){
+	var txt = $("#toZone-barcode").val();
+	if( txt != ""){
+		var id_wh = $("#id_wh_to").val();
+		$.ajax({
+			url:"controller/tranferController.php?getZone",
+			type:"GET", cache:"false", data:{ "txt" : txt, "id_warehouse" : id_wh},
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( isJson(rs) ){
+					var ds = $.parseJSON(rs);
+					$("#id_zone_to").val(ds.id_zone);
+					$("#zoneName-label").text(ds.zone_name);
+					$("#toZone-barcode").val("");
+					
+				}else{
+					swal("ข้อผิดพลาด", rs, "error");	
+					$("#id_zone_to").val("");
+					$("#zone-table").addClass('hide');
+					beep();
+				}
+			}
+		});
+	}
+}
+
+
+
+
+$("#toZone-barcode").keyup(function(e) {
+    if( e.keyCode == 13 ){
+		getZoneTo();
+		setTimeout(function(){ $("#barcode-item-to").focus(); }, 500);
+	}
+});
+
+
 //------- สลับไปแสดงหน้า tranfer_detail
 function showTransferTable(){
-	$("#zone-table").addClass('hide');
-	$("#transfer-table").removeClass('hide');
+	getTransferTable();
+	hideZoneTable();
+	hideTempTable();
+	showControl();
+	hideMoveIn();
+	hideMoveOut();
+	$("#transfer-table").removeClass('hide');	
 }
-	
 
+
+function hideTransferTable(){
+	$("#transfer-table").addClass('hide');
+}
+
+function showMoveIn(){
+	$(".moveIn-zone").removeClass('hide');
+}
+
+function hideMoveIn(){
+	$(".moveIn-zone").addClass('hide');
+}
+
+function showMoveOut(){
+	$(".moveOut-zone").removeClass('hide');
+}
+
+function hideMoveOut(){
+	$(".moveOut-zone").addClass('hide');
+}
+
+function showControl(){
+	$(".control-btn").removeClass('hide');	
+}
+
+function hideControl(){
+	$(".control-btn").addClass('hide');
+}
+
+function showTempTable(){
+	getTempTable();
+	hideTransferTable();
+	hideZoneTable();
+	$("#temp-table").removeClass('hide');	
+}
+
+function hideTempTable(){
+	$("#temp-table").addClass('hide');
+}
+
+function showZoneTable(){
+	$("#zone-table").removeClass('hide');	
+}
+
+function hideZoneTable(){
+	$("#zone-table").addClass('hide');
+}
 
 function addNew(){
 	var dateAdd = $("#dateAdd").val();
@@ -472,6 +755,10 @@ function goDetail(id){
 
 function getNew(){
 	window.location.href = "index.php?content=tranfer&add";	
+}
+
+function goUseBarcode(id){
+	window.location.href = "index.php?content=tranfer&edit&id_tranfer="+id+"&barcode";	
 }
 
 

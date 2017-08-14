@@ -45,6 +45,10 @@
         <button type="button" class="btn btn-sm btn-success btn-block hide" id="btn-update" onClick="updateHeader(<?php echo $id; ?>)">บันทึก</button>
 <?php endif; ?>
     </div>
+    <div class="col-sm-2">
+    	<label class="display-block not-show">add</label>
+        <button type="button" class="btn btn-sm btn-primary btn-block" onclick="goUseBarcode(<?php echo $id; ?>)"><i class="fa fa-barcode"></i> &nbsp;ใช้บาร์โค้ด</button>
+    </div>
     <input type="hidden" name="id_tranfer" id="id_tranfer" value="<?php echo $id; ?>" />
 </div>
 <hr class="margin-top-15 margin-bottom-15" />
@@ -53,7 +57,7 @@
     <div class="col-sm-4">
     	<div class="input-group">
         	<span class="input-group-addon">โซนต้นทาง</span>
-            <input type="text" class="form-control input-sm" id="fromZone" placeholder="บาร์โค้ดโซน หรือ ชื่อโซน" />
+            <input type="text" class="form-control input-sm" id="fromZone" placeholder="ค้นหาชื่อโซน" />
         </div>
     </div>
     <div class="col-sm-1">
@@ -63,7 +67,7 @@
     <div class="col-sm-4">
     	<div class="input-group">
         	<span class="input-group-addon">โซนปลายทาง</span>
-            <input type="text" class="form-control input-sm" id="toZone" placeholder="บาร์โค้ดโซน หรือ ชื่อโซน" />
+            <input type="text" class="form-control input-sm" id="toZone" placeholder="ค้นหาชื่อโซน" />
         </div>
     </div>
     <div class="col-sm-1 padding-5">
@@ -73,6 +77,7 @@
     <div class="col-sm-2">
     	<button type="button" class="btn btn-sm btn-default btn-block" onclick="showTransferTable()">แสดงรายการ</button>
     </div>
+    
     <input type="hidden" id="id_zone_from" />
     <input type="hidden" id="id_zone_to" />
     <input type="hidden" id="id_wh_from" value="<?php echo $fromWH; ?>" />
@@ -194,7 +199,7 @@
     <td align="center" class="qty-label">{{ qty }}</td>
     <td align="center">
     	<input type="text" class="form-control input-sm text-center input-qty" id="moveQty_{{ id_stock }}" name="moveQty[{{id_stock}}]" onkeyup="validQty({{ id_stock}}, {{ qty }})" />
-		<input type="hidden" name="id_pa[{{ id_stock }}]" value="{{ id_pa }}" />
+		<input type="hidden" name="id_pa[{{ id_stock }}]" id="id_pa_{{ id_stock }}" value="{{ id_pa }}" />
     </td>
     <td align="center">
 <?php if( $delete ) : ?>	

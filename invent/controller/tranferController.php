@@ -5,6 +5,24 @@ require "../function/tools.php";
 include "../function/product_helper.php";
 include "../function/transfer_helper.php";
 
+if( isset( $_GET['getZone'] ) )
+{
+	$txt = $_GET['txt'];
+	$id_wh = $_GET['id_warehouse'];
+	$qs = dbQuery("SELECT * FROM tbl_zone WHERE id_warehouse = ".$id_wh." AND barcode_zone = '".$txt."'");
+	if(dbNumRows($qs) == 1 )
+	{
+		$rs = dbFetchObject($qs);
+		$sc = json_encode(array("id_zone" => $rs->id_zone, "zone_name" => $rs->zone_name));
+	}
+	else
+	{
+		$sc = "ไม่พบโซน";
+	}
+	echo $sc; 
+		
+}
+
 if( isset( $_GET['deleteTranfer'] ) )
 {
 	$sc = 'success';
@@ -285,6 +303,114 @@ if( isset( $_GET['moveToZone'] ) )
 
 
 
+
+
+if( isset( $_GET['moveBarcodeToZone'] ) )
+{
+	$sc = TRUE;
+	$id_tranfer_detail 	= $_POST['id_tranfer_detail'];
+	$id_tranfer 			= $_POST['id_tranfer'];
+	$id_zone_to			= $_POST['id_zone_to'];
+	$qty					= $_POST['qty'];
+	$barcode			= $_POST['barcode'];
+	$id_pa			 	= get_id_product_attribute_by_barcode($barcode);
+	if( $id_pa != 0 )
+	{
+		$cs  		= new transfer($id_tranfer);
+		$qs = dbQuery("SELECT * FROM tbl_tranfer_temp WHERE id_tranfer_detail = ".$id_tranfer_detail." AND id_product_attribute = ".$id_pa);
+		if( dbNumRows($qs) == 1 )
+		{
+		
+			$rs = dbFetchObject($qs);
+			if( $rs->qty >= $qty)
+			{
+				startTransection();
+				//---- move to zone
+				$ra = update_stock_zone($qty, $id_zone_to, $rs->id_product_attribute);
+				
+				//------ Insert stock_movement
+				$rb = stock_movement('out', 2, $rs->id_product_attribute, get_warehouse_by_zone($rs->id_zone), $qty, $cs->reference, $cs->date_add, $rs->id_zone);
+				$rc = stock_movement('in', 1, $rs->id_product_attribute, get_warehouse_by_zone($id_zone_to), $qty, $cs->reference, $cs->date_add, $id_zone_to);
+				
+				//------ update temp
+				$rd = updateTransferTemp($id_tranfer_detail, ($qty * -1) );
+				
+				//-----  Update desination zone and valid
+				$re = validTransferDetail($id_tranfer_detail, $id_zone_to);
+					
+				if( $ra === FALSE || $rb === FALSE || $rc === FALSE || $rd === FALSE || $re === FALSE )
+				{
+					$sc = FALSE;
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+			}///---- if $rs->qty >= $qty
+			
+			
+			if( $sc === TRUE )
+			{
+				commitTransection();	
+			}
+			else
+			{
+				dbRollback();
+			}
+			
+			endTransection();		
+			
+			
+		}
+		else//--- endif dbNumRows == 1
+		{
+			$sc = FALSE;	
+		}//--- endif dbNumRows == 1
+		
+	}
+	else
+	{
+		$sc = FALSE;	
+	}//-- end fi id_pa
+	
+	echo $sc === TRUE ? 'success' : 'ย้ายสินค้าเข้าโซนไม่สำเร็จ';
+}
+
+
+if( isset( $_GET['getTempTable'] ) )
+{
+	$id 	= $_GET['id_tranfer'];
+	$ds 	= array();	
+	$qs 	= dbQuery("SELECT * FROM tbl_tranfer_temp WHERE id_tranfer = ".$id);
+	if( dbNumRows($qs) > 0 )
+	{
+		$no = 1;
+		while($rs = dbFetchObject($qs) )
+		{
+			$barcode = get_barcode($rs->id_product_attribute);
+			$pReference = get_product_reference($rs->id_product_attribute);
+			$arr = array(
+						"no"		=> $no,
+						"id"			=> $rs->id_tranfer_detail,
+						"barcode"	=> $barcode,
+						"products"		=> $pReference,
+						'id_zone_from'	=> $rs->id_zone,
+						'fromZone'	=> get_zone($rs->id_zone),
+						"qty"			=> $rs->qty
+						);
+			array_push($ds, $arr);
+			$no++;									
+		}
+	}
+	else
+	{
+		array_push($ds, array("nodata" => "nodata"));
+	}
+	echo json_encode($ds);
+}
+
+
+
 if( isset( $_GET['getTransferTable'] ) )
 {
 	$id			= $_GET['id_tranfer'];
@@ -301,16 +427,18 @@ if( isset( $_GET['getTransferTable'] ) )
 			$pReference = get_product_reference($rs->id_product_attribute);
 			$toZone	= $rs->id_zone_to == 0 ? '<button type="button" class="btn btn-xs btn-primary" onclick="move_in('.$rs->id_tranfer_detail.', '.$rs->id_zone_from.')">ย้ายเข้าโซน</button>' : get_zone($rs->id_zone_to);
 			$btn_delete = ($canAdd == 1 OR $canEdit == 1 ) ? '<button type="button" class="btn btn-xs btn-danger" onclick="deleteMoveItem(' . $rs->id_tranfer_detail .' , \'' . $pReference.'\')"><i class="fa fa-trash"></i></button>' : '';
+			$barcode = get_barcode($rs->id_product_attribute);
 			$arr = array(
 						'no'			=> $no,
 						'id'				=> $rs->id_tranfer_detail,
-						'barcode'	=> get_barcode($rs->id_product_attribute),
+						'barcode'	=> $barcode,
 						'products'	=> $pReference,
 						'id_zone_from'	=> $rs->id_zone_from,
 						'fromZone'	=> get_zone($rs->id_zone_from),
 						'toZone'		=> $toZone,
 						'qty'			=> number_format($rs->tranfer_qty),
-						'btn_delete'	=> $btn_delete
+						'btn_delete'	=> $btn_delete,
+						'valid'			=> ($rs->valid == 0 ? '<input type="hidden" id="qty-'.$barcode.'" value="'.$rs->tranfer_qty.'" />' : '')
 						);
 			array_push($ds, $arr);	
 			$no++;					
@@ -409,6 +537,92 @@ if( isset( $_GET['addToTransfer'] ) )
 	endTransection();
 	
 	echo $sc === TRUE ? 'success' : 'fail';
+}
+
+
+
+
+
+
+//------------ เพิ่มรายการโอนด้วยบาร์โค้ด
+if( isset( $_GET['addBarcodeToTransfer'] ) )
+{
+	$sc = TRUE;
+	$id_tranfer 	= $_POST['id_tranfer'];
+	$id_zone		= $_POST['id_zone_from'];
+	$qty		 	= $_POST['qty'];
+	$barcode	= $_POST['barcode'];
+	$udz			= $_POST['underZero'];
+	$cs = new transfer();
+	startTransection();
+
+	$id_pa	= get_id_product_attribute_by_barcode($barcode);
+	$arr = array( 
+					"id_tranfer" => $id_tranfer,
+					"id_product_attribute"	=> $id_pa,
+					"id_zone_from"	=> $id_zone,
+					"id_zone_to"		=> 0,
+					"tranfer_qty"		=> $qty
+					);	
+	$rs = $cs->isExistsDetail($arr);
+	if( $rs !== FALSE )
+	{
+		//----- if exists detail update 
+		$id = $cs->updateDetail($rs, $arr);
+		
+	}
+	else
+	{
+		//---- if not exists insert new row
+		$id = $cs->addDetail($arr);
+		
+	}
+		
+	if( $id === FALSE )
+	{
+		//----- If insert or update tranfer detail fail
+		$sc = FALSE;
+	}
+	else
+	{
+		//----- If insert or update tranfer detail successful  do insert or update tranfer temp
+		$temp = array(
+							"id_tranfer_detail"	=> $id,
+							"id_tranfer"			=> $id_tranfer,
+							"id_product_attribute"	=> $id_pa,
+							"id_zone"		=> $id_zone,
+							"qty"	=> $qty,
+							"id_employee"	=> getCookie('user_id')
+							);
+		$ra = $rs == FALSE ? $cs->addTransferTemp($temp) : $cs->updateTransferTemp($temp);	
+		if( $ra === TRUE )
+		{
+			//---- if insert or update tranfer temp success do update stock in zone
+			$rd = $cs->updateStock($id_zone, $id_pa, ($qty * -1));
+			if( $rd === FALSE )
+			{
+				//--- if update stock fail
+				$sc = FALSE;
+			}
+		}
+		else
+		{
+			//---- if insert or update tranfer temp fail
+			$sc = FALSE;	
+		}
+	}
+	
+	if( $sc === TRUE )
+	{
+		commitTransection();
+	}
+	else
+	{
+		dbRollback();	
+	}
+	endTransection();
+
+echo $sc === TRUE ? 'success' : 'fail';
 }
 
 
@@ -593,124 +807,6 @@ if( isset( $_GET['getProductInZone'] ) )
 	echo json_encode($sc);
 }
 
-
-
-
-if( isset( $_GET['printTranfer'] ) )
-{
-	$id_tranfer		= $_GET['id_tranfer'];
-	
-	$print 			= new printer();
-	echo $print->doc_header();
-	$print->add_title("PO/ใบสั่งซื้อ");
-	$header			= array("เลขที่เอกสาร"=>$po->reference, "วันที่เอกสาร"=>thaiDate($po->date_add), "ผู้ขาย"=>supplier_code($po->id_supplier)." : ".supplier_name($po->id_supplier), "กำหนดรับ"=>thaiDate($po->due_date));
-	$print->add_header($header);
-	$detail			= $po->get_detail($id_po);
-	$total_row 		= dbNumRows($detail);
-	$config 			= array("total_row"=>$total_row, "font_size"=>10, "sub_total_row"=>4);
-	$print->config($config);
-	$row 				= $print->row;
-	$total_page 		= $print->total_page;
-	$total_qty 		= 0;
-	$total_price		= 0;
-	$total_amount 	= 0;
-	$total_discount = 0;
-	$bill_discount	= $po->bill_discount;
-	//**************  กำหนดหัวตาราง  ******************************//
-	$thead	= array(
-						array("ลำดับ", "width:5%; text-align:center; border-top:0px; border-top-left-radius:10px;"),
-						array("รหัส", "width:15%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-						array("สินค้า", "width:35%; text-align:center;border-left: solid 1px #ccc; border-top:0px;"),
-						array("จำนวน", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("ราคา", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("ส่วนลด", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px;"),
-						array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
-						);
-	$print->add_subheader($thead);
-	
-	//***************************** กำหนด css ของ td *****************************//
-	$pattern = array(
-							"text-align: center; border-top:0px;",
-							"border-left: solid 1px #ccc; border-top:0px;",
-							"border-left: solid 1px #ccc; border-top:0px;",
-							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
-							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
-	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้จัดทำ", "","วันที่............................."), 
-						array("ผู้ตรวจสอบ", "","วันที่............................."),
-						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
-	$n = 1;
-	while($total_page > 0 )
-	{
-		echo $print->page_start();
-			echo $print->top_page();
-			echo $print->content_start();
-				echo $print->table_start();
-				$i = 0;
-				$product = new product();
-				while($i<$row) : 
-					$rs = dbFetchArray($detail);
-					if(count($rs) != 0) :
-						$id_product 		= $product->getProductId($rs['id_product_attribute']);
-						$product_code 	= $product->product_reference($rs['id_product_attribute']);
-						$product_name 	= "<input type='text' style='border:0px; width:100%;' value='".$product->product_name($id_product)."' />";
-						$dis					= $po->getDiscount($rs['discount_percent'], $rs['discount_amount']); // หาส่วนลด
-						$discount			= number_format($dis['value'],2)." ".$dis['unit'];
-						$data 				= array($n, $product_code, $product_name, number_format($rs['qty']), number_format($rs['price'], 2), $discount, number_format($rs['total_amount'], 2) );
-						$total_qty 			+= $rs['qty'];
-						$total_price 		+= $rs['qty'] * $rs['price'];
-						$total_amount 		+= $rs['total_amount'];
-						$total_discount 	+= $rs['total_discount'];
-					else :
-						$data = array("", "", "", "","", "","");
-					endif;
-					echo $print->print_row($data);
-					$n++; $i++;  	
-				endwhile;
-				echo $print->table_end();
-				if($print->current_page == $print->total_page)
-				{ 
-					$qty = number_format($total_qty);
-					$amount = number_format($total_price,2); 
-					$total_discount_amount = number_format($total_discount+$bill_discount,2);
-					$net_amount = number_format($total_price - ($total_discount + $bill_discount) ,2);
-					$remark = $po->remark;
-				}else{ 
-					$qty = ""; 
-					$amount = ""; 
-					$total_discount_amount = "";
-					$net_amount = "";
-					$remark = ""; 
-				}
-				$sub_total = array(
-						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px; border-left:0px; width:60%; text-align:center;'>**** ส่วนลดท้ายบิล : ".number_format($bill_discount,2)." ****</td>
-								<td style='width:20%; height:".$print->row_height."mm; border: solid 1px #ccc;'><strong>จำนวนรวม</strong></td>
-								<td style='width:20%; height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; text-align:right;'>".$qty."</td>"),
-						array("<td rowspan='3' style='height:".$print->row_height."mm; border-top: solid 1px #ccc; border-bottom-left-radius:10px; width:55%; font-size:10px;'><strong>หมายเหตุ : </strong>".$remark."</td>
-								<td style='width:20%; height:".$print->row_height."mm; border: solid 1px #ccc;'><strong>ราคารวม</strong></td>
-								<td style='width:20%; height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; text-align:right;'>".$amount."</td>"),
-						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>ส่วนลดรวม</strong></td>
-						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$total_discount_amount."</td>"),
-						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>ยอดเงินสุทธิ</strong></td>
-						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$net_amount."</td>")
-						);
-			echo $print->print_sub_total($sub_total);				
-			echo $print->content_end();
-			echo $print->footer;
-		echo $print->page_end();
-		$total_page --; $print->current_page++;
-	}
-	echo $print->doc_footer();
-}
 
 
 

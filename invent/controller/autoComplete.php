@@ -528,7 +528,7 @@ if( isset( $_GET['getZone'] ) && isset( $_REQUEST['term'] ) )
 if( isset( $_GET['getTransferZone'] ) && isset( $_REQUEST['term'] ) )
 {
 	$id_wh = $_GET['id_warehouse'];
-	$qs = dbQuery("SELECT id_zone, zone_name FROM tbl_zone WHERE id_warehouse = ".$id_wh." AND zone_name LIKE '%".$_REQUEST['term']."%' ORDER BY zone_name ASC");
+	$qs = dbQuery("SELECT id_zone, zone_name FROM tbl_zone WHERE id_warehouse = ".$id_wh." AND (zone_name LIKE '%".$_REQUEST['term']."%' OR barcode_zone LIKE '%".$_REQUEST['term']."%') ORDER BY zone_name ASC");
 	if( dbNumRows($qs) > 0 )
 	{
 		while( $rs = dbFetchObject($qs) )
