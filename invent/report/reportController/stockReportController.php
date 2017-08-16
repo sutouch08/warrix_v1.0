@@ -6,6 +6,13 @@ require "../../function/tools.php";
 require "../../function/report_helper.php";
 
 //---------------------------------------------  Report  ----------------------------//
+if( isset( $_GET['fifo_report'] ) && isset( $_GET['export'] ) )
+{
+	include '../../function/fifo_helper.php';
+	include 'export/exportStockCard.php';
+}
+
+
 //-----------  รายงานสินค้าคงเหลือ
 if( isset( $_GET['reportStockBalance'] ) && isset( $_GET['report'] ) )
 {
@@ -431,76 +438,6 @@ if( isset( $_GET['fifo_report']) && isset( $_GET['report'] ) )
 		array_push($data, $arr);	
 	}
 	echo json_encode($data);
-}
-
-if( isset( $_GET['fifo_report']) && isset( $_GET['export'] ) )
-{
-	$wh			= $_GET['id_wh'];
-	$from 		= fromDate($_GET['from_date'], true);
-	$to 			= toDate($_GET['to_date'], true);
-	$reorder		= reorder($_GET['p_from'], $_GET['p_to']);
-	$p_from  	= $reorder['from'];
-	$p_to			= $reorder['to'];
-	$qs 			= dbQuery("SELECT id_product_attribute, id_product, reference, barcode FROM tbl_product_attribute WHERE reference BETWEEN '".$p_from."' AND '".$p_to."' ORDER BY reference ASC");
-	$data 		= array();
-	$bf_date 	= date('Y-m-d', strtotime("-1day $from"));
-	$wh_name 	= $wh == 0 ? "รวมทุกคลัง" : get_warehouse_name_by_id($wh);
-	$divider		= array("-------------------------------------------------------------------------");
-	$subheader	= array("วันที่", "เลขที่เอกสาร", "คลังสินค้า", "เข้า", "ออก", "คงเหลือ");
-	$arr 			= array("รายงานความเคลื่อนไหวสินค้า วันที่ ".thaiDate($from)." ถึงวันที่ ".thaiDate($to)."  คลัง : ".$wh_name);
-	array_push($data, $arr);
-	$arr 			= array( "สินค้าตั้งแต่ ".$p_from."  ถึง  ".$p_to);
-	array_push($data, $arr);	
-	array_push($data, $divider);
-	
-	if( dbNumRows($qs) > 0 )
-	{
-		while( $rs = dbFetchArray($qs) ) :
-			$product 	= new product();
-			$id 			= $rs['id_product_attribute'];
-			$qty 			= stock_qty_by_warehouse($id, $wh);
-			$balance		= $qty - (move_in($id, $from, date("Y-m-d H:i:s"), $wh) - move_out($id, $from, date("Y-m-d H:i:s"), $wh));
-			$arr 			= array($rs['reference']."  :  ".get_product_name($rs['id_product'])."  :  ".$rs['barcode']);
-			array_push($data, $arr);
-			array_push($data, $subheader);
-			$arr 			= array(thaiDate($bf_date, "/"), 	"ยอดยกมา",  "", "",  "", $balance);
-			array_push($data, $arr);
-			if($wh)
-			{
-				$sql = "SELECT date_upd, SUM(move_in) AS move_in, SUM(move_out) AS move_out, reference, id_warehouse AS wh FROM tbl_stock_movement ";
-				$sql .= "WHERE id_product_attribute =".$id." AND id_warehouse = ".$wh." AND (date_upd BETWEEN '".$from."' AND '".$to."') GROUP BY reference, id_warehouse ORDER BY date_upd ASC";
-			}
-			else
-			{
-				$sql = "SELECT date_upd, SUM(move_in) AS move_in, SUM(move_out) AS move_out, reference, id_warehouse AS wh FROM tbl_stock_movement ";
-				$sql .= "WHERE id_product_attribute =".$id." AND (date_upd BETWEEN '".$from."' AND '".$to."') GROUP BY reference, id_warehouse ORDER BY date_upd ASC";
-			}
-			$qr 	= dbQuery($sql);
-			if(dbNumRows($qr) > 0 )
-			{
-				while($rd = dbFetchArray($qr)) :
-					$balance 	= $balance + $rd['move_in'] - $rd['move_out'];		
-					$arr 			= array(thaiDate($rd['date_upd'], "/"), $rd['reference'], get_warehouse_name_by_id($rd['wh']), $rd['move_in'], $rd['move_out'], $balance );
-					array_push($data, $arr);
-				endwhile;
-			}
-			else
-			{
-				$arr = array("-----  ไม่มีรายการเคลื่อนไหว  -----");
-				array_push($data, $arr);	
-			}
-			array_push($data, $divider);			
-		endwhile;
-	}
-	else
-	{
-		$arr = array("-----------------  ไม่พบรายการสินค้า   --------------");
-		array_push($data, $arr);	
-	}
-	$Excel 	= new Excel_XML("UTF-8", true, "stock_movement");
-	$Excel->addArray($data);
-	$Excel->generateXML("stock_movement_report");
-	setToken($_GET['token']);
 }
 
 

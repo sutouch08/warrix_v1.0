@@ -19,4 +19,5 @@ function fifoBeforeBalance($id_pa, $wh=0, $fromDate)
 	return $sc;
 }
 
+
 ?>
