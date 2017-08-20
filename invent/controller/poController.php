@@ -6,23 +6,31 @@ require "../function/tools.php";
 
 if( isset( $_GET['updateReceivedQty'] ) )
 {
-	$qr = "SELECT r.id_po, rd.id_product_attribute, SUM( rd.qty) AS received ";
-	$qr .= "FROM tbl_receive_product_detail AS rd ";
-	$qr .= "JOIN tbl_receive_product AS r USING( id_receive_product ) ";
-	$qr .= "GROUP BY r.id_po, rd.id_product_attribute";
-	
+	$qr = "SELECT id_po_detail, id_po, id_product_attribute FROM tbl_po_detail";
 	$qs = dbQuery($qr);
 	if( dbNumRows($qs) > 0 )
 	{
 		while( $rs = dbFetchObject($qs) )
 		{
-			$qa = dbQuery("UPDATE tbl_po_detail SET received = ".$rs->received." WHERE id_po = ".$rs->id_po." AND id_product_attribute = ".$rs->id_product_attribute);
+			set_time_limit(30);
+			$received = getReceived($rs->id_po, $rs->id_product_attribute);
+			$qa = dbQuery("UPDATE tbl_po_detail SET received = ".$received." WHERE id_po_detail = ".$rs->id_po_detail);
 		}
 	}
 	echo 'updated';
 }
 
-
+function getReceived($id_po, $id_pa)
+{
+	$qty = 0;
+	$qr = "SELECT SUM(rd.qty) AS qty FROM ";
+	$qr .= "tbl_receive_product_detail AS rd JOIN tbl_receive_product r USING(id_receive_product) ";
+	$qr .= "WHERE r.id_po = ".$id_po." AND rd.id_product_attribute = ".$id_pa." AND rd.status = 1";
+	$qs = dbQuery($qr);
+	list( $qty ) = dbFetchArray($qs);
+	$qty = is_null( $qty ) ? 0 : $qty;
+	return $qty;
+}
 
 if( isset( $_GET['get_role_detail'] ) && isset( $_POST['id_po_role'] ) )
 {
