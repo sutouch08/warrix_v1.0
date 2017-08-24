@@ -176,8 +176,7 @@ function get_header($order)
 {
 	if($order->role == 3 )
 	{
-		include '../function/lend_helper.php';
-		$header		= array(
+				$header		= array(
 								"เลขที่เอกสาร"=>$order->reference, 
 								"วันที่"=>thaiDate($order->date_add), 
 								"ผู้ยืม"=>employee_name($order->id_employee), 

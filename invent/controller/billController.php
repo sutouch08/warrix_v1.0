@@ -5,7 +5,7 @@ require "../function/tools.php";
 require "../function/bill_helper.php";
 include "../function/support_helper.php";
 include "../function/sponsor_helper.php";
-
+include '../function/lend_helper.php';
 
 if( isset($_GET['check_order_state']) && isset($_GET['id_order']) )
 {
@@ -60,21 +60,21 @@ if( isset( $_GET['confirm_order'] ) && isset( $_GET['id_order'] ) )
 		//----- กรณีสปอนเซอร์สโมสร
 		if( $order->role == 4 )
 		{
-			include '../function/sponsor_helper.php';
+			
 			include 'subController/sponsorProcess.php';
 		}
 		
 		//----- กรณีเบิกอภินันท์
 		if( $order->role == 7 )
 		{
-			include '../function/support_helper.php';
+			
 			include 'subController/supportProcess.php';	
 		}
 		
 		//----- กรณี ยืมสินค้า
 		if( $order->role == 3 )
 		{
-			include '../function/lend_helper.php';
+			
 			include 'subController/lendProcess.php';	
 		}
 		

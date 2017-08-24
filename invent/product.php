@@ -533,7 +533,7 @@ $(document).ready(function(e) {
 //----------------  Dropzone --------------------//
 Dropzone.autoDiscover = false;
 var myDropzone = new Dropzone("#imageForm", {
-	url: "controller/productController.php?upload&id_product="+$("#id_product").val(),
+	url: "controller/productController.php?upload&id_style="+$("#id_product").val(),
 	paramName: "file", // The name that will be used to transfer the file
 	maxFilesize: 2, // MB
 	uploadMultiple: true,
