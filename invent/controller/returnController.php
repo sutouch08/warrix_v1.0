@@ -49,7 +49,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_support']) )
 						"id_employee"=>$_POST['id_employee'],
 						"date_add"=>dbDate($_POST['date_add']),
 						"remark"=>$_POST['remark']
-					);	
+					);
 	$ro		= new return_support();
 	$rs 		= $ro->update($id_return_support, $data);
 	if($rs)
@@ -57,7 +57,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_support']) )
 		echo "success";
 	}else{
 		echo "fail";
-	}	
+	}
 }
 
 /////////////////////////////////////		 ลบรายการ 1 บรรทัด 		/////////////////////////////////////////
@@ -116,14 +116,14 @@ if( isset($_GET['add_item']) && isset($_POST['qty']) && isset($_POST['barcode'])
 	$id_return_support	= $_POST['id_return_support'];
 	$qty					= $_POST['qty'];
 	$barcode			= $_POST['barcode'];
-	$id_zone				= $_POST['id_zone'];	
+	$id_zone				= $_POST['id_zone'];
 	if($qty == ""){ $qty = 1; }
 	$product		= new product();
 	$arr			=  $product->check_barcode($barcode); ///ดึง id_product_attribute และ จำนวน จากบาร์โค้ด คืนค่ามาเป็น array [id_product_attribute] และ [qty] ตามลำดับ
 	$id_product_attribute = $arr['id_product_attribute'];
 	$qty 	= $arr['qty'] * $qty;
 	$rs = new return_support();
-	
+
 	if( $id_product_attribute !="" )
 	{
 		$data['id_product_attribute']	 	= $id_product_attribute;
@@ -173,7 +173,7 @@ if( isset($_GET['check_support_order']) )
 	$qs = dbQuery("SELECT tbl_order_support.id_order FROM tbl_order_support JOIN tbl_order ON tbl_order_support.id_order = tbl_order.id_order WHERE reference = '".$reference."' AND tbl_order_support.id_employee = ".$id_employee." AND role = 7 AND current_state = 9");
 	if(dbNumRows($qs) == 1 )
 	{
-		echo "ok";	
+		echo "ok";
 	}else{
 		echo "fail";
 	}
@@ -249,14 +249,14 @@ if( isset($_GET['add_item']) && isset($_POST['qty']) && isset($_POST['barcode'])
 	$id_return_sponsor	= $_POST['id_return_sponsor'];
 	$qty					= $_POST['qty'];
 	$barcode			= $_POST['barcode'];
-	$id_zone				= $_POST['id_zone'];	
+	$id_zone				= $_POST['id_zone'];
 	if($qty == ""){ $qty = 1; }
 	$product		= new product();
 	$arr			=  $product->check_barcode($barcode); ///ดึง id_product_attribute และ จำนวน จากบาร์โค้ด คืนค่ามาเป็น array [id_product_attribute] และ [qty] ตามลำดับ
 	$id_product_attribute = $arr['id_product_attribute'];
 	$qty 	= $arr['qty'] * $qty;
 	$rs = new return_sponsor();
-	
+
 	if( $id_product_attribute !="" )
 	{
 		$data['id_product_attribute']	 	= $id_product_attribute;
@@ -337,7 +337,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_sponsor']) )
 						"id_employee"=>$_COOKIE['user_id'],
 						"date_add"=>dbDate($_POST['date_add']),
 						"remark"=>$_POST['remark']
-					);	
+					);
 	$ro		= new return_sponsor();
 	$rs 		= $ro->update($id_return_sponsor, $data);
 	if($rs)
@@ -345,7 +345,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_sponsor']) )
 		echo "success";
 	}else{
 		echo "fail";
-	}	
+	}
 }
 
 //////////////////////////////////////		ตรวจสอบเลขที่อ้างอิง		////////////////////////////////////
@@ -356,7 +356,7 @@ if( isset($_GET['check_sponsor_order']) )
 	$qs = dbQuery("SELECT id_order FROM tbl_order WHERE reference = '".$reference."' AND id_customer = ".$id_customer." AND role = 4 AND current_state = 9");
 	if(dbNumRows($qs) == 1 )
 	{
-		echo "ok";	
+		echo "ok";
 	}else{
 		echo "fail";
 	}
@@ -376,22 +376,30 @@ if( isset($_GET['check_sponsor_order']) )
 if( isset($_GET['save_add']) && isset($_GET['id_return_order']) )
 {
 	$id_return_order 	= $_GET['id_return_order'];
-	$id_detail			= $_POST['id_detail'];
-	$o_ref				= $_POST['reference'];
-	foreach($id_detail as $id)
+	if( isset( $_POST['id_detail']))
 	{
-		$arr = explode(" : ", $o_ref[$id]);
-		$order_reference = $arr[0];
-		$qs	= dbQuery("UPDATE tbl_return_order_detail SET order_reference = '".$order_reference."' WHERE id_return_order_detail = ".$id);
+		$id_detail			= $_POST['id_detail'];
+		$o_ref				= $_POST['reference'];
+		foreach($id_detail as $id)
+		{
+			$arr = explode(" : ", $o_ref[$id]);
+			$order_reference = $arr[0];
+			$qs	= dbQuery("UPDATE tbl_return_order_detail SET order_reference = '".$order_reference."' WHERE id_return_order_detail = ".$id);
+		}
+		$rs	= new return_order($id_return_order);
+		$ro	= $rs->save_add();
+		if($ro)
+		{
+			echo "success";
+		}else{
+			echo "fail";
+		}
 	}
-	$rs	= new return_order($id_return_order);
-	$ro	= $rs->save_add();
-	if($ro)
+	else
 	{
-		echo "success";
-	}else{
-		echo "fail";
+		echo "must_total";
 	}
+
 }
 
 //////////////////////////////////  บันทึกรายการลดหนี้2  ////////////////////////////
@@ -403,7 +411,7 @@ if( isset($_GET['save_add2']) && isset($_GET['id_return_order']) )
 	$rs	= new return_order($id_return_order);
 	foreach($reduction_percent as $id=>$val)
 	{
-		dbQuery("UPDATE tbl_return_order_detail SET reduction_percent = ".$val.", reduction_amount = ".$reduction_amount[$id].", final_price = product_price - ((".($val*0.01)." * product_price) + ".$reduction_amount[$id]."), 
+		dbQuery("UPDATE tbl_return_order_detail SET reduction_percent = ".$val.", reduction_amount = ".$reduction_amount[$id].", final_price = product_price - ((".($val*0.01)." * product_price) + ".$reduction_amount[$id]."),
 		total_amount = qty * (product_price - (".$val*0.01." * product_price) + ".$reduction_amount[$id].") WHERE id_return_order_detail = ".$id);
 	}
 	$rs	= new return_order($id_return_order);
@@ -419,27 +427,34 @@ if( isset($_GET['save_add2']) && isset($_GET['id_return_order']) )
 if( isset($_GET['save_edit']) && isset($_GET['id_return_order']) )
 {
 	$id_return_order	= $_GET['id_return_order'];
-	$id_detail			= $_POST['id_detail'];
-	$o_ref				= $_POST['reference'];
-	$rs 					= new return_order($id_return_order);
-	$ro					= $rs->drop_data($id_return_order);
-	if($ro)
+	if( isset( $_POST['id_detail']))
 	{
-		foreach($id_detail as $id)
+		$id_detail			= $_POST['id_detail'];
+		$o_ref				= $_POST['reference'];
+		$rs 					= new return_order($id_return_order);
+		$ro					= $rs->drop_data($id_return_order);
+		if($ro)
 		{
-			$arr = explode(" : ", $o_ref[$id]);
-			$order_reference = $arr[0];
-			$qs	= dbQuery("UPDATE tbl_return_order_detail SET order_reference = '".$order_reference."' WHERE id_return_order_detail = ".$id);
-		}
-		$rn	= $rs->save_add();
-		if($rn)
-		{
-			echo "success";
+			foreach($id_detail as $id)
+			{
+				$arr = explode(" : ", $o_ref[$id]);
+				$order_reference = $arr[0];
+				$qs	= dbQuery("UPDATE tbl_return_order_detail SET order_reference = '".$order_reference."' WHERE id_return_order_detail = ".$id);
+			}
+			$rn	= $rs->save_add();
+			if($rn)
+			{
+				echo "success";
+			}else{
+				echo "fail";
+			}
 		}else{
 			echo "fail";
 		}
-	}else{
-		echo "fail";
+	}
+	else
+	{
+		echo "must_total";
 	}
 }
 
@@ -455,7 +470,7 @@ if( isset($_GET['save_edit2']) && isset($_GET['id_return_order']) )
 	{
 		foreach($reduction_percent as $id=>$val)
 		{
-			dbQuery("UPDATE tbl_return_order_detail SET reduction_percent = ".$val.", reduction_amount = ".$reduction_amount[$id].", final_price = product_price - ((".($val*0.01)." * product_price) + ".$reduction_amount[$id]."), 
+			dbQuery("UPDATE tbl_return_order_detail SET reduction_percent = ".$val.", reduction_amount = ".$reduction_amount[$id].", final_price = product_price - ((".($val*0.01)." * product_price) + ".$reduction_amount[$id]."),
 			total_amount = qty * (product_price - (".$val*0.01." * product_price) + ".$reduction_amount[$id].") WHERE id_return_order_detail = ".$id);
 		}
 		$rn	= $rs->save_add2();
@@ -476,7 +491,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_order']) )
 	$id_return_order	= $_POST['id_return_order'];
 	$data		= array(
 						"remark"=>$_POST['remark']
-					);	
+					);
 	$ro		= new return_order();
 	$rs 		= $ro->update($id_return_order, $data);
 	if($rs)
@@ -484,7 +499,7 @@ if( isset($_GET['update']) && isset($_POST['id_return_order']) )
 		echo "success";
 	}else{
 		echo "fail";
-	}	
+	}
 }
 
 /*********************************  แก้ไขเอกสาร2  ********************************/
@@ -495,8 +510,8 @@ if( isset($_GET['update2']) && isset($_POST['id_return_order']) )
 						"date_add"=>dbDate($_POST['date_add'], true),
 						"id_customer"=>$_POST['id_customer'],
 						"order_reference"=>$_POST['order_reference'],
-						"remark"=>$_POST['remark']	
-					);	
+						"remark"=>$_POST['remark']
+					);
 	$ro		= new return_order($id_return_order);
 	if( dbDate($ro->date_add) != dbDate($_POST['date_add']) )
 	{
@@ -512,7 +527,7 @@ if( isset($_GET['update2']) && isset($_POST['id_return_order']) )
 		echo "success";
 	}else{
 		echo "fail";
-	}	
+	}
 }
 
 
@@ -537,13 +552,13 @@ if( isset($_GET['add_item']) && isset($_POST['qty']) && isset($_POST['barcode'])
 	$id_return_order	= $_POST['id_return_order'];
 	$qty					= $_POST['qty'];
 	$barcode			= trim($_POST['barcode']);
-	$id_zone				= $_POST['id_zone'];	
+	$id_zone				= $_POST['id_zone'];
 	if($qty == ""){ $qty = 1; }
 	$product		= new product();
 	$arr			=  $product->check_barcode($barcode); ///ดึง id_product_attribute และ จำนวน จากบาร์โค้ด คืนค่ามาเป็น array [id_product_attribute] และ [qty] ตามลำดับ
 	$id_product_attribute = $arr['id_product_attribute'];
 	$qty 	= $arr['qty'] * $qty;
-	
+
 	$data['id_product_attribute']		= $id_product_attribute;
 	$data['order_reference']			= '';//$_POST['order_reference'];
 	$data['qty']							= $qty;
@@ -566,13 +581,13 @@ if( isset($_GET['add_item2']) && isset($_POST['qty']) && isset($_POST['barcode']
 	$id_return_order	= $_POST['id_return_order'];
 	$qty					= $_POST['qty'];
 	$barcode			= trim($_POST['barcode']);
-	$id_zone				= $_POST['id_zone'];	
+	$id_zone				= $_POST['id_zone'];
 	if($qty == ""){ $qty = 1; }
 	$product		= new product();
 	$arr			=  $product->check_barcode($barcode); ///ดึง id_product_attribute และ จำนวน จากบาร์โค้ด คืนค่ามาเป็น array [id_product_attribute] และ [qty] ตามลำดับ
 	$id_product_attribute = $arr['id_product_attribute'];
 	$qty 	= $arr['qty'] * $qty;
-	
+
 	$data['id_product_attribute']		= $id_product_attribute;
 	$data['order_reference']			= $_POST['order_reference'];
 	$data['qty']							= $qty;
@@ -702,7 +717,7 @@ if( isset($_GET['delete_return']) && isset($_GET['id_return_order']) )
 if( isset($_GET['get_zone']) && isset($_POST['barcode']) )
 {
 	$barcode = $_POST['barcode'];
-	$qs = dbQuery("SELECT id_zone, zone_name FROM tbl_zone WHERE barcode_zone = '".$barcode."'"); 
+	$qs = dbQuery("SELECT id_zone, zone_name FROM tbl_zone WHERE barcode_zone = '".$barcode."'");
 	if(dbNumRows($qs) == 1 )
 	{
 		$rs = dbFetchArray($qs);
@@ -720,7 +735,7 @@ if( isset($_GET['check_order']) )
 	$qs = dbQuery("SELECT id_order FROM tbl_order WHERE reference = '".$reference."' AND id_customer = ".$id_customer." AND role = 1");
 	if(dbNumRows($qs) == 1 )
 	{
-		echo "ok";	
+		echo "ok";
 	}else{
 		echo "fail";
 	}
@@ -754,7 +769,7 @@ if( isset($_GET['print_return']) && isset($_GET['id_return_order']) )
 						array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 	$print->add_subheader($thead);
-	
+
 	//***************************** กำหนด css ของ td *****************************//
 	$pattern = array(
 							"text-align: center; border-top:0px;",
@@ -764,18 +779,18 @@ if( isset($_GET['print_return']) && isset($_GET['id_return_order']) )
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
+							);
+	$print->set_pattern($pattern);
+
 	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."), 
+	$footer	= array(
+						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
 						array("ผู้ส่งของ", "","วันที่............................."),
 						array("ผู้ตรวจสอบ", "","วันที่............................."),
 						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
+						);
+	$print->set_footer($footer);
+
 	$n = 1;
 	while($total_page > 0 )
 	{
@@ -785,7 +800,7 @@ if( isset($_GET['print_return']) && isset($_GET['id_return_order']) )
 				echo $print->table_start();
 				$i = 0;
 				$product = new product();
-				while($i<$row) : 
+				while($i<$row) :
 					$rs = dbFetchArray($detail);
 					if(count($rs) != 0) :
 						$id_product = $product->getProductId($rs['id_product_attribute']);
@@ -798,7 +813,7 @@ if( isset($_GET['print_return']) && isset($_GET['id_return_order']) )
 						$data = array("", "", "", "","", "","");
 					endif;
 					echo $print->print_row($data);
-					$n++; $i++;  	
+					$n++; $i++;
 				endwhile;
 				echo $print->table_end();
 				if($print->current_page == $print->total_page){ $qty = number_format($total_qty); $amount = number_format($total_amount,2); $remark = $ro->remark; }else{ $qty = ""; $amount = ""; $remark = ""; }
@@ -809,7 +824,7 @@ if( isset($_GET['print_return']) && isset($_GET['id_return_order']) )
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>มูลค่ารวม</strong></td>
 						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$amount."</td>")
 						);
-			echo $print->print_sub_total($sub_total);						
+			echo $print->print_sub_total($sub_total);
 			echo $print->content_end();
 			echo $print->footer;
 		echo $print->page_end();
@@ -847,7 +862,7 @@ if( isset($_GET['print_return_barcode']) && isset($_GET['id_return_order']) )
 						array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 	$print->add_subheader($thead);
-	
+
 	//***************************** กำหนด css ของ td *****************************//
 	$pattern = array(
 							"text-align: center; border-top:0px;",
@@ -858,18 +873,18 @@ if( isset($_GET['print_return_barcode']) && isset($_GET['id_return_order']) )
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
+							);
+	$print->set_pattern($pattern);
+
 	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."), 
+	$footer	= array(
+						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
 						array("ผู้ส่งของ", "","วันที่............................."),
 						array("ผู้ตรวจสอบ", "","วันที่............................."),
 						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
+						);
+	$print->set_footer($footer);
+
 	$n = 1;
 	while($total_page > 0 )
 	{
@@ -879,7 +894,7 @@ if( isset($_GET['print_return_barcode']) && isset($_GET['id_return_order']) )
 				echo $print->table_start();
 				$i = 0;
 				$product = new product();
-				while($i<$row) : 
+				while($i<$row) :
 					$rs = dbFetchArray($detail);
 					if(count($rs) != 0) :
 						$id_product = $product->getProductId($rs['id_product_attribute']);
@@ -894,7 +909,7 @@ if( isset($_GET['print_return_barcode']) && isset($_GET['id_return_order']) )
 						$data = array("", "", "", "", "","", "","");
 					endif;
 					echo $print->print_row($data);
-					$n++; $i++;  	
+					$n++; $i++;
 				endwhile;
 				echo $print->table_end();
 				if($print->current_page == $print->total_page){ $qty = number_format($total_qty); $amount = number_format($total_amount,2); $remark = $ro->remark; }else{ $qty = ""; $amount = ""; $remark = ""; }
@@ -905,7 +920,7 @@ if( isset($_GET['print_return_barcode']) && isset($_GET['id_return_order']) )
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>มูลค่ารวม</strong></td>
 						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$amount."</td>")
 						);
-			echo $print->print_sub_total($sub_total);						
+			echo $print->print_sub_total($sub_total);
 			echo $print->content_end();
 			echo $print->footer;
 		echo $print->page_end();
@@ -921,7 +936,7 @@ if( isset($_GET['clear_filter']))
 	setcookie('return_search-text', '', time() -3600, "/");
 	setcookie("return_from_date", "", time() -3600, "/");
 	setcookie("return_to_date", "", time() - 3600, "/");
-	echo "success";	
+	echo "success";
 }
 
 ?>

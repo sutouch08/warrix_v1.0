@@ -776,7 +776,7 @@ function getSearch(){
 	var sEmp	 	= $("#sEmp").val();
 	var from		= $("#fromDate").val();
 	var to			= $("#toDate").val();
-	if( sCode.length > 0 || sEmp.length > 0 || ( isDaate(from) && isDate(to) ) ) {
+	if( sCode.length > 0 || sEmp.length > 0 || ( isDate(from) && isDate(to) ) ) {
 		$("#searchForm").submit();
 	}
 }

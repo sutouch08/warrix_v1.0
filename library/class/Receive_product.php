@@ -165,7 +165,7 @@ public function roll_back_action($id)
 
 public function get_items($id)
 {
-	$qs 	= "SELECT rd, id_receive_product, rd.id_product, rd.id_product_attribute, rd.qty, rd.id_warehouse, rd.id_zone, rd.id_employee, rd.date_add, ";
+	$qs 	= "SELECT rd.id_receive_product_detail, rd.id_receive_product, rd.id_product, rd.id_product_attribute, rd.qty, rd.id_warehouse, rd.id_zone, rd.id_employee, rd.date_add, ";
 	$qs	.= "rd.date_upd, rd.status ";
 	$qs	.= "FROM tbl_receive_product_detail AS rd ";
 	$qs 	.= "LEFT JOIN tbl_product_attribute AS p ON rd.id_product_attribute = p.id_product_attribute ";
