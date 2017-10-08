@@ -1,4 +1,4 @@
-<?php 
+<?php
 class sale{
 	public $id_sale;
 	public $id_employee;
@@ -7,7 +7,7 @@ class sale{
 	public $full_name;
 	public $id_group;
 	public $group_name;
-	
+
 	public function __construct($id_sale=""){
 		if($id_sale ==""){
 			return true;
@@ -29,7 +29,7 @@ class sale{
 		$rang = getWeek($today);
 		$from = $rang['from'];
 		$monday = $from;
-		$tuesday = date('Y-m-d', strtotime("+1 day $from")); 
+		$tuesday = date('Y-m-d', strtotime("+1 day $from"));
 		$wednesday = date('Y-m-d', strtotime("+2 day $from"));
 		$thursday = date('Y-m-d', strtotime("+3 day $from"));
 		$friday = date('Y-m-d', strtotime("+4 day $from"));
@@ -43,7 +43,7 @@ class sale{
 			$id_employee = $rs['id_employee'];
 			$id_sale = $rs['id_sale'];
 			$sqm = dbQuery("SELECT first_name FROM tbl_sale LEFT JOIN tbl_employee ON tbl_sale.id_employee = tbl_employee.id_employee WHERE tbl_sale.id_employee = $id_employee");
-			list($first_name) = dbFetchArray($sqm); 
+			list($first_name) = dbFetchArray($sqm);
 			$amount = array();
 			$amount['sale'] = $first_name;
 			$d = 0;
@@ -64,7 +64,7 @@ class sale{
 		}
 		return $data;
 	}
-	
+
 	public function total_bill_discount($id_sale, $from, $to)
 	{
 		$amount = 0;
@@ -90,9 +90,9 @@ class sale{
 				$amount += $discount;
 			}
 		}
-		return $amount;			
-	}	
-	
+		return $amount;
+	}
+
 	public function total_group_bill_discount($id_group, $from, $to)
 	{
 		$amount = 0;
@@ -115,10 +115,10 @@ class sale{
 				$amount += $discount;
 			}
 		}
-		return $amount;		
+		return $amount;
 	}
-	
-	
+
+
 	public function all_bill_discount($from, $to)
 	{
 		$amount = 0;
@@ -158,8 +158,8 @@ class sale{
 			$sqm = dbQuery("SELECT first_name FROM tbl_sale LEFT JOIN tbl_employee ON tbl_sale.id_employee = tbl_employee.id_employee WHERE tbl_sale.id_employee = $id_employee");
 			list($first_name) = dbFetchArray($sqm);
 			$sqr = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_sale = $id_sale AND id_role IN(1,5) AND (date_upd BETWEEN '$from' AND '$to')");
-			list($amount) = dbFetchArray($sqr); 
-			$bill_discount = $this->total_bill_discount($id_sale, $from, $to);	
+			list($amount) = dbFetchArray($sqr);
+			$bill_discount = $this->total_bill_discount($id_sale, $from, $to);
 			$amount = $amount - $bill_discount;
 			$net_amount =  $amount/1.07;
 			$sale_amount = 0;
@@ -218,7 +218,7 @@ class sale{
 		$sale_amount = $sale_amount + $net_amount;
 		return number_format($sale_amount,2);
 	}
-	
+
 	public function getSaleLastMonth($id_sale){
 		$date = date('Y-m');
 		$from = date('Y-m-01',strtotime('last month' ,strtotime($date)));
@@ -234,7 +234,7 @@ class sale{
 		$sale_amount = $sale_amount + $net_amount;
 		return number_format($sale_amount,2);
 	}
-	
+
 	public function getSaleLastYear($id_sale){
 		$from = date('Y-m-01',strtotime('-1 year'));
 		$to = date('Y-m-t',strtotime('-1 year'));
@@ -249,13 +249,13 @@ class sale{
 		$sale_amount = $sale_amount + $net_amount;
 		return number_format($sale_amount,2);
 	}
-	
+
 	public function getSaleToday($id_sale){
 		$today = date('Y-m-d');
 		$from = $today." 00:00:00";
 		$to = $today." 23:59:59";
 		$sql = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_sale = $id_sale AND id_role IN(1,5) AND date_upd LIKE '$today%'");
-		list($amount) = dbFetchArray($sql); 
+		list($amount) = dbFetchArray($sql);
 		$bill_discount = $this->total_bill_discount($id_sale, $from, $to);  /// ส่วนลดท้ายบิล
 		$amount = $amount - $bill_discount;
 		$sale_amount = 0;
@@ -264,12 +264,12 @@ class sale{
 		return number_format($sale_amount,2);
 	}
 	/* ******************** ยอดขายรวมวันนี้ *************************/
-	public function totalToday(){ 
+	public function totalToday(){
 		$today = date('Y-m-d');
 		$from = $today." 00:00:00";
 		$to = $today." 23:59:59";
 		$sql = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_role IN(1,5) AND date_upd LIKE '$today%'");
-		list($amount) = dbFetchArray($sql); 
+		list($amount) = dbFetchArray($sql);
 		$bill_discount = $this->all_bill_discount($from, $to); //// ส่วนลดท้ายบิล
 		$amount -= $bill_discount;
 		$sale_amount = 0;
@@ -278,12 +278,12 @@ class sale{
 		return number_format($sale_amount,2);
 	}
 	/***************************** ยอดขายรวมเมื่อวานนี้ ********************************/
-	public function totalLastDay(){ 
+	public function totalLastDay(){
 		$yesterday = date('Y-m-d', strtotime("-1 day"));
 		$from = $yesterday." 00:00:00";
 		$to = $yesterday." 23:59:59";
 		$sql = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_role IN(1,5) AND date_upd LIKE '$yesterday%'");
-		list($amount) = dbFetchArray($sql); 
+		list($amount) = dbFetchArray($sql);
 		$bill_discount = $this->all_bill_discount($from, $to); //// ส่วนลดท้ายบิล
 		$amount -= $bill_discount;
 		$sale_amount = 0;
@@ -380,7 +380,7 @@ class sale{
 		return number_format($sale_amount,2);
 	}
 	/**************************  จัดอันดับตามยอดขาย *************************/
-	public function LeaderBoard($option){ 
+	public function LeaderBoard($option){
 		switch($option){
 			case "today" :
 				$from = date('Y-m-d')." 00:00:00";
@@ -435,7 +435,7 @@ class sale{
 			$sqm = dbQuery("SELECT first_name FROM tbl_sale LEFT JOIN tbl_employee ON tbl_sale.id_employee = tbl_employee.id_employee WHERE tbl_sale.id_employee = $id_employee");
 			list($first_name) = dbFetchArray($sqm);
 			$sqr = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_sale = $id_sale AND id_role IN(1,5) AND (date_upd BETWEEN '$from' AND '$to')");
-			list($amount) = dbFetchArray($sqr); 
+			list($amount) = dbFetchArray($sqr);
 			$bill_discount = $this->total_bill_discount($id_sale, $from, $to);
 			$amount -= $bill_discount;
 			$net_amount =  $amount/1.07;
@@ -450,6 +450,8 @@ class sale{
 		array_multisort($volume, SORT_DESC, $data);
 		return $data;
 	}
+
+
 	/***********************  ตารางยอดขาย แยกตามพื้นที่ *******************/
 	public function LeaderGroup($option){
 		switch($option){
@@ -498,30 +500,49 @@ class sale{
 				$to = $rang['to'];
 			break;
 		}
+
+
 		$from .= " 00:00:00";
 		$to .= " 23:59:59";
-		$sql = dbQuery("SELECT id_group, group_name FROM tbl_group ORDER BY group_name DESC");
+
 		$data = array();
-		while($rs = dbFetchArray($sql)){
-			$id_group = $rs['id_group'];
-			$group_name = $rs['group_name'];
-			$sqr = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold LEFT JOIN tbl_customer ON tbl_order_detail_sold.id_customer = tbl_customer.id_customer WHERE id_default_group = $id_group AND id_role IN(1,5) AND (tbl_order_detail_sold.date_upd BETWEEN '$from' AND '$to')");
-			$sale_amount = 0;
-			list($amount) = dbFetchArray($sqr);
-			$bill_discount = $this->total_group_bill_discount($id_group, $from, $to);
-			$amount -= $bill_discount;
-			$net_amount =  $amount/1.07;
-			$sale_amount = $sale_amount + $net_amount;
-			$arr = array("zone_name"=>$group_name, "sale_amount"=>$sale_amount);
-			array_push($data, $arr);
+
+		$qr = "SELECT g.id_group, g.group_name, SUM(o.total_amount) AS amount ";
+		$qr .= "FROM tbl_order_detail_sold AS o ";
+		$qr .= "JOIN tbl_sale AS s ON o.id_sale = s.id_sale ";
+		$qr .= "JOIN tbl_group AS g ON s.id_group = g.id_group ";
+		$qr .= "WHERE o.id_role = 1 AND o.date_upd >= '".$from."' AND o.date_upd <= '".$to."' ";
+		$qr .= "GROUP BY s.id_group ORDER BY amount DESC";
+
+		$qs = dbQuery($qr);
+		while( $rs = dbFetchObject($qs) )
+		{
+			$data[$rs->id_group] = array('group_name' => $rs->group_name, 'amount' => $rs->amount);
 		}
-		foreach ($data as $key=>$row){
-			$volume[$key] = $row['sale_amount'];
+
+		$ds = array();
+
+		$sql = dbQuery("SELECT id_group, group_name FROM tbl_group ORDER BY group_name DESC");
+
+		while( $rs = dbFetchObject($sql))
+		{
+			$amount = isset( $data[$rs->id_group] ) ? $data[$rs->id_group]['amount'] : 0.00;
+			$ds[$rs->id_group] = array('group_name' => $rs->group_name, 'amount' => $amount);
 		}
-		array_multisort($volume, SORT_DESC, $data);
-		return $data;
+		
+		foreach ($ds as $key=>$row)
+		{
+			$volume[$key] = $row['amount'];
+		}
+
+		array_multisort($volume, SORT_DESC, $ds);
+
+		return $ds;
 	}
-	
+
+
+
+
 	//****************************************  สรุปยอดขายเซล  *******************************//
 	public function sale_amount($option, $id_sale){
 		switch($option){
@@ -583,14 +604,14 @@ class sale{
 		$amount -= $bill_discount;
 		$net_amount =  $amount/1.07;
 		$total_amount = $total_amount+$net_amount;
-		return number_format($total_amount,2);	
+		return number_format($total_amount,2);
 	}
-	public function totalSale($day=""){ 
+	public function totalSale($day=""){
 		if($day ==""){ $day = date("Y-m-d"); }
 		$from = $day." 00:00:00";
 		$to = $day." 23:59:59";
 		$sql = dbQuery("SELECT SUM(total_amount) AS total_amount FROM tbl_order_detail_sold WHERE id_role IN(1,5) AND date_upd LIKE '$day%'");
-		list($amount) = dbFetchArray($sql); 
+		list($amount) = dbFetchArray($sql);
 		$bill_discount = $this->all_bill_discount($from, $to);
 		$amount -= $bill_discount;
 		$sale_amount = 0;
@@ -598,7 +619,7 @@ class sale{
 		$sale_amount = $sale_amount + $net_amount;
 		return $sale_amount;
 	}
-			
+
 }
 
 

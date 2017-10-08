@@ -1,4 +1,4 @@
-<?php 
+<?php
 	$page_menu = "sale_dashboard";
 	$page_name = "SALE DASHBOARD";
 	$id_profile = $_COOKIE['profile_id'];
@@ -37,9 +37,9 @@
 		}
 		return $class;
 	}
-	
+
 	?>
-    
+
 <div class="container">
 <!-- page place holder -->
 <div class="row">
@@ -135,192 +135,6 @@
            </div>
     </div>
 </div>
-<div class='row'>
-	<div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>วันนี้</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("today");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>เมื่อวานนี้</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("yesterday");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>สัปดาห์นี้</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("this_week");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>สัปดาห์ที่แล้ว</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("last_week");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-	<div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>เดือนนี้</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("this_month");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>เดือนที่แล้ว</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("last_month");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>ปีนี้</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("this_year");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-    <div class='col-sm-3'>
-    	<div class='panel panel-primary'>
-        	<div class='panel-heading'>
-            	<h4 style='color:#FFF; margin-top:5px; margin-bottom:0px; text-align:center;'>ปีที่แล้ว</h4>
-            </div>
-            <div class='panel-body'>
-           <div class='row' style='margin-top:-15px; margin-bottom:-15px;'>
-                <table class='table' style='margin-bottom:0px;'>
-                <?php
-				$result = $sale->LeaderBoard("last_year");
-				$n = 1;
-				foreach($result as $data){
-					echo"<tr style='background-color:".posColor($n)."; color:#FFF;'>
-					<td align='center' style='border-top:0px;'>$n</td><td style='border-top:0px;'>".$data['first_name']."</td><td align='right' style='border-top:0px;'>".number_format($data['sale_amount'],2)."</td>
-					</tr>";
-					$n++;
-				}
-				?>
-					</table>		
-                    </div>	
-            </div>
-        </div>
-    </div>
-</div>
+
 
  </div>
-  
