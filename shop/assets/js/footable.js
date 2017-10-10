@@ -42,12 +42,12 @@
                 ///    }
                 /// </param>
 
-                var groups = { '_none': { 'name': null, 'data': [] } };
+                var groups = {'_none': {'name': null, 'data': []}};
                 for (var i = 0; i < data.length; i++) {
                     var groupid = data[i].group;
                     if (groupid != null) {
                         if (!(groupid in groups))
-                            groups[groupid] = { 'name': data[i].groupName, 'data': [] };
+                            groups[groupid] = {'name': data[i].groupName, 'data': []};
 
                         groups[groupid].data.push(data[i]);
                     } else {
@@ -244,7 +244,7 @@
 
             // Create a nice friendly array to work with out of the breakpoints object.
             for (var name in opt.breakpoints) {
-                ft.breakpoints.push({ 'name': name, 'width': opt.breakpoints[name] });
+                ft.breakpoints.push({'name': name, 'width': opt.breakpoints[name]});
                 ft.breakpointNames += (name + ' ');
             }
 
@@ -311,20 +311,20 @@
             hide = hide.split(',');
             var data = {
                 'index': index,
-                'hide': { },
+                'hide': {},
                 'type': $th.data('type') || 'alpha',
                 'name': $.trim($th.data('name') || $th.text()),
                 'ignore': $th.data('ignore') || false,
                 'className': $th.data('class') || null,
                 'matches': [],
-                'names': { },
+                'names': {},
                 'group': $th.data('group') || null,
                 'groupName': null
             };
 
             if (data.group != null) {
                 var $group = $(ft.table).find('> thead > tr.footable-group-row > th[data-group="' + data.group + '"], > thead > tr.footable-group-row > td[data-group="' + data.group + '"]').first();
-                data.groupName = ft.parse($group, { 'type': 'alpha' });
+                data.groupName = ft.parse($group, {'type': 'alpha'});
             }
 
             var pcolspan = parseInt($th.prev().attr('colspan') || 0);
@@ -347,7 +347,7 @@
             for (var name in opt.breakpoints) {
                 data.hide[name] = ($th.data('hide') === "all") || ($.inArray(name, hide) >= 0);
             }
-            var e = ft.raise('footable_column_data', { 'column': { 'data': data, 'th': th } });
+            var e = ft.raise('footable_column_data', {'column': {'data': data, 'th': th}});
             return e.column.data;
         };
 
@@ -393,7 +393,7 @@
 
             var pinfo = $table.data('footable_info');
             $table.data('footable_info', info);
-            ft.raise('footable_resizing', { 'old': pinfo, 'info': info });
+            ft.raise('footable_resizing', {'old': pinfo, 'info': info});
 
             // This (if) statement is here purely to make sure events aren't raised twice as mobile safari seems to do
             if (!pinfo || ((pinfo && pinfo.width && pinfo.width != info.width) || (pinfo && pinfo.height && pinfo.height != info.height))) {
@@ -469,10 +469,10 @@
                     .find('> th:visible:first, > td:visible:first')
                     .addClass('footable-first-column');
 
-                ft.raise('footable_breakpoint_' + breakpointName, { 'info': info });
+                ft.raise('footable_breakpoint_' + breakpointName, {'info': info});
             }
 
-            ft.raise('footable_resized', { 'old': pinfo, 'info': info });
+            ft.raise('footable_resized', {'old': pinfo, 'info': info});
         };
 
         ft.toggleDetail = function (actualRow) {
@@ -507,13 +507,19 @@
         ft.createOrUpdateDetailRow = function (actualRow) {
             var $row = $(actualRow), $next = $row.next(), $detail, values = [];
             if ($row.is(':hidden')) return false; //if the row is hidden for some readon (perhaps filtered) then get out of here
-            ft.raise('footable_rowdetailupdated', { 'row': $row, 'detail': $next });
+            ft.raise('footable_rowdetailupdated', {'row': $row, 'detail': $next});
             $row.find('> td:hidden').each(function () {
                 var index = $(this).index(), column = ft.getColumnFromTdIndex(index), name = column.name;
                 if (column.ignore == true) return true;
 
                 if (index in column.names) name = column.names[index];
-                values.push({ 'name': name, 'value': ft.parse(this, column), 'display': $.trim($(this).html()), 'group': column.group, 'groupName': column.groupName });
+                values.push({
+                    'name': name,
+                    'value': ft.parse(this, column),
+                    'display': $.trim($(this).html()),
+                    'group': column.group,
+                    'groupName': column.groupName
+                });
                 return true;
             });
             if (values.length == 0) return false; //return if we don't have any data to show
@@ -530,8 +536,8 @@
         };
 
         ft.raise = function (eventName, args) {
-            args = args || { };
-            var def = { 'ft': ft };
+            args = args || {};
+            var def = {'ft': ft};
             $.extend(true, def, args);
             var e = $.Event(eventName, def);
             if (!e.ft) {

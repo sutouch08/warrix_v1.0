@@ -28,12 +28,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
-* ====================================================================== */
+ * ====================================================================== */
 
-(function($) {
+(function ($) {
     "use strict";
 
-    $.fn.TouchSpin = function(options) {
+    $.fn.TouchSpin = function (options) {
 
         var defaults = {
             min: 0,
@@ -56,7 +56,7 @@
             buttonup_class: "btn btn-default"
         };
 
-        return this.each(function() {
+        return this.each(function () {
 
             var settings,
                 originalinput = $(this),
@@ -151,7 +151,7 @@
 
                 if (prev.hasClass("input-group-btn")) {
                     downhtml = '<button class="' + settings.buttondown_class + ' bootstrap-touchspin-down" type="button">-</button>',
-                    prev.append(downhtml);
+                        prev.append(downhtml);
                 }
                 else {
                     downhtml = '<span class="input-group-btn"><button class="' + settings.buttondown_class + ' bootstrap-touchspin-down" type="button">-</button></span>';
@@ -160,7 +160,7 @@
 
                 if (next.hasClass("input-group-btn")) {
                     uphtml = '<button class="' + settings.buttonup_class + ' bootstrap-touchspin-up" type="button">+</button>',
-                    next.prepend(uphtml);
+                        next.prepend(uphtml);
                 }
                 else {
                     uphtml = '<span class="input-group-btn"><button class="' + settings.buttonup_class + ' bootstrap-touchspin-up" type="button">+</button></span>';
@@ -199,7 +199,7 @@
             }
 
             function _bindEvents() {
-                originalinput.on("keydown", function(ev) {
+                originalinput.on("keydown", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 38) {
@@ -218,7 +218,7 @@
                     }
                 });
 
-                originalinput.on("keyup", function(ev) {
+                originalinput.on("keyup", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 38) {
@@ -229,11 +229,11 @@
                     }
                 });
 
-                originalinput.on("blur", function() {
+                originalinput.on("blur", function () {
                     _checkValue();
                 });
 
-                elements.down.on("keydown", function(ev) {
+                elements.down.on("keydown", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 32 || code === 13) {
@@ -245,7 +245,7 @@
                     }
                 });
 
-                elements.down.on("keyup", function(ev) {
+                elements.down.on("keyup", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 32 || code === 13) {
@@ -253,7 +253,7 @@
                     }
                 });
 
-                elements.up.on("keydown", function(ev) {
+                elements.up.on("keydown", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 32 || code === 13) {
@@ -265,7 +265,7 @@
                     }
                 });
 
-                elements.up.on("keyup", function(ev) {
+                elements.up.on("keyup", function (ev) {
                     var code = ev.keyCode || ev.which;
 
                     if (code === 32 || code === 13) {
@@ -273,7 +273,7 @@
                     }
                 });
 
-                elements.down.on("mousedown touchstart", function(ev) {
+                elements.down.on("mousedown touchstart", function (ev) {
                     downOnce();
                     startDownSpin();
 
@@ -281,7 +281,7 @@
                     ev.stopPropagation();
                 });
 
-                elements.up.on("mousedown touchstart", function(ev) {
+                elements.up.on("mousedown touchstart", function (ev) {
                     upOnce();
                     startUpSpin();
 
@@ -289,7 +289,7 @@
                     ev.stopPropagation();
                 });
 
-                elements.up.on("mouseout touchleave touchend touchcancel", function(ev) {
+                elements.up.on("mouseout touchleave touchend touchcancel", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -298,7 +298,7 @@
                     stopSpin();
                 });
 
-                elements.down.on("mouseout touchleave touchend touchcancel", function(ev) {
+                elements.down.on("mouseout touchleave touchend touchcancel", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -307,7 +307,7 @@
                     stopSpin();
                 });
 
-                elements.down.on("mousemove touchmove", function(ev) {
+                elements.down.on("mousemove touchmove", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -316,7 +316,7 @@
                     ev.preventDefault();
                 });
 
-                elements.up.on("mousemove touchmove", function(ev) {
+                elements.up.on("mousemove touchmove", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -325,7 +325,7 @@
                     ev.preventDefault();
                 });
 
-                $(document).on("mouseup touchend touchcancel", function(ev) {
+                $(document).on("mouseup touchend touchcancel", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -334,7 +334,7 @@
                     stopSpin();
                 });
 
-                $(document).on("mousemove touchmove scroll scrollstart", function(ev) {
+                $(document).on("mousemove touchmove scroll scrollstart", function (ev) {
                     if (!spinning) {
                         return;
                     }
@@ -344,7 +344,7 @@
                 });
 
                 if (settings.mousewheel) {
-                    originalinput.on("mousewheel DOMMouseScroll", function(ev) {
+                    originalinput.on("mousewheel DOMMouseScroll", function (ev) {
                         var delta = ev.originalEvent.wheelDelta || -ev.originalEvent.detail;
 
                         ev.stopPropagation();
@@ -361,35 +361,35 @@
             }
 
             function _bindEventsInterface() {
-                originalinput.on('touchspin.uponce', function() {
+                originalinput.on('touchspin.uponce', function () {
                     stopSpin();
                     upOnce();
                 });
 
-                originalinput.on('touchspin.downonce', function() {
+                originalinput.on('touchspin.downonce', function () {
                     stopSpin();
                     downOnce();
                 });
 
-                originalinput.on('touchspin.startupspin', function() {
+                originalinput.on('touchspin.startupspin', function () {
                     startUpSpin();
                 });
 
-                originalinput.on('touchspin.startdownspin', function() {
+                originalinput.on('touchspin.startdownspin', function () {
                     startDownSpin();
                 });
 
-                originalinput.on('touchspin.stopspin', function() {
+                originalinput.on('touchspin.stopspin', function () {
                     stopSpin();
                 });
 
-                originalinput.on('touchspin.updatesettings', function(e, newsettings) {
+                originalinput.on('touchspin.updatesettings', function (e, newsettings) {
                     changeSettings(newsettings);
                 });
             }
 
             function _forcestepdivisibility(value) {
-                switch(settings.forcestepdivisibility) {
+                switch (settings.forcestepdivisibility) {
                     case 'round':
                         return (Math.round(value / settings.step) * settings.step).toFixed(settings.decimals);
                         break;
@@ -450,7 +450,7 @@
                     return settings.step;
                 }
                 else {
-                    var boosted = Math.pow(2,Math.floor(spincount / settings.boostat)) * settings.step;
+                    var boosted = Math.pow(2, Math.floor(spincount / settings.boostat)) * settings.step;
 
                     if (settings.maxboostedstep) {
                         if (boosted > settings.maxboostedstep) {
@@ -474,7 +474,7 @@
                 var initvalue = value,
                     boostedstep = _getBoostedStep();
 
-                value =  value + boostedstep;
+                value = value + boostedstep;
 
                 if (value > settings.max) {
                     stopSpin();
@@ -521,8 +521,8 @@
                 spincount = 0;
                 spinning = "down";
 
-                downDelayTimeout = setTimeout(function() {
-                    downSpinTimer = setInterval(function() {
+                downDelayTimeout = setTimeout(function () {
+                    downSpinTimer = setInterval(function () {
                         spincount++;
                         downOnce();
                     }, settings.stepinterval);
@@ -535,8 +535,8 @@
                 spincount = 0;
                 spinning = "up";
 
-                upDelayTimeout = setTimeout(function() {
-                    upSpinTimer = setInterval(function() {
+                upDelayTimeout = setTimeout(function () {
+                    upSpinTimer = setInterval(function () {
                         spincount++;
                         upOnce();
                     }, settings.stepinterval);

@@ -7,7 +7,7 @@
  * 2013/02/17
  **/
 (function ($) {
-    $.scrollTo = $.fn.scrollTo = function(x, y, options){
+    $.scrollTo = $.fn.scrollTo = function (x, y, options) {
         if (!(this instanceof $)) return $.fn.scrollTo.apply($('html, body'), arguments);
 
         options = $.extend({}, {
@@ -23,7 +23,7 @@
             }
         }, options);
 
-        return this.each(function(){
+        return this.each(function () {
             var elem = $(this);
             elem.stop().animate({
                 scrollLeft: !isNaN(Number(x)) ? x : $(x).offset().left + options.gap.x,

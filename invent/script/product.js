@@ -1,4 +1,4 @@
-// JavaScript Document 
+// JavaScript Document
 // ใช้งานในไฟล์ product.php
 
 //--------------------------  New Code  ---------------------//
@@ -46,7 +46,7 @@ function getDelete(id_pa, ref){
 				}
 			}
 		});
-	});		
+	});
 }
 
 function saveEdit()
@@ -54,7 +54,7 @@ function saveEdit()
 	var id_pd	= $("#id_product").val();
 	var id_pa	= $("#id_pa").val();
 	var reference = $("#editReference").val();
-	if( reference == '' ){ 
+	if( reference == '' ){
 		$("#editReference").addClass('has-error');
 		$("#editReference").focus();
 		return false;
@@ -71,20 +71,20 @@ function saveEdit()
 			var rs = $.trim(rs);
 			if( rs == 'success')
 			{
-				swal({ title: 'เรียบร้อย', text: 'ปรับปรุงข้อมูลเรียบร้อยแล้ว', timer: 1000, type: 'success' });	
+				swal({ title: 'เรียบร้อย', text: 'ปรับปรุงข้อมูลเรียบร้อยแล้ว', timer: 1000, type: 'success' });
 				setTimeout(function(){ window.location.reload(); }, 1100);
 			}else{
-				swal({ title: 'ข้อผิดพลาด !!', text: rs, type: 'error' }, function(){ $("#itemEditModal").modal('show'); });	
+				swal({ title: 'ข้อผิดพลาด !!', text: rs, type: 'error' }, function(){ $("#itemEditModal").modal('show'); });
 			}
 		}
-	});	
+	});
 }
 
 
 function editBarcode()
 {
 	$(".bc-label").addClass('hide');
-	$(".barcode").removeClass("hide");	
+	$(".barcode").removeClass("hide");
 }
 
 $(".barcode").keyup(function(e){
@@ -93,7 +93,7 @@ $(".barcode").keyup(function(e){
 		var id = box.attr('id');
 		var label = $("#"+id+"-label");
 		var no	= $("#"+id+"-no").val();
-		var barcode = box.val();
+		var barcode = $.trim(box.val());
 		var id_pa = $("#"+id+"-id").val();
 		if( barcode == '' ){ return false; }
 		$.ajax({
@@ -105,13 +105,13 @@ $(".barcode").keyup(function(e){
 					no++;
 					updateBarcode(id_pa, barcode, box, label, no)
 				}else if( rs == 'duplicated' ){
-					swal('ข้อผิดพลาด!!', 'บาร์โค้ดซ้ำ กรุณาใช้บาร์โค้ดอื่น', 'error');	
+					swal('ข้อผิดพลาด!!', 'บาร์โค้ดซ้ำ กรุณาใช้บาร์โค้ดอื่น', 'error');
 				}else{
-					
+
 				}
 			}
 		});
-	}	
+	}
 });
 
 function updateBarcode(id_pa, barcode, box, label, no)
@@ -124,10 +124,10 @@ function updateBarcode(id_pa, barcode, box, label, no)
 			if( rs == 'success' ){
 				label.text(barcode);
 				box.addClass('hide');
-				label.removeClass('hide');	
+				label.removeClass('hide');
 				$(".no-"+no).focus();
 			}else{
-				swal('ข้อผิดพลาด!!', 'บันทึกบาร์โค้ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');	
+				swal('ข้อผิดพลาด!!', 'บันทึกบาร์โค้ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');
 			}
 		}
 	});
@@ -136,7 +136,7 @@ function updateBarcode(id_pa, barcode, box, label, no)
 function editBarcodePack()
 {
 	$(".bp-label").addClass('hide');
-	$(".barcode-pack").removeClass('hide');	
+	$(".barcode-pack").removeClass('hide');
 }
 
 $(".barcode-pack").keyup(function(e){
@@ -157,13 +157,13 @@ $(".barcode-pack").keyup(function(e){
 					no++;
 					updateBarcodePack(id_pa, barcode, box, label, no)
 				}else if( rs == 'duplicated' ){
-					swal('ข้อผิดพลาด!!', 'บาร์โค้ดซ้ำ กรุณาใช้บาร์โค้ดอื่น', 'error');	
+					swal('ข้อผิดพลาด!!', 'บาร์โค้ดซ้ำ กรุณาใช้บาร์โค้ดอื่น', 'error');
 				}else{
-					
+
 				}
 			}
 		});
-	}	
+	}
 });
 
 function updateBarcodePack(id_pa, barcode, box, label, no)
@@ -176,10 +176,10 @@ function updateBarcodePack(id_pa, barcode, box, label, no)
 			if( rs == 'success' ){
 				label.text(barcode);
 				box.addClass('hide');
-				label.removeClass('hide');	
+				label.removeClass('hide');
 				$(".bp-no-"+no).focus();
 			}else{
-				swal('ข้อผิดพลาด!!', 'บันทึกบาร์โค้ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');	
+				swal('ข้อผิดพลาด!!', 'บันทึกบาร์โค้ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');
 			}
 		}
 	});
@@ -188,7 +188,7 @@ function updateBarcodePack(id_pa, barcode, box, label, no)
 function editPackQty()
 {
 	$(".pqty-label").addClass('hide');
-	$(".pack-qty").removeClass('hide');	
+	$(".pack-qty").removeClass('hide');
 }
 
 $(".pack-qty").keyup(function(e){
@@ -209,16 +209,16 @@ $(".pack-qty").keyup(function(e){
 					no++;
 					label.text(qty);
 					box.addClass('hide');
-					label.removeClass('hide');	
+					label.removeClass('hide');
 					$(".pqty-no-"+no).focus();
 				}else if( rs == 'fail' ){
-					swal('ข้อผิดพลาด!!', 'แก้ไขจำนวนในแพ็คไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');	
+					swal('ข้อผิดพลาด!!', 'แก้ไขจำนวนในแพ็คไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error');
 				}else if( rs == 'nopack'){
 					swal('ข้อผิดพลาด!!', 'ยังไม่ได้กำหนดบาร์โค้ดแพ็ค กรุณากำหนดบาร์โค้ดแพ็คก่อนการแก้ไขจำนวน', 'error');
 				}
 			}
 		});
-	}	
+	}
 });
 
 function setImage(id_pd)
@@ -235,7 +235,7 @@ function setImage(id_pd)
 				swal('ไม่พบรูปภาพ หรือ รายการสินค้า');
 			}else{
 				$("#mappingBody").html(rs);
-				$("#imageMappingTable").modal('show');	
+				$("#imageMappingTable").modal('show');
 			}
 		}
 	});
@@ -274,30 +274,30 @@ function addProduct()
 	var price		= parseFloat($("#price").val());
 	var dType	= $("#dType").val();
 	var dis		= parseFloat($("#discount").val());
-	
-	if( pCode == '' ){ 
-		$("#pCode-error").text('จำเป็นต้องกำหนดช่องนี้');		
+
+	if( pCode == '' ){
+		$("#pCode-error").text('จำเป็นต้องกำหนดช่องนี้');
 		showError('pCode');
 		$("#pCode").focus();
 		return false;
 	}
-	
-	if( isDup == 1 ){ 
+
+	if( isDup == 1 ){
 		$("#pCode-error").text('รหัสสินค้าซ้ำ');
 		showError('pCode');
 		$("#pCode").focus();
 		return false;
 	}
-	
+
 	if( pName == '' ){
 		showError('pName');
 		$("#pName").focus();
 		return false;
 	}
-	if( ( dType == 'percentage' && dis > 100 ) || ( dType == 'amount' && dis > price ) ){ 
-		validDiscount(); 
-		$("#discount").focus(); 
-		return false; 
+	if( ( dType == 'percentage' && dis > 100 ) || ( dType == 'amount' && dis > price ) ){
+		validDiscount();
+		$("#discount").focus();
+		return false;
 	}
 	if( isNaN( parseFloat( cost ) ) ){ showError('cost'); $("#cost").focus(); return false; }
 	if( isNaN( price ) ){ showError('price'); $("#price").focus(); return false; }
@@ -313,10 +313,10 @@ function addProduct()
 			{
 				swal('ข้อผิดพลาด!!', 'เพิ่มสินค้าไม่สำเร็จ ลองออกจากหน้านี้แล้วกลับเข้ามาใหม่อีกครั้ง', 'error');
 			}else{
-				window.location.href = 'index.php?content=product&edit&id_product='+rs;	
+				window.location.href = 'index.php?content=product&edit&id_product='+rs;
 			}
 		}
-	});	
+	});
 }
 
 
@@ -330,30 +330,30 @@ function saveProduct()
 	var price		= parseFloat($("#price").val());
 	var dType	= $("#dType").val();
 	var dis		= parseFloat($("#discount").val());
-	
-	if( pCode == '' ){ 
-		$("#pCode-error").text('จำเป็นต้องกำหนดช่องนี้');		
+
+	if( pCode == '' ){
+		$("#pCode-error").text('จำเป็นต้องกำหนดช่องนี้');
 		showError('pCode');
 		$("#pCode").focus();
 		return false;
 	}
-	
-	if( isDup == 1 ){ 
+
+	if( isDup == 1 ){
 		$("#pCode-error").text('รหัสสินค้าซ้ำ');
 		showError('pCode');
 		$("#pCode").focus();
 		return false;
 	}
-	
+
 	if( pName == '' ){
 		showError('pName');
 		$("#pName").focus();
 		return false;
 	}
-	if( ( dType == 'percentage' && dis > 100 ) || ( dType == 'amount' && dis > price ) ){ 
-		validDiscount(); 
-		$("#discount").focus(); 
-		return false; 
+	if( ( dType == 'percentage' && dis > 100 ) || ( dType == 'amount' && dis > price ) ){
+		validDiscount();
+		$("#discount").focus();
+		return false;
 	}
 	if( isNaN( parseFloat( cost ) ) ){ showError('cost'); $("#cost").focus(); return false; }
 	if( isNaN( price ) ){ showError('price'); $("#price").focus(); return false; }
@@ -377,7 +377,7 @@ function saveProduct()
 				swal('ข้อผิดพลาด!!', rs, 'error');
 			}
 		}
-	});	
+	});
 }
 
 
@@ -399,7 +399,7 @@ $("#pCode").focusout(function(e) {
 $("#pName").focusout(function(e) {
 	var name = $.trim( $(this).val() );
 	if( name == '' ){ showError('pName'); }else{ hideError('pName'); }
-		
+
 });
 
 $("#cost").focusout(function(e) {
@@ -474,7 +474,7 @@ function hideError(el)
 {
 	var label = $("#"+el+"-error");
 	var input	= $("#"+el);
-	label.css('display', 'none');	
+	label.css('display', 'none');
 	input.removeClass('has-error');
 }
 
@@ -484,13 +484,13 @@ function toggleShop( i )
 	{
 		$("#inShop").val(1);
 		$("#btn-nis").removeClass('btn-danger');
-		$("#btn-is").addClass('btn-success');	
+		$("#btn-is").addClass('btn-success');
 	}
 	if( i == 0 )
 	{
 		$("#inShop").val(0);
 		$("#btn-is").removeClass('btn-success');
-		$("#btn-nis").addClass('btn-danger');	
+		$("#btn-nis").addClass('btn-danger');
 	}
 }
 
@@ -500,13 +500,13 @@ function toggleActive( i )
 	{
 		$("#active").val(1);
 		$("#btn-dac").removeClass('btn-danger');
-		$("#btn-ac").addClass('btn-success');	
+		$("#btn-ac").addClass('btn-success');
 	}
 	if( i == 0 )
 	{
 		$("#active").val(0);
 		$("#btn-ac").removeClass('btn-success');
-		$("#btn-dac").addClass('btn-danger');	
+		$("#btn-dac").addClass('btn-danger');
 	}
 }
 
@@ -523,25 +523,25 @@ function toggleVisual( i )
 	{
 		$("#isVisual").val(0);
 		$("#btn-vs").removeClass('btn-success');
-		$("#btn-nvs").addClass('btn-danger');	
+		$("#btn-nvs").addClass('btn-danger');
 	}
 }
 
 
 function newProduct()
 {
-	window.location.href = "index.php?content=product&add";	
+	window.location.href = "index.php?content=product&add";
 }
 
 function goBack()
 {
-	window.location.href = "index.php?content=product";	
+	window.location.href = "index.php?content=product";
 }
 
 function getGenerate()
 {
 	var id = $("#id_product").val();
-	window.location.href = "index.php?content=attribute_gen&id_product="+id+"&step=1";	
+	window.location.href = "index.php?content=attribute_gen&id_product="+id+"&step=1";
 }
 
 function changeURL(tab)
@@ -551,4 +551,4 @@ function changeURL(tab)
 	var stObj = { stage: 'stage' };
 	window.history.pushState(stObj, 'product', url);
 }
-//------------------------- End new code  -------------------// 
+//------------------------- End new code  -------------------//
