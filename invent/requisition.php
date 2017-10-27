@@ -1,4 +1,4 @@
-<?php 
+<?php
 	$page_name = 'เบิกแปรสภาพ';
 	$id_tab = 7;
     $pm = checkAccess($id_profile, $id_tab);
@@ -9,17 +9,17 @@
 	accessDeny($view);
   	if($add==1){ $can_add = "";}else{ $can_add = "style='display:none;'"; }
 	if($edit==1){ $can_edit = "";}else{ $can_edit = "style='display:none;'"; }
-	if($delete==1){ $can_delete = "";}else{ $can_delete ="style='display:none;'"; }	
+	if($delete==1){ $can_delete = "";}else{ $can_delete ="style='display:none;'"; }
 	include "function/order_helper.php";
 	?>
 <div class="container">
 <!-- page place holder -->
 <div class="row">
-	<div class="col-xs-6"><h3><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp;<?php echo $page_name; ?></h3>
+	<div class="col-sm-6"><h3><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp;<?php echo $page_name; ?></h3>
 	</div>
-    <div class="col-xs-6">
+    <div class="col-sm-6">
        <ul class="nav navbar-nav navbar-right">
-       <?php 
+       <?php
 	   if(isset($_GET['edit'])&&isset($_GET['id_order'])){
 		   $id_order = $_GET['id_order'];
 		   $order= new order($id_order);
@@ -42,12 +42,12 @@
 </div>
 <hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />
 <!-- End page place holder -->
-<?php 
+<?php
 if(isset($_GET['error'])){
 	$error_message = $_GET['error'];
 	echo"<div id='error' class='alert alert-danger' >
 	<b>มีบางอย่างผิดพลาด&nbsp;</b>$error_message</div>";
-} 
+}
 if(isset($_GET['message'])){
 	$message = $_GET['message'];
 	echo"<div class='alert alert-success'>$message</div>";
@@ -61,24 +61,24 @@ if(isset($_GET['message1'])){
 echo "<div class='alert alert-warning' role='alert'>$message1</div>";
 }
 //----------------------------------------------เพิ่ม-----------------------------------------//
-if(isset($_GET['add'])){ 
+if(isset($_GET['add'])){
 $user_id = $_COOKIE['user_id'];
 
-if(isset($_GET['id_order'])){ 
+if(isset($_GET['id_order'])){
 $id_order = $_GET['id_order'];
-$active = "disabled='disabled'"; 
+$active = "disabled='disabled'";
 $order = new order($id_order);
 $employee = new employee($order->id_employee);
 $id_employee = $employee->id_employee;
-$employee_name = $employee->full_name; 
+$employee_name = $employee->full_name;
 $comment = $order->comment;
 $payment = $order->payment;
 $role = $order->role;
 $new_ref = $order->reference;
 $customer = new customer($order->id_customer);
 $id_customer = $customer->id_customer;
-$customer_name = $customer->full_name; 
-}else{ 
+$customer_name = $customer->full_name;
+}else{
 	$active = "";
 	$id_employee = "";
 	$employee_name = "";
@@ -86,37 +86,81 @@ $customer_name = $customer->full_name;
 	$payment = "credit";
 	$role = "";
 	$id_customer = "";
-	$customer_name = ""; 
+	$customer_name = "";
 	$new_ref = get_max_role_reference("PREFIX_REQUISITION",2);
 }
-echo"<form id='add_order_form' action='controller/requisitionController.php?add=y' method='post'>
-	<div class='row'><input type='hidden' name='id_employee' value='$user_id' />
-	<div class='col-xs-3'><div class='input-group'><span class='input-group-addon'>เลขที่เอกสาร</span><input type='text' id='doc_id' class='form-control' value='$new_ref' disabled='disabled'/></div> </div> 
-	<div class='col-xs-2'><div class='input-group'><span class='input-group-addon'>วันที่</span><input type='text' id='doc_date' name='doc_date' class='form-control' value='".date('d-m-Y')."' $active/></div> </div>
-	<div class='col-xs-4'><div class='input-group'><span class='input-group-addon'>ผู้เบิก</span><input type='text' id='employee_name' class='form-control' value='$employee_name' autocomplete='off' $active/></div> </div>
-	<div class='col-xs-3'><div class='input-group'><span class='input-group-addon'>วัตถุประสงค์</span>
-							<select name='role' id='role' class='form-control' $active>
-								<option value='0' >เลือกวัตถุประสงค์</option>
-								<option value='2'"; if($role==2){ echo"selected='selected'";} echo">เบิกแปรรูปเพื่อขาย</option>
-								<option value='6'"; if($role==6){ echo"selected='selected'";} echo">เบิกแปรรูปเพื่อสปอนเซอร์</option>
-							</select>
-							</div> </div>
+?>
+<form id="add_order_form" action="controller/requisitionController.php?add=y" method="post">
+	<div class="row">
+		<input type="hidden" name="id_employee" value="<?php echo $user_id; ?>" />
+		<div class="col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">เลขที่เอกสาร</span>
+				<input type="text" id="doc_id" class="form-control" value="<?php echo $new_ref; ?>" disabled="disabled"/>
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">วันที่</span>
+				<input type="text" id="doc_date" name="doc_date" class="form-control" value="<?php echo date('d-m-Y'); ?>" <?php echo $active; ?> />
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="input-group">
+				<span class="input-group-addon">ผู้เบิก</span>
+				<input type="text" id="employee_name" class="form-control" value="<?php echo $employee_name; ?>" autocomplete="off" <?php echo $active; ?> />
+			</div>
+		</div>
+		<div class="col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">วัตถุประสงค์</span>
+				<select name="role" id="role" class="form-control" <?php echo $active; ?>>
+					<option value="0" >เลือกวัตถุประสงค์</option>
+					<option value="2" <?php echo isSelected($role, 2); ?>>เบิกแปรรูปเพื่อขาย</option>
+					<option value="6" <?php echo isSelected($role, 6); ?>>เบิกแปรรูปเพื่อสปอนเซอร์</option>
+				</select>
+			</div>
+		</div>
 	</div>
-	<div class='row' style='margin-top:15px;'><input type='hidden' name='employee' id='id_employee' value='$id_employee' />
-	<div class='col-xs-3'><div class='input-group'><span class='input-group-addon'>อ้างถึงลูกค้า</span><input type='text' id='customer_name' class='form-control' value='$customer_name' autocomplete='off' $active/></div> <input type='hidden' name='id_customer' id='id_customer' value='$id_customer' /></div> 
-	<div class='col-xs-6'><div class='input-group'><span class='input-group-addon'>หมายเหตุ</span><input type='text' id='comment' name='comment' class='form-control' value='$comment' autocomplete='off' $active/></div></div>
-	<div class='col-xs-2'><button class='btn btn-default' type='button' id='add_order' $active>&nbsp&nbsp;เพิ่ม&nbsp;&nbsp</button></div>
-	</div></form>
+
+	<div class="row" style="margin-top:15px;">
+		<input type="hidden" name="employee" id="id_employee" value="<?php echo $id_employee; ?>" />
+		<div class="col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">อ้างถึงลูกค้า</span>
+				<input type="text" id="customer_name" class="form-control" value="<?php echo $customer_name; ?>" autocomplete="off" <?php echo $active; ?> />
+			</div>
+			<input type="hidden" name="id_customer" id="id_customer" value="<?php echo $id_customer; ?>" />
+		</div>
+
+		<div class="col-sm-6">
+			<div class="input-group">
+				<span class="input-group-addon">หมายเหตุ</span>
+				<input type="text" id="comment" name="comment" class="form-control" value="<?php echo $comment; ?>" autocomplete="off" <?php echo $active; ?>/>
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<?php if( ! isset($id_order)) : ?>
+			<button class="btn btn-default" type="button" id="add_order"><i class="fa fa-plus"></i> เพิ่ม</button>
+		<?php else : ?>
+			<button type="button" class="btn btn-warning" id="btn-edit" onclick="getEdit(<?php echo $id_order; ?>)"><i class="fa fa-pencil"></i> แก้ไข</button>
+			<button type="button" class="btn btn-success hide" id="btn-update" onclick="updateHeader(<?php echo $id_order; ?>)"><i class="fa fa-save"></i> บันทึก</button>
+		<?php endif; ?>
+		</div>
+	</div>
+</form>
+
 	<hr style='border-color:#CCC; margin-top: 15px; margin-bottom:15px;' />";
-	if(isset($_GET['id_order'])){ 
+<?php
+	if(isset($_GET['id_order'])){
 		echo"<form id='add_detail_form' action='controller/requisitionController.php?add&insert_detail' method='post'>
 			<div class='row'><input type='hidden' name='id_order' id='id_order' value='$id_order' />
 			<input type='hidden' name='stock_qty' id='stock_qty' /><input name='id_product_attribute' id='id_product_attribute' type='hidden' />
-	<div class='col-xs-3'><div class='input-group'><span class='input-group-addon'>บาร์โค้ด</span><input type='text' id='barcode' class='form-control' autocomplete='off' autofocus /></div> </div> 
-	<div class='col-xs-4'><div class='input-group'><span class='input-group-addon'>สินค้า</span><input type='text' id='product_code' class='form-control' autocomplete='off' /></div> </div>
-	<div class='col-xs-2'><div class='input-group'><span class='input-group-addon'>ในสต็อก</span><input type='text' id='stock_label' class='form-control' disabled='disabled' /></div> </div>
-	<div class='col-xs-2'><div class='input-group'><span class='input-group-addon'>จำนวน</span><input type='text' id='qty' name='qty' class='form-control' autocomplete='off' autofocus /></div> </div>
-	<div class='col-xs-1'><button class='btn btn-default' type='button' id='add_detail' onclick='submit_detail()'>&nbsp&nbsp;เพิ่ม&nbsp;&nbsp</button></div>
+	<div class='col-sm-3'><div class='input-group'><span class='input-group-addon'>บาร์โค้ด</span><input type='text' id='barcode' class='form-control' autocomplete='off' autofocus /></div> </div>
+	<div class='col-sm-4'><div class='input-group'><span class='input-group-addon'>สินค้า</span><input type='text' id='product_code' class='form-control' autocomplete='off' /></div> </div>
+	<div class='col-sm-2'><div class='input-group'><span class='input-group-addon'>ในสต็อก</span><input type='text' id='stock_label' class='form-control' disabled='disabled' /></div> </div>
+	<div class='col-sm-2'><div class='input-group'><span class='input-group-addon'>จำนวน</span><input type='text' id='qty' name='qty' class='form-control' autocomplete='off' autofocus /></div> </div>
+	<div class='col-sm-1'><button class='btn btn-default' type='button' id='add_detail' onclick='submit_detail()'>&nbsp&nbsp;เพิ่ม&nbsp;&nbsp</button></div>
 	</div></form>
 	<hr style='border-color:#CCC; margin-top: 15px; margin-bottom:15px;' />";
 	?>
@@ -130,13 +174,13 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 </div><!---/ row -->
 <hr style='border-color:#CCC; margin-top: 0px; margin-bottom:0px;' />
 <div class='row'>
-	<div class='col-sm-12'>		
+	<div class='col-sm-12'>
 		<div class='tab-content' style="min-height:1px; padding:0px;">
 		<?php echo getCategoryTab(); ?>
 		</div>
 	</div>
 </div>
-<!------------------------------------ End Category Menu ------------------------------------>	
+<!------------------------------------ End Category Menu ------------------------------------>
 <form id="gridForm">
 	<div class='modal fade' id='order_grid' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
 		<div class='modal-dialog' id='modal'>
@@ -159,8 +203,8 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 
 <?php
 	/*
-	
-	//เริ่ม order 
+
+	//เริ่ม order
 	echo"
 	<div class='row'>
 	<div class='col-lg-12 col-md-12 col-sm-12 col-sx-12'>
@@ -175,17 +219,17 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 				$n=0;
 				if($rs<1){
 					echo"<li calss=''><a href='#cat-$id_category' role='tab' data-toggle='tab'>$category_name</a>";
-				}else{				
+				}else{
 				echo"<li class='dropdown'><a id='ul-$id_category' class='dropdown-toggle' data-toggle='dropdown' href='#'>$category_name<span class='caret'></span></a>";
 				echo"<ul class='dropdown-menu' role='menu' aria-labelledby='ul-$id_category'>";
-				echo"<li class=''><a href='#cat-$id_category' tabindex='-1' role='tab' data-toggle='tab'>$category_name</a></li>";     
+				echo"<li class=''><a href='#cat-$id_category' tabindex='-1' role='tab' data-toggle='tab'>$category_name</a></li>";
 				while($n<$rs){
 				list($id_sub_category, $sub_category_name) = dbFetchArray($sqr);
 				echo" <li class=''><a href='#cat-$id_sub_category' tabindex='-1' role='tab' data-toggle='tab'>$sub_category_name</a></li>";
 				$n++;
 				}
 				echo"</ul></li>";
-				}	
+				}
 				echo "</li>";
 				$i++;
 				}
@@ -194,8 +238,8 @@ echo"<form id='add_order_form' action='controller/requisitionController.php?add=
 	</div>
 	</div>
 <div class='row'><div class='col-lg-12 col-md-12 col-sm-12 col-sx-12'>
-<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />	
-<div class='tab-content'>";	
+<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />
+<div class='tab-content'>";
 
 $query = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category !=0");
 	$rc = dbNumRows($query);
@@ -203,17 +247,17 @@ $query = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_c
 	while($c = dbFetchArray($query)){
 		$id_category = $c['id_category'];
 		$cate_name = $c['category_name'];
-		echo"<div class='tab-pane"; if($r==0){ echo" active";} echo"' id='cat-$id_category'>";	
+		echo"<div class='tab-pane"; if($r==0){ echo" active";} echo"' id='cat-$id_category'>";
 		$sql = dbQuery("SELECT tbl_category_product.id_product FROM tbl_category_product LEFT JOIN tbl_product ON tbl_category_product.id_product = tbl_product.id_product WHERE id_category = $id_category ORDER BY product_code ASC");
-		$row = dbNumRows($sql); 
+		$row = dbNumRows($sql);
 		if($row>0){
 			$i=0;
 			while($i<$row){
 				list($id_product) = dbFetchArray($sql);
 				$product = new product();
 				$product->product_detail($id_product);
-				
-		 echo"<div class='col-lg-1 col-md-1 col-sm-3 col-xs-4' style='text-align:center;'>
+
+		 echo"<div class='col-lg-1 col-md-1 col-sm-3 col-sm-4' style='text-align:center;'>
 			<div class='product' style='padding:5px;'>
 			<div class='image'><a href='#' onclick='getData(".$product->id_product.")'>".$product->getCoverImage($product->id_product,1,"img-responsive")."</a></div>
 			<div class='description' style='font-size:10px; min-height:50px;'><a href='#'  onclick='getData(".$product->id_product.")'>".$product->product_code."</a></div>
@@ -221,17 +265,17 @@ $query = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_c
 				$i++;
 				$r++;
 			}
-		}else{ 
+		}else{
 			echo"<br/><h4 style='text-align:center;'>ยังไม่มีรายการสินค้า</h4>";
 		}
 		echo "</div>";
-	}	
+	}
 	echo"</div> <button data-toggle='modal' data-target='#order_grid' id='btn_toggle' style='display:none;'>toggle</button>
-</div></div>";	
+</div></div>";
 
 
 //0จบ
-echo"			
+echo"
 	<form action='controller/requisitionController.php?add_to_order' method='post'>
 	<div class='modal fade' id='order_grid' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
 								  <div class='modal-dialog' id='modal'>
@@ -248,11 +292,11 @@ echo"
 									</div>
 								  </div>
 								</div></form>";
-								
-								
-								
-		*/						
-								
+
+
+
+		*/
+
 	echo"<hr style='border-color:#CCC; margin-top: 15px; margin-bottom:15px;' />
 	<div class='row'>
 	<table class='table' id='order_detail'>
@@ -290,10 +334,10 @@ echo"
 		echo"<tr><td colspan='8' align='center'><h3>ยังไมีมีรายการสินค้า</h3></td></tr>";
 	}
 	echo"
-				
-	</table>	
+
+	</table>
 	";
-	
+
 	 }
 }else if(isset($_GET['edit'])&&isset($_GET['id_order'])){
 //*********************************************** แก้ไขออเดอร์ **************************************************************//
@@ -306,13 +350,13 @@ echo"
 	if($order->id_customer != "0"){
 	$customer = new customer($order->id_customer);
 	}
-	echo"		
+	echo"
         <div class='row'>
-        	<div class='col-xs-12'><h4>".$order->reference." : ". $order->role_name." <p class='pull-right'>ผู้เบิก : &nbsp;".$employee->full_name."</p></h4></div>
+        	<div class='col-sm-12'><h4>".$order->reference." : ". $order->role_name." <p class='pull-right'>ผู้เบิก : &nbsp;".$employee->full_name."</p></h4></div>
         </div>
 		<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />
 		<div class='row'>
-		<div class='col-xs-12'>
+		<div class='col-sm-12'>
 		<dl style='float:left; margin-left:10px;'><dt style='float:left; margin:0px; padding-right:10px'>วันที่เบิก : &nbsp;</dt><dd style='float:left; margin:0px; padding-right:10px'>".date("d-m-Y H:i:s", strtotime($order->date_add))."</dd>  |</dt></dl>
 		<dl style='float:left; margin-left:10px;'><dt style='float:left; margin:0px; padding-right:10px'>สินค้า :&nbsp;</dt><dd style='float:left; margin:0px; padding-right:10px'>".number_format($order->total_product)."</dd>  |</dt></dl>
 		<dl style='float:left; margin-left:10px;'><dt style='float:left; margin:0px; padding-right:10px'>จำนวน : &nbsp;</dt><dd style='float:left; margin:0px; padding-right:10px'>".number_format($order->total_qty)."</dd>  |</dt></dl>
@@ -320,7 +364,7 @@ echo"
 		</div></div>
 		<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />
 		<div class='row'><form id='state_change' action='controller/requisitionController.php?edit&state_change' method='post'>
-		<div class='col-xs-6'>
+		<div class='col-sm-6'>
 		<table class='table' style='width:100%; padding:10px; border: 1px solid #ccc;'><tr><input type='hidden' name='id_order' value='".$order->id_order."' /><input type='hidden' name='id_employee' value='$id_employee' />
 		<td style='width:25%; text-align:right; vertical-align:middle;'>สถานะ :&nbsp; </td><td style='width:40%; padding-right:10px;'>
 		<select name='order_state' id='order_state' class='form-control input-sm'>
@@ -346,10 +390,10 @@ echo"
 		<td style='padding-top:10px; padding-bottom:10px; text-align:center;'>".date('d-m-Y H:i:s', strtotime($order->date_upd))."</td></tr>";
 		}
 		echo"
-		</table></div></form><div class='col-xs-6'>";
-	
+		</table></div></form><div class='col-sm-6'>";
+
 		echo "</div><!--col --></div><!--row-->
-		<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />	
+		<hr style='border-color:#CCC; margin-top: 0px; margin-bottom:15px;' />
 		<form id='edit_order_form' action='controller/requisitionController.php?edit_order&add_detail' method='post' autocomplete='off'>
 		<div class='row'>"; echo $order->orderProductTable(); echo "</div><div class='row'><p><h4>อ้างถึงลูกค้า :  ";if($order->id_customer != "0"){ echo $customer->full_name;} echo "</h4></p></div><div class='row'><p><h4>ข้อความ :  "; echo $order->comment; echo "</h4></p></div><h4></h4></form>";
 //*********************************************** จบหน้าแก้ไข ****************************************************//
@@ -360,7 +404,7 @@ echo"
 	$to		= isset( $_POST['to_date'] ) ? $_POST['to_date'] : ( getCookie('to_date') ? getCookie('to_date') : '' );
 	$sReference	= isset( $_POST['sReference'] ) ? $_POST['sReference'] : ( getCookie('sReference') ? getCookie('sReference') : '' );
 	$sCustomer		= isset( $_POST['sCustomer'] ) ? $_POST['sCustomer'] : ( getCookie('sCutomer') ? getCookie('sCustomer') : '');
-	
+
 ?>
 <form method="post" id="form"	>
 	<div class="row">
@@ -388,7 +432,7 @@ echo"
         	<label class="display-block not-show">reset</label>
             <button type="button" class="btn btn-warning btn-sm btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> รีเซ็ต</button>
         </div>
-	</div>        
+	</div>
 </form>
 <hr/>
 <?php
@@ -398,7 +442,7 @@ echo"
 			createCookie('sReference', $sReference);
 			$where .= "AND reference LIKE '%".$sReference."%' ";
 		}
-		
+
 		if( $sCustomer != "" )
 		{
 			createCookie('sCustomer', $sCustomer);
@@ -409,10 +453,10 @@ echo"
 			}
 			else
 			{
-				$where .= "AND id_customer = '' ";	
+				$where .= "AND id_customer = '' ";
 			}
 		}
-		
+
 		if( $from != "" && $to != "" )
 		{
 			createCookie('from_date', $from);
@@ -423,7 +467,7 @@ echo"
 		$get_rows 	= isset( $_POST['get_rows'] ) ? $_POST['get_rows'] : ( getCookie('get_rows') ? getCookie('get_rows') : 50);
 		$paginator->Per_Page("tbl_order", $where, $get_rows);
 		$paginator->display($get_rows,"index.php?content=requisition");
-		
+
 		$qs = dbQuery("SELECT * FROM tbl_order ".$where." LIMIT ".$paginator->Page_Start.", ".$paginator->Per_Page);
 ?>
 	<div class="row">
@@ -456,17 +500,17 @@ echo"
                         <td align="center" class="pointer" onclick="goTo('<?php echo $location; ?>',<?php echo $rs->id_order; ?>)"><?php echo thaiDate($rs->date_add); ?></td>
                         <td align="center" class="pointer" onclick="goTo('<?php echo $location; ?>',<?php echo $rs->id_order; ?>)"><?php echo thaiDate($rs->date_upd); ?></td>
                     </tr>
-	<?php		endwhile; ?>                    
+	<?php		endwhile; ?>
 
 	<?php 	else : ?>
 					<tr><td colspan='9' align='center'><h3><span class='glyphicon glyphicon-exclamation-sign'></span>&nbsp;ไม่มีรายการในช่วงนี้</h3></td></tr>
-	<?php endif; ?>                         	
+	<?php endif; ?>
                 </tbody>
-                
+
             </table>
         </div>
     </div>
-<?php 		
+<?php
 }
 ?>
 <script id="orderProductTemplate" type="text/x-handlebars-template" >
@@ -474,14 +518,14 @@ echo"
 		{{#if @last}}
 			<tr>
 				 <td colspan="7" align="right"><h4>จำนวนรวม</h4></td>
-				 <td  align="right"><h4>{{ total_qty }}</h4></td> 
-				 <td align="center"><h4>ชิ้น</h4></td>  
+				 <td  align="right"><h4>{{ total_qty }}</h4></td>
+				 <td align="center"><h4>ชิ้น</h4></td>
 			</tr>
 		{{else}}
     	<tr style="font-size:12px;">
         	<td align="center" style="vertical-align:middle;">{{ no }}</td>
             <td align="center" style="vertical-align:middle;">{{{ img }}}</td>
-            <td align="center" style="vertical-align:middle;">{{ barcode }}</td> 
+            <td align="center" style="vertical-align:middle;">{{ barcode }}</td>
             <td style="vertical-align:middle;">{{ product }}</td>
             <td align="center" style="vertical-align:middle;">{{ price }}</td>
             <td align="center" style="vertical-align:middle;">{{ qty }}</td>
@@ -492,7 +536,7 @@ echo"
             </td>
       	</tr>
 		{{/if}}
-	{{/each}}		
+	{{/each}}
 </script>
 <script>
 	function expandCategory(el)
@@ -518,7 +562,7 @@ echo"
   		}
 	}
 </script>
-<script language="javascript"> 
+<script language="javascript">
 function goTo(page, id_order){
 	if( page == 'add'){
 		window.location.href = "index.php?content=requisition&add&id_order="+id_order;
@@ -531,19 +575,19 @@ function goTo(page, id_order){
 
 $(function() {
     $("#from_date").datepicker({
-      dateFormat: 'dd-mm-yy', 
+      dateFormat: 'dd-mm-yy',
 	  onClose: function( selectedDate ) {
         $( "#to_date" ).datepicker( "option", "minDate", selectedDate );
       }
     });
-	
+
     $( "#to_date" ).datepicker({
       dateFormat: 'dd-mm-yy',   onClose: function( selectedDate ) {
         $( "#from_date" ).datepicker( "option", "maxDate", selectedDate );
       }
     });
   });
-  
+
   $(function() {
     $("#date").datepicker({
       dateFormat: 'dd-mm-yy'
@@ -563,13 +607,13 @@ $("#sCustomer").keyup(function(e) {
 });
 
 function getReport(){
-	$("#form").submit();	
+	$("#form").submit();
 }
 
 function clearFilter(){
 	$.ajax({
 		url:"controller/requisitionController.php?clearFilter",
-		type:"GET", cache:false, 
+		type:"GET", cache:false,
 		success: function(rs){
 			window.location.href = "index.php?content=requisition";
 		}
@@ -596,12 +640,12 @@ $(document).ready(function(e) {
 		 source: "controller/requisitionController.php?product",
 		 close: function(event,ui){
 			 var ref = $(this).val();
-			var id_cus = $("#id_cus").val();	
-		$.ajax({ 
+			var id_cus = $("#id_cus").val();
+		$.ajax({
 			 url: "controller/requisitionController.php?reference="+ref+"&id_customer="+id_cus,
-			 type: "GET", cache:false, 
+			 type: "GET", cache:false,
 			 success: function(data){
-				 if(data !=""){ 
+				 if(data !=""){
 				 	var arr = data.split(':');
 					var id = arr[0];
 					var price = arr[1];
@@ -624,7 +668,7 @@ $(document).ready(function(e) {
 		close: function(event,ui){
 			var data = $("#product_code").val();
 		}
-	});			
+	});
 });
 //// product code
 $("#product_code").focusout(function(e) {
@@ -643,7 +687,7 @@ $("#product_code").focusout(function(e) {
 	});
 	}
 });
-//// barcode 
+//// barcode
 $("#barcode").focusout(function(e) {
     var barcode = $(this).val();
 	if(barcode !=""){
@@ -687,7 +731,7 @@ $("#product_code").keyup(function(e){
         $(this).trigger("enterKey");
     }
 });
-/// barcode 
+/// barcode
 $("#barcode").bind("enterKey",function(){
 	if($("#barcode").val() != ""){
 		$("#qty").focus();
@@ -738,7 +782,7 @@ function edit_product(id_order, id_product_attribute){
 	$("#update"+name).css("display","");
 	$("#edit_qty"+name).val(qty);
 	$("#qty"+name).css("display","none");
-	$("#edit_qty"+name).css("display","");	
+	$("#edit_qty"+name).css("display","");
 }
 function update(id_order, id_product_attribute){
 	var name = id_order.toString() + id_product_attribute.toString();
@@ -748,7 +792,7 @@ function update(id_order, id_product_attribute){
 		alert("จำนวนที่สั่งอย่างน้อย 1 ตัว");
 	}else{
 	$.ajax({
-		url:"controller/requisitionController.php?check_stock&id_order="+id_order+"&id_product_attribute="+id_product_attribute, 
+		url:"controller/requisitionController.php?check_stock&id_order="+id_order+"&id_product_attribute="+id_product_attribute,
 		cache:false,
 		success: function(stock_qty){
 			var stock = parseInt(stock_qty);
@@ -791,7 +835,7 @@ function submit_detail(){
 	}
 }
 //// เพิ่มรายการสั่งซื้อสินค้าแล้วเปลียนหน้าใหม่ ///
-function add_detail(){ 
+function add_detail(){
 	var id_order = $("#id_order").val();
 	var id_product_attribute =  $("#id_product_attribute").val();
 	var order_qty = $("#qty").val();
@@ -829,7 +873,7 @@ function insert_detail(id_order,id_product_attribute, qty){
 				var discount = data[4];
 				var amount = data[5];
 				$("#order_detail").append("<tr><td align='center'>"+no+"</td><td>"+barcode+"</td><td>"+product+"</td><td>"+price+"</td><td>"+quantity+"</td><td>"+discount+"</td><td>"+amount+"</td></tr>");
-			}else{ 
+			}else{
 			alert("เพิ่มข้อมูลไม่ได้");
 			}
 		}
@@ -841,7 +885,7 @@ $(document).ready(function(e) {
 	}
 });
 $(document).ready(function(e) {
-    $("#doc_date").datepicker({ 
+    $("#doc_date").datepicker({
 	dateFormat: 'dd-mm-yy'
 	});
 });
@@ -856,7 +900,7 @@ $(document).ready(function(e) {
 			$("#id_employee").val(id);
 			$(this).val(arr[1]);
 		}
-	});			
+	});
 });
 $("#add_order").click(function(e) {
     var date = $("#doc_date").val();
@@ -879,7 +923,7 @@ function getData(id_product){
 	var id_cus = 0;
 	$.ajax({
 		url:"controller/orderController.php?getData&id_product="+id_product+"&id_customer="+id_cus,
-		type:"GET", cache:false, 
+		type:"GET", cache:false,
 		success: function(dataset){
 			if(dataset !=""){
 				var arr = dataset.split("|");
@@ -892,7 +936,7 @@ function getData(id_product){
 				$("#order_grid").modal('show');
 			}else{
 				alert("NO DATA");
-			}		
+			}
 		}
 	});
 }
@@ -909,7 +953,7 @@ $(document).ready(function(e) {
 			$("#id_customer").val(id_customer);
 			$(this).val(name);
 		}
-	});			
+	});
 });
 
 //---------------------------  เพิ่มการสั่งซื้อสินค้า  -----------------------//
@@ -957,5 +1001,32 @@ function reloadOrderProduct(id_order) {
             }
         }
     });
+}
+
+
+
+function getEdit(){
+	$('#comment').removeAttr('disabled');
+	$('#btn-edit').addClass('hide');
+	$('#btn-update').removeClass('hide');
+}
+
+
+function updateHeader(id){
+	var remark = $('#comment').val();
+	$.ajax({
+		url:'controller/requisitionController.php?updateHeader',
+		type:'POST',
+		cache:'false',
+		data:{'id_order':id, 'comment':remark},
+		success:function(rs){
+			var rs = $.trim(rs);
+			if(rs =='success'){
+				window.location.reload();
+			}else {
+				swal(rs);
+			}
+		}
+	})
 }
 </script>

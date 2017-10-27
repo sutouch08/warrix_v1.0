@@ -2,7 +2,7 @@
 require "../../library/config.php";
 require "../../library/functions.php";
 require "../function/tools.php";
-require LIB_ROOT."class/Order.php";
+require LIB_ROOT."class/order.php";
 
 if( isset( $_GET['clearFilter'] ) )
 {
@@ -10,7 +10,7 @@ if( isset( $_GET['clearFilter'] ) )
 	deleteCookie('sCustomer');
 	deleteCookie('from_date');
 	deleteCookie('to_date');
-	echo 'success';	
+	echo 'success';
 }
 ///////////////////  AutoComplete //////////////////////
 if(isset($_GET['product'])&&isset($_REQUEST['term'])){
@@ -35,7 +35,7 @@ if(isset($_GET['employee_name'])&&isset($_REQUEST['term'])){
 	$qstring = "SELECT id_employee, first_name, last_name FROM tbl_employee WHERE first_name LIKE '%".$_REQUEST['term']."%' OR last_name LIKE '%".$_REQUEST['term']."%'";
 	$result = dbQuery($qstring);//query the database for entries containing the term
 if ($result->num_rows>0)
-	{ 
+	{
 		$data= array();
 	while($row = $result->fetch_array())//loop through the retrieved values
 		{
@@ -51,7 +51,7 @@ if(isset($_GET['product_code'])&&isset($_REQUEST['term'])){
 	$qstring = "SELECT reference FROM tbl_product_attribute WHERE reference LIKE '%".$_REQUEST['term']."%'";
 	$result = dbQuery($qstring);//query the database for entries containing the term
 if ($result->num_rows>0)
-	{ 
+	{
 		$data= array();
 	while($row = $result->fetch_array())//loop through the retrieved values
 		{
@@ -108,7 +108,7 @@ if(isset($_GET['add'])&&isset($_POST['employee'])){
 		$message = "ไม่สามารถเพิ่มออเดอร์ใหม่ในฐานข้อมูลได้";
 		header("location: ../index.php?content=requisition&add=y&error=$message");
 	}
-	
+
 }
 
 if(isset($_GET['reference'])){
@@ -152,7 +152,7 @@ if(isset($_GET['edit_order'])&&isset($_POST['new_qty'])&&$_POST['new_qty'] !="")
 		$id_prodcut = $product->getProductId($id_product_attribute);
 		$product->product_detail($id_product, $order->id_customer);
 		$product->product_attribute_detail($id_product_attribute);
-		$total_amount = $qty * $product->product_sell; 
+		$total_amount = $qty * $product->product_sell;
 		$new_total_amount = $total_amount - $old_total_amount;
 		if($qty<$old_qty){
 			if($order->changeQty($id_product_attribute, $qty)){
@@ -211,7 +211,7 @@ if(isset($_GET['edit_order'])&&isset($_GET['insert_detail'])){
 	}else{
 		$message = "เพิ่มสินค้าไม่สำเร็จ";
 		header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&error=$message");
-	}	
+	}
 }
 
 if(isset($_GET['add'])&&isset($_GET['insert_detail'])){
@@ -229,7 +229,7 @@ if(isset($_GET['add'])&&isset($_GET['insert_detail'])){
 	}else{
 		$message = "เพิ่มสินค้าไม่สำเร็จ";
 		header("location: ../index.php?content=requisition&add=y&id_order=$id_order&error=$message");
-	}	
+	}
 }
 
 if(isset($_GET['edit_order'])&&isset($_GET['add_detail'])&& $_POST['qty']!=""){
@@ -248,7 +248,7 @@ if(isset($_GET['edit_order'])&&isset($_GET['add_detail'])&& $_POST['qty']!=""){
 			if($order->insert_detail($id_product_attribute, $qty)){
 				$message = "เพิ่มสินค้าเรียบร้อยแล้ว";
 				header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&message=$message");
-		
+
 			}else{
 				$message = "เพิ่มสินค้าไม่สำเร็จ";
 				header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&error=$message");
@@ -263,14 +263,14 @@ if(isset($_GET['edit_order'])&&isset($_GET['add_detail'])&& $_POST['qty']!=""){
 		if($order->insert_detail($id_product_attribute, $qty)){
 				$message = "เพิ่มสินค้าเรียบร้อยแล้ว";
 				header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&message=$message");
-		
+
 			}else{
 				$message = "เพิ่มสินค้าไม่สำเร็จ";
 				header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&error=$message");
 				exit;
 			}
 	}
-		
+
 }
 /// ลบในหน้า แก้ไข
 if(isset($_GET['delete'])&&isset($_GET['id_order'])&&isset($_GET['id_product_attribute'])){
@@ -282,7 +282,7 @@ if(isset($_GET['delete'])&&isset($_GET['id_order'])&&isset($_GET['id_product_att
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=requisition&edit=y&id_order=$id_order&view_detail=y&error=$message");
-	}	
+	}
 }
 
 /// ลบในหน้า เพิ่ม //
@@ -291,7 +291,7 @@ if(isset($_GET['delete'])&&isset($_GET['id_order_detail'])){
 	list($id_order)=dbFetchArray(dbQuery("SELECT id_order FROM tbl_order_detail WHERE id_order_detail = $id_order_detail"));
 	if(dbQuery("DELETE FROM tbl_order_detail WHERE id_order_detail = $id_order_detail")){
 		$message = "ลบรายการเรียบร้อยแล้ว";
-		header("location: ../index.php?content=requisition&add=y&id_order=$id_order&message=$message");	
+		header("location: ../index.php?content=requisition&add=y&id_order=$id_order&message=$message");
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=requisition&add=y&id_order=$id_order&error=$message");
@@ -305,7 +305,7 @@ if(isset($_GET['add_to_order'])){
 	$i = 0;
 	$n = 0;
 	$missing = "";
-	foreach ($order_qty as $id_color => $items ){	
+	foreach ($order_qty as $id_color => $items ){
 		foreach($items as $id => $qty )
 		{
 			if($qty !=""){
@@ -314,10 +314,10 @@ if(isset($_GET['add_to_order'])){
 				$id_product = $product->getProductId($id);
 				$product->product_detail($id_product, $order->id_customer);
 				$product->product_attribute_detail($id);
-				$total_amount = $qty*$product->product_sell;		
+				$total_amount = $qty*$product->product_sell;
 				if(!ALLOW_UNDER_ZERO){
 					list($qty_moveing) = dbFetchArray(dbQuery("SELECT qty_move FROM tbl_move WHERE id_product_attribute = '$id' AND id_warehouse = 1"));
-					$instock = $product->available_order_qty($id); 
+					$instock = $product->available_order_qty($id);
 					if($qty>$instock){
 						$missing .= $product->reference." มียอดคงเหลือไม่เพียงพอ &nbsp;<br/>";
 					}else{
@@ -348,7 +348,7 @@ if(isset($_GET['add_to_order'])){
 	$message = "เพิ่ม $n รายการเรียบร้อย";
 	header("location: ../index.php?content=requisition&add=y&id_order=$id_order&id_customer=$id_customer&message=$message&missing=$missing");
 	}
-		
+
 }
 if(isset($_GET['print_order'])&&isset($_GET['id_order'])){
 	$id_order = $_GET['id_order'];
@@ -369,7 +369,7 @@ if(isset($_GET['print_order'])&&isset($_GET['id_order'])){
      <link rel='stylesheet' href='/invent/library/css/jquery-ui-1.10.4.custom.min.css' />
      <script src='/invent/library/js/jquery.min.js'></script>
   	<script src='/invent/library/js/jquery-ui-1.10.4.custom.min.js'></script>
-    <script src='/invent/library/js/bootstrap.min.js'></script>    
+    <script src='/invent/library/js/bootstrap.min.js'></script>
     <!-- SB Admin CSS - Include with every page -->
     <link href='/invent/library/css/sb-admin.css' rel='stylesheet'>
     <link href='/invent/library/css/template.css' rel='stylesheet'>
@@ -412,8 +412,8 @@ if(isset($_GET['print_order'])&&isset($_GET['id_order'])){
 	}else{
 		echo"<tr><td colspan='8' align='center'><h3>ยังไมีมีรายการสินค้า</h3></td></tr>";
 	}
-	echo"		
-	</table>	
+	echo"
+	</table>
 	";
 	echo "</div></div></body></html>";
 	 }
@@ -432,6 +432,21 @@ if(isset($_GET['check_add'])){
 	}else{
 		$message = "ยังไม่ได้บันทึกออร์เดอร์นี้";
 		header("location: ../index.php?content=requisition&add=y&id_order=$id_order&message1=$message");
+	}
+}
+
+if( isset( $_GET['updateHeader']))
+{
+	$id_order = $_POST['id_order'];
+	$remark = $_POST['comment'];
+	$rs = dbQuery("UPDATE tbl_order SET comment = '".$remark."' WHERE id_order = ".$id_order);
+	if($rs == TRUE)
+	{
+		echo 'success';
+	}
+	else
+	{
+		echo 'แก้ไขข้อมูลไม่สำเร็จ';
 	}
 }
 ?>
