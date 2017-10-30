@@ -1,4 +1,4 @@
-<?php 
+<?php
 	$page_menu = "invent_product_check";
 	$page_name = "ตรวจนับสินค้า";
 	$id_tab = 10;
@@ -59,7 +59,7 @@
 </div>
 <hr style="border-color:#CCC; margin-top: 10px; margin-bottom:15px;" />
 <div class="row">
-<form method="post" id="stock_form" name="edit_qty" action="controller/productcheckcontroller.php?editqty=y"   >
+<form method="post" id="stock_form" name="edit_qty" action="controller/productcheckController.php?editqty=y"   >
 	<div class="col-lg-12">
 		<table class="table table-striped">
         <thead>
@@ -80,7 +80,7 @@
    <?php endif; ?>
    <tbody id="item">
 	<?php $qs = dbQuery("SELECT * FROM tbl_stock WHERE id_zone = ".$_GET['id_zone']); ?>
-	<?php if(dbNumRows($qs) > 0 ) : ?> 
+	<?php if(dbNumRows($qs) > 0 ) : ?>
     <?php 	while($rs = dbFetchArray($qs) ) : ?>
     <?php 		$diff = get_diff($rs['id_product_attribute'], $_GET['id_zone']); ?>
     <?php 		$id = $rs['id_product_attribute']; ?>
@@ -110,7 +110,7 @@
     <?php	endwhile; ?>
     <?php else : ?>
     	<tr><td colspan="6" style="text-align:center;"><h4>ไม่มีสินค้าในโซนนี้</h4></td></tr>
-    <?php endif; ?>    
+    <?php endif; ?>
     	</tbody>
     </table>
     <input type="hidden" name="id_zone" id="id_zone" value="<?php echo $_GET['id_zone']; ?>" />
@@ -140,7 +140,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                
+
                 </div>
             </div>
         </div>
@@ -167,12 +167,12 @@
         <td align="center"><span id="diff_{{ id }}">{{ diff }}</span></td>
          <td align="center"><button type="button" class="btn btn-info btn-sm btn-block" onclick="save_checked({{ id }}, {{ id_zone }})"><i class="fa fa-save"></i>&nbsp; บันทึก</button></td>
 	</tr>
-</script>	
+</script>
 <script>
 $(document).ready(function(e) {
     if($("#saved").length > 0 )
 	{
-		swal({ title: "เรียบร้อย", text : "บันทึกยอดต่างเรียบร้อยแล้ว", timer: 1000, type: "success"}, function(){ $("#txt_zone").focus();});	
+		swal({ title: "เรียบร้อย", text : "บันทึกยอดต่างเรียบร้อยแล้ว", timer: 1000, type: "success"}, function(){ $("#txt_zone").focus();});
 	}
 });
 
@@ -242,7 +242,7 @@ function get_zone()
 				else
 				{
 					load_out();
-					swal("ไม่พบโซนที่ระบุ กรุณาตรวจสอบ");	
+					swal("ไม่พบโซนที่ระบุ กรุณาตรวจสอบ");
 				}
 			}
 		});
@@ -283,12 +283,12 @@ function save_checked(id, id_zone)
 
 function add()
 {
-	$("#add_modal").modal("show");	
+	$("#add_modal").modal("show");
 }
 
 function save_edit()
 {
-	$("#stock_form").submit();	
+	$("#stock_form").submit();
 }
 function check_number(el)
 {
@@ -296,7 +296,7 @@ function check_number(el)
 	if( qty !='' && isNaN(parseInt(qty)) )
 	{
 		swal("ระบุเป็นตัวเลขเท่านั้น");
-		el.val('');	
+		el.val('');
 	}
 }
 $("#qty_add").keyup(function(e) {
@@ -323,7 +323,7 @@ $("#txt_zone").keyup(function(e) {
 	{
 		if($(this).val() != "")
 		{
-			$("#btn_ok").click();	
+			$("#btn_ok").click();
 		}
 	}
 });

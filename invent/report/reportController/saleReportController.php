@@ -5,6 +5,22 @@ require "../../function/tools.php";
 require "../../function/report_helper.php";
 require "../../../library/class/php-excel.class.php";
 
+
+//----------------- รายงานสินค้า แยกตามลูกค้า  ---------------------//
+if( isset( $_GET['sale_detail_by_customer']) && isset( $_GET['report']))
+{
+	include 'report/reportSaleProductByCustomer.php';
+}
+
+
+//--------------- export รายงานสินค้า แยกตามลูกค้า -----------------//
+if( isset( $_GET['sale_detail_by_customer']) && isset( $_GET['export']))
+{
+	include 'export/exportSaleProductByCustomer.php';
+}
+
+
+
 //----------------- รายงานยอดขาย แยกตามเลขที่เอกสาร ( sale_by_document.php ) -------------//
 if( isset( $_GET['getSaleReportDocument'] ) )
 {
@@ -36,13 +52,13 @@ if( isset( $_GET['getSaleReportDocument'] ) )
 			array_push($ds, $arr);
 			$totalAmount += $amount;
 			$totalDiscount += $dis + $bill_dis;
-			$totalNetAmount += $total;					
+			$totalNetAmount += $total;
 		}
 		$arr = array('totalAmount' => number_format($totalAmount, 2), 'totalDiscount' => number_format($totalDiscount, 2), 'totalNetAmount' => number_format( $totalNetAmount, 2));
 		array_push($ds, $arr);
 		$sc = json_encode($ds);
 	}
-	
+
 	echo $sc;
 }
 
@@ -58,11 +74,11 @@ if( isset( $_GET['exportSaleReportDocument'] ) )
 	$excel	= new PHPExcel();
 	$excel->setActiveSheetIndex(0);
 	$excel->getActiveSheet()->setTitle('รายงานยอดขายแยกตามเลขที่เอกสาร');
-	
+
 	//---------- ชื่อรายงาน  -------------//
 	$excel->getActiveSheet()->setCellValue('A1', 'รายงานยอดขายแยกตามเลขที่เอกสาร วันที่ '.thaiDate($_GET['from'],'/').' ถึงวันที่ '.thaiDate($_GET['to'], '/') );
 	$excel->getActiveSheet()->mergeCells('A1:F1');
-	
+
 	//-----------  Table header ------//
 	$excel->getActiveSheet()->setCellValue('A2', 'วันที่');
 	$excel->getActiveSheet()->setCellValue('B2', 'เอกสาร');
@@ -91,8 +107,8 @@ if( isset( $_GET['exportSaleReportDocument'] ) )
 			$excel->getActiveSheet()->setCellValue('D'.$row, $amount);
 			$excel->getActiveSheet()->setCellValue('E'.$row, $dis+$bill_dis);
 			$excel->getActiveSheet()->setCellValue('F'.$row, $total);
-			
-			$row++;				
+
+			$row++;
 		}
 		$excel->getActiveSheet()->setCellValue('A'.$row, 'รวม');
 		$excel->getActiveSheet()->mergeCells('A'.$row.':C'.$row);
@@ -100,20 +116,20 @@ if( isset( $_GET['exportSaleReportDocument'] ) )
 		$excel->getActiveSheet()->setCellValue('D'.$row, '=SUM(D3:D'.( $row - 1 ).')');
 		$excel->getActiveSheet()->setCellValue('E'.$row, '=SUM(E3:E'.( $row - 1 ).')');
 		$excel->getActiveSheet()->setCellValue('F'.$row, '=SUM(F3:F'.( $row - 1 ).')');
-		
+
 		$excel->getActiveSheet()->getStyle('A1:F'.$row)->getBorders()->getAllBorders()->setBorderStyle('thin');
 		$excel->getActiveSheet()->getStyle('D3:F'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
 		$excel->getActiveSheet()->getStyle('A3:A'.( $row -1 ))->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-				
+
 	}
-	
+
 	setToken($_GET['token']);
 	$file_name = "รายงานยอดขายแยกตามเลขที่เอกสาร.xlsx";
 	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
 	header('Content-Disposition: attachment;filename="'.$file_name.'"');
 	$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-	$writer->save('php://output');	
-	
+	$writer->save('php://output');
+
 }
 
 //------------------  รายงานยอดขาย แยกตามสินค้า ( sale_report_product.php) -----------//
@@ -128,24 +144,24 @@ if( isset( $_GET['soldByProduct'] ) )
 	$pdTo		= $_POST['pdTo'];		//----- รหัสสินค้าสิ้นสุด กรณีที่เลือกสินค้าเป็นช่วง
 	$from			= fromDate($_POST['fromDate']);
 	$to			= toDate($_POST['toDate']);
-	
+
 	//-----  Inititial Head Title of report ----//
 	$pRange		= $pdRange == 0 ? "ทั้งหมด" : $pdFrom." - ".$pdTo;
 	$pSale		= $pdSale == 1 ? "ขายปกติ" : ( $pdSale == 5 ? "ฝากขาย" : "ทั้งหมด" );
 	$pResult		= $pdResult == 0 ? "รุ่นสินค้า" : "รายการสินค้า";
-	
-	$arr 			= array( 
-								"from" 		=> thaiDate($_POST['fromDate'], '/'), 
-								"to" 			=> thaiDate($_POST['toDate'], '/') , 
+
+	$arr 			= array(
+								"from" 		=> thaiDate($_POST['fromDate'], '/'),
+								"to" 			=> thaiDate($_POST['toDate'], '/') ,
 								"pdRange"	=> $pRange,
 								"pdSale"		=> $pSale,
 								"pdResult"	=> $pResult
 								);
-								
-	array_push($ds, $arr);		
-	
-	//-------- End of Head Title -----//					
-	
+
+	array_push($ds, $arr);
+
+	//-------- End of Head Title -----//
+
 	$qr		= "SELECT tbl_order_detail_sold.product_reference, product_code, tbl_order_detail_sold.product_name, SUM( sold_qty) AS qty, SUM( total_amount ) AS amount ";
 	$qr		.= "FROM tbl_order_detail_sold JOIN tbl_product ON tbl_order_detail_sold.id_product = tbl_product.id_product ";
 	$qr		.= "WHERE id_order_detail_sold != 0 ";
@@ -153,9 +169,9 @@ if( isset( $_GET['soldByProduct'] ) )
 	$qr		.= $pdSale == 0 ? "AND id_role IN( 1, 5 ) " : ( $pdSale == 1 ? "AND id_role = 1 " : "AND id_role = 5 ");
 	$qr		.= "AND tbl_order_detail_sold.date_upd >= '".$from."' AND tbl_order_detail_sold.date_upd <= '".$to."' ";
 	$qr		.= $pdResult == 0 ? "GROUP BY tbl_order_detail_sold.id_product " : "GROUP BY tbl_order_detail_sold.id_product_attribute ";
-	
+
 	$qs 		= dbQuery($qr);
-	
+
 	if( dbNumRows($qs) > 0 )
 	{
 		$no				= 1;
@@ -168,7 +184,7 @@ if( isset( $_GET['soldByProduct'] ) )
 								"product"	=> $pdResult == 0 ? $rs['product_code'] : $rs['product_reference'],
 								"qty"		=> number_format($rs['qty']),
 								"amount"	=> number_format($rs['amount'], 2)
-							);	
+							);
 			array_push($ds, $arr);
 			$no ++;
 			$totalQty 			+= $rs['qty'];
@@ -180,15 +196,15 @@ if( isset( $_GET['soldByProduct'] ) )
 	}
 	else
 	{
-		$arr 	= array("no"	=> "", "product"	=> "", "qty" => "", "amount"	=> "");	
+		$arr 	= array("no"	=> "", "product"	=> "", "qty" => "", "amount"	=> "");
 		array_push($ds, $arr);
-		
+
 		$arr = array( "totalQty" => '0', "totalAmount" => '0.00' );
 		array_push($ds, $arr);
-		
+
 		$sc = json_encode($ds);
 	}
-	
+
 	echo $sc;
 }
 
@@ -204,7 +220,7 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	$pdTo		= $_GET['pdTo'];		//----- รหัสสินค้าสิ้นสุด กรณีที่เลือกสินค้าเป็นช่วง
 	$from			= fromDate($_GET['fromDate']);
 	$to			= toDate($_GET['toDate']);
-	
+
 	//-----  Inititial Head Title of report ----//
 	$pRange		= $pdRange == 0 ? "ทั้งหมด" : $pdFrom." - ".$pdTo;
 	$pSale		= $pdSale == 1 ? "ขายปกติ" : ( $pdSale == 5 ? "ฝากขาย" : "ทั้งหมด" );
@@ -212,12 +228,12 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	$excel 	= new PHPExcel();
 	$excel->setActiveSheetIndex(0);
 	$excel->getActiveSheet()->setTitle('รายงานยอดขายแยกตามสินค้า');
-	
+
 	//-------- ชื่อรายงาน
 	$excel->getActiveSheet()->setCellValue('A1', 'รายงานยอดขาย แยกตามสินค้า');
 	$excel->getActiveSheet()->mergeCells('A1:D1');
 	$excel->getActiveSheet()->getStyle('A1')->getFont()->setSize(14);
-	
+
 	//---------  เงื่อนไขรายงาน
 	$excel->getActiveSheet()->setCellValue('A2', 'แยกตาม');
 	$excel->getActiveSheet()->setCellValue('B2', 'ช่วงสินค้า');
@@ -227,13 +243,13 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	$excel->getActiveSheet()->setCellValue('B3', $pRange);
 	$excel->getActiveSheet()->setCellValue('C3', $pSale);
 	$excel->getActiveSheet()->setCellValue('D3', thaiDate($_GET['fromDate'], '/') .' - '.thaiDate($_GET['toDate'], '/'));
-	
-	//---------- header table									
-	$excel->getActiveSheet()->setCellValue('A4', 'ลำดับ')	
+
+	//---------- header table
+	$excel->getActiveSheet()->setCellValue('A4', 'ลำดับ')
 									->setCellValue('B4', 'สินค้า')
 									->setCellValue('C4', 'จำนวน')
 									->setCellValue('D4', 'มูลค่า');
-	
+
 	//---------- Column and Row Dimension
 	$excel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
 	$excel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
@@ -243,15 +259,15 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	$excel->getActiveSheet()->getRowDimension(2)->setRowHeight(25);
 	$excel->getActiveSheet()->getRowDimension(3)->setRowHeight(25);
 	$excel->getActiveSheet()->getRowDimension(4)->setRowHeight(25);
-	
+
 	//----------  Set alignment
 	$excel->getActiveSheet()->getStyle('A1:D4')->getAlignment()->setHorizontal('center');
 	$excel->getActiveSheet()->getStyle('A1:D4')->getAlignment()->setVertical('center');
-	
+
 	//-----------  End of Header  -------//
-	
-	//------------------- Start of Data Content  ----------------//			
-	
+
+	//------------------- Start of Data Content  ----------------//
+
 	$qr		= "SELECT tbl_order_detail_sold.product_reference, product_code, tbl_order_detail_sold.product_name, SUM( sold_qty) AS qty, SUM( total_amount ) AS amount ";
 	$qr		.= "FROM tbl_order_detail_sold JOIN tbl_product ON tbl_order_detail_sold.id_product = tbl_product.id_product ";
 	$qr		.= "WHERE id_order_detail_sold != 0 ";
@@ -259,9 +275,9 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	$qr		.= $pdSale == 0 ? "AND id_role IN( 1, 5 ) " : ( $pdSale == 1 ? "AND id_role = 1 " : "AND id_role = 5 ");
 	$qr		.= "AND tbl_order_detail_sold.date_upd >= '".$from."' AND tbl_order_detail_sold.date_upd <= '".$to."' ";
 	$qr		.= $pdResult == 0 ? "GROUP BY tbl_order_detail_sold.id_product " : "GROUP BY tbl_order_detail_sold.id_product_attribute ";
-	
+
 	$qs 		= dbQuery($qr);
-	
+
 	if( dbNumRows($qs) > 0 )
 	{
 		$row	= 5;
@@ -277,17 +293,17 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 		}
 		$excel->getActiveSheet()->getStyle('C5:C'.($row-1))->getNumberFormat()->setFormatCode('#,##0');
 		$excel->getActiveSheet()->getStyle('D5:D'.($row-1))->getNumberFormat()->setFormatCode('#,##0.00');
-		
+
 		//--------  Sum Qty and Amount row
 		$excel->getActiveSheet()->setCellValue('A'.$row, 'รวม');
 		$excel->getActiveSheet()->mergeCells('A'.$row.':B'.$row);
 		$excel->getActiveSheet()->setCellValue('C'.$row, '=SUM(C5:C'.($row-1).')');
 		$excel->getActiveSheet()->setCellValue('D'.$row, '=SUM(D5:D'.($row-1).')');
-		
+
 		$excel->getActiveSheet()->getStyle('A'.$row.':D'.$row)->getFont()->setSize(16);
 		$excel->getActiveSheet()->getStyle('C'.$row)->getNumberFormat()->setFormatCode('#,##0');
 		$excel->getActiveSheet()->getStyle('D'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
-		
+
 		$excel->getActiveSheet()->getStyle('A1:D'.$row)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
 	}
 	setToken($_GET['token']);
@@ -296,7 +312,7 @@ if( isset( $_GET['exportSoldByProduct'] ) )
 	header('Content-Disposition: attachement; filename= "'.$fileName.'"');
 	$writer	= PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
 	$writer->save('php://output');
-		
+
 }
 
 
@@ -331,7 +347,7 @@ if( isset( $_GET['get_sale_detail_by_employee'] ) && isset( $_POST['id_sale'] ) 
 	$arr = array("total" => "total", "total_amount" => number_format($total_amount, 2), "total_return" => number_format($total_return, 2), "total_sale" => number_format($total_sale, 2));
 	array_push($data, $arr);
 	echo json_encode($data);
-		
+
 }
 
 if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['report'] ) )
@@ -351,10 +367,10 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['report'] ) )
 	}
 	else
 	{
-		$qr = dbQuery("SELECT * FROM tbl_sale");	
+		$qr = dbQuery("SELECT * FROM tbl_sale");
 	}
 	if( dbNumRows($qr) > 0 )
-	{ 
+	{
 		$no	= 1;
 		$total_amount 	= 0;
 		$total_return	= 0;
@@ -380,13 +396,13 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['report'] ) )
 			array_push($data, $arr);
 			$total_amount 	+= $amount;
 			$total_return	+= $return;
-			$total_sale		+= $sale_amount;	
-			$no++;			
+			$total_sale		+= $sale_amount;
+			$no++;
 		}
 		$arr = array("last" => "last", "total_amount" => number_format($total_amount, 2), "total_return" => number_format($total_return, 2), "total_sale" => number_format($total_sale, 2));
 		array_push($data, $arr);
 	}
-	echo json_encode($data);		
+	echo json_encode($data);
 }
 
 if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
@@ -405,7 +421,7 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 	}
 	else
 	{
-		$qr = dbQuery("SELECT * FROM tbl_sale");	
+		$qr = dbQuery("SELECT * FROM tbl_sale");
 	}
 	if( $rolex == 0){ $sale_type = "ทั้งหมด"; }else if( $rolex == 1 ){ $sale_type = "ขายปกติ"; }else if( $rolex == 5 ){ $sale_type = "ฝากขาย"; }else{ $sale_type = "ทั้งหมด"; }
 	$excel->setActiveSheetIndex(0);
@@ -414,7 +430,7 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 	$excel->getActiveSheet()->mergeCells('A1:E1');
 	$excel->getActiveSheet()->getStyle('A1')->getFont()->setSize(14);
 	$excel->getActiveSheet()->getStyle('A1')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-	
+
 	$excel->getActiveSheet()->setCellValue('A2', 'ลำดับ');
 	$excel->getActiveSheet()->setCellValue('B2', 'พนักงานขาย');
 	$excel->getActiveSheet()->setCellValue('C2', 'ยอดขาย');
@@ -426,15 +442,15 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 	$excel->getActiveSheet()->getStyle('A2:E2')->getAlignment()->setVertical("center");
 	$excel->getActiveSheet()->getRowDimension(1)->setRowHeight(30);
 	$excel->getActiveSheet()->getRowDimension(2)->setRowHeight(25);
-	
-	
+
+
 	$excel->getActiveSheet()->getColumnDimension("B")->setWidth(45);
 	$excel->getActiveSheet()->getColumnDimension("C")->setWidth(21);
 	$excel->getActiveSheet()->getColumnDimension("D")->setWidth(21);
 	$excel->getActiveSheet()->getColumnDimension("E")->setWidth(21);
-	
+
 	if( dbNumRows($qr) > 0 )
-	{ 
+	{
 		$no	= 1;
 		$row = 3;
 		while( $rs = dbFetchArray($qr) )
@@ -444,13 +460,13 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 			if( is_null($amount) ){ $amount = 0; }
 			if( $role == 5 ){ $return = 0; }else{	$return = $ro->get_return_amount_by_sale($rs['id_sale'], $from, $to); }
 			$sale_amount = $amount - $return;
-			
+
 			$excel->getActiveSheet()->setCellValue('A'.$row, $no);
 			$excel->getActiveSheet()->setCellValue("B".$row, employee_name($rs['id_employee']));
 			$excel->getActiveSheet()->setCellValue("C".$row, $amount);
 			$excel->getActiveSheet()->setCellValue("D".$row, $return);
 			$excel->getActiveSheet()->setCellValue("E".$row, $sale_amount);
-			$no++;	$row++;		
+			$no++;	$row++;
 		}
 		$excel->getActiveSheet()->getStyle("C3:E".($row-1))->getNumberFormat()->setFormatCode("#,##0.00");
 		$excel->getActiveSheet()->setCellValue("A".$row, "รวม");
@@ -458,7 +474,7 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 		$excel->getActiveSheet()->setCellValue("C".$row, '=SUM(C3:C'.($row-1).')');
 		$excel->getActiveSheet()->setCellValue("D".$row, '=SUM(D3:D'.($row-1).')');
 		$excel->getActiveSheet()->setCellValue("E".$row, '=SUM(E3:E'.($row-1).')');
-		
+
 		$excel->getActiveSheet()->getStyle('C'.$row.':E'.$row)->getNumberFormat()->setFormatCode("#,##0.00");
 		$excel->getActiveSheet()->getStyle('A3:A'.$row)->getAlignment()->setHorizontal("center");
 		$excel->getActiveSheet()->getStyle('A2:E'.$row)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
@@ -468,7 +484,7 @@ if( isset( $_GET['sale_report_employee'] ) && isset( $_GET['export'] ) )
 	header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 	header("Content-Disposition: attachment; filename='".$file_name."'");
 	$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-	$writer->save("php://output");	
+	$writer->save("php://output");
 }
 
 function get_in($data)
@@ -515,9 +531,9 @@ if( isset( $_GET['get_sale_detail_by_zone'] ) && isset( $_POST['id_group'] ) )
 	}
 	$arr = array("total" => "total", "total_amount" => number_format($total_amount, 2), "total_return" => number_format($total_return, 2), "total_sale" => number_format($total_sale, 2));
 	array_push($data, $arr);
-	
+
 	echo json_encode($data);
-		
+
 }
 
 
@@ -545,14 +561,14 @@ if( isset( $_GET['sale_report_zone'] ) && isset( $_GET['report'] ) )
 		while($rs = dbFetchArray($qs) )
 		{
 			$qr = dbQuery("SELECT SUM(total_amount) AS amount FROM tbl_order_detail_sold JOIN tbl_customer ON tbl_order_detail_sold.id_customer = tbl_customer.id_customer WHERE id_default_group = ".$rs['id_group']." AND id_role IN(1,5) AND (tbl_order_detail_sold.date_upd BETWEEN '".$from."' AND '".$to."')");
-			list($amount) = dbFetchArray($qr);		
+			list($amount) = dbFetchArray($qr);
 			$return_amount = $ro->get_return_amount_by_customer_group($rs['id_group'], $from, $to);
 			$sale_amount	= $amount - $return_amount;
 			$arr = array(
-							"no" => $no, 
+							"no" => $no,
 							"id_group" 			=> $rs['id_group'],
-							"zone" => $rs['group_name'], 
-							"amount" => number_format($amount, 2), 
+							"zone" => $rs['group_name'],
+							"amount" => number_format($amount, 2),
 							"return_amount" => number_format($return_amount, 2),
 							"sale_amount"		=> number_format($sale_amount, 2),
 							"from"					=> $from,
@@ -562,12 +578,12 @@ if( isset( $_GET['sale_report_zone'] ) && isset( $_GET['report'] ) )
 			$total_amount 	+= $amount;
 			$total_return 	+= $return_amount;
 			$total_sale 		+= $sale_amount;
-			$no++;		
+			$no++;
 		}
 		$arr = array("last" => "last", "total_amount" => number_format($total_amount, 2), "total_return" => number_format($total_return, 2), "total_sale" => number_format($total_sale, 2));
 		array_push($data, $arr);
 	}
-	
+
 	echo json_encode($data);
 }
 
@@ -578,15 +594,15 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['report']) && isset($_P
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND id_customer = ".$_POST['id_customer']." AND product_reference BETWEEN '".product_from($_POST['p_from'])."' AND '".product_to($_POST['p_to'])."' AND (tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from'])."' AND '".toDate($_POST['to'])."') ";
 		$sql .= "GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 	}
 	else
 	{
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND id_customer = ".$_POST['id_customer']." AND tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from'])."' AND '".toDate($_POST['to'])."' GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 	}
-	
+
 	$data = array();
 	if(dbNumRows($qs) > 0 )
 	{
@@ -630,7 +646,7 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['report']) && isset($_P
 						"profit" 				=> $total_profit < 0 ? "<span style='color: red'>".number_format($total_profit, 2)."</span>" : "<span style='color: green;'>".number_format($total_profit, 2)."</span>",
 						"percent"				=> $total_percent < 0 ? "<span style='color: red'>". number_format($total_percent, 2)." % </span>" : "<span style='color: green;'>".number_format($total_percent, 2)." %</span>"
 						);
-		array_push($data, $arr);		
+		array_push($data, $arr);
 	}
 	else
 	{
@@ -644,7 +660,7 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['report']) && isset($_P
 						"amount" 				=> "-",
 						"profit" 				=> "-"
 						);
-		array_push($data, $arr);		
+		array_push($data, $arr);
 	}
 	echo json_encode($data);
 }
@@ -656,21 +672,21 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['export']) && isset($_G
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND id_customer = ".$_GET['id_customer']." AND product_reference BETWEEN '".product_from($_POST['p_from'])."' AND '".product_to($_POST['p_to'])."' AND (tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from_date'])."' AND '".toDate($_POST['to_date'])."') ";
 		$sql .= "GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 		$p_title = $_POST['p_from']." ถึง ".$_GET['p_to'];
 	}
 	else
 	{
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND id_customer = ".$_GET['id_customer']." AND tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from_date'])."' AND '".toDate($_POST['to_date'])."' GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 		$p_title = "ทั้งหมด";
 	}
-	
+
 	$excel = new PHPExcel();
 	$excel->setActiveSheetIndex(0);
 	$excel->getActiveSheet()->setTitle("sale profit by customer");
-	
+
 	$excel->getActiveSheet()->setCellValue("A1", "รายงายยอดขาย แยกตามรายการสินค้า แสดงกำไรขั้นต้น");
 	$excel->getActiveSheet()->setCellValue("A2", "ลูกค้า");
 	$excel->getActiveSheet()->setCellValue("B2", $_POST['customer']);
@@ -694,7 +710,7 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['export']) && isset($_G
 									->setCellValue("G3", "มูลค่าขาย")
 									->setCellValue("H3", "กำไรขั้นต้น")
 									->setCellValue("I3", "% (กำไร)");
-	
+
 	if(dbNumRows($qs) > 0 )
 	{
 		$row = 4;
@@ -727,14 +743,14 @@ if( isset($_GET['sale_profit_customer'] ) && isset($_GET['export']) && isset($_G
 		$excel->getActiveSheet()->getStyle("D4:D".$row)->getNumberFormat()->setFormatCode("#,##0.00");
 		$excel->getActiveSheet()->getStyle("E4:E".$row)->getNumberFormat()->setFormatCode("#,##0");
 		$excel->getActiveSheet()->getStyle("F4:H".$row)->getNumberFormat()->setFormatCode("#,##0.00");
-		$excel->getActiveSheet()->getStyle("I4:I".$row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);							
+		$excel->getActiveSheet()->getStyle("I4:I".$row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);
 	}
 	setToken($_GET['token']);
 	$file_name = "sale_profit_by_customer.xlsx";
 	header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 	header("Content-Disposition: attachment; filename='".$file_name."'");
 	$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-	$writer->save("php://output");	
+	$writer->save("php://output");
 }
 
 
@@ -745,15 +761,15 @@ if( isset($_GET['sale_profit_item'] ) && isset($_GET['report']) && isset($_POST[
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND product_reference BETWEEN '".product_from($_POST['p_from'])."' AND '".product_to($_POST['p_to'])."' AND (tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from'])."' AND '".toDate($_POST['to'])."') ";
 		$sql .= "GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 	}
 	else
 	{
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_POST['from'])."' AND '".toDate($_POST['to'])."' GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 	}
-	
+
 	$data = array();
 	if(dbNumRows($qs) > 0 )
 	{
@@ -797,7 +813,7 @@ if( isset($_GET['sale_profit_item'] ) && isset($_GET['report']) && isset($_POST[
 						"profit" 				=> $total_profit < 0 ? "<span style='color: red'>".number_format($total_profit, 2)."</span>" : "<span style='color: green;'>".number_format($total_profit, 2)."</span>",
 						"percent"				=> $total_percent < 0 ? "<span style='color: red'>". number_format($total_percent, 2)." % </span>" : "<span style='color: green;'>".number_format($total_percent, 2)." %</span>"
 						);
-		array_push($data, $arr);		
+		array_push($data, $arr);
 	}
 	else
 	{
@@ -811,7 +827,7 @@ if( isset($_GET['sale_profit_item'] ) && isset($_GET['report']) && isset($_POST[
 						"amount" 				=> "-",
 						"profit" 				=> "-"
 						);
-		array_push($data, $arr);		
+		array_push($data, $arr);
 	}
 	echo json_encode($data);
 }
@@ -824,26 +840,26 @@ if( isset($_GET['sale_profit_item'] ) && isset($_GET['export']) && isset($_GET['
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND product_reference BETWEEN '".product_from($_GET['p_from'])."' AND '".product_to($_GET['p_to'])."' AND (tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_GET['from'])."' AND '".toDate($_GET['to'])."') ";
 		$sql .= "GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 		$p_title = $_GET['p_from']." ถึง ".$_GET['p_to'];
 	}
 	else
 	{
 		$sql = "SELECT product_reference, product_name, price, SUM(sold_qty) AS qty, SUM(total_amount) AS amount, tbl_order_detail_sold.cost FROM tbl_order_detail_sold JOIN tbl_product_attribute ON tbl_order_detail_sold.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 		$sql .= "WHERE id_role IN(1,5) AND tbl_order_detail_sold.date_upd BETWEEN '".fromDate($_GET['from'])."' AND '".toDate($_GET['to'])."' GROUP BY tbl_order_detail_sold.id_product_attribute ORDER BY tbl_order_detail_sold.product_reference ASC";
-		$qs = dbQuery($sql);	
+		$qs = dbQuery($sql);
 		$p_title = "ทั้งหมด";
 	}
-	
+
 	$data = array();
-	
+
 	$arr 	= array("รายงานยอดขาย แยกตามรายการสินค้า แสดงกำไรขั้นต้น");
 	array_push($data, $arr);
 	$arr 	= array("รายการสินค้า : ". $p_title . "  วันที่  ". $_GET['from']. " ถึง ". $_GET['to']);
 	array_push($data, $arr);
 	$arr 	= array("ลำดับ", "รหัส", "รายละเอียด", "ราคา", "จำนวนขาย", "ต้นทุนขาย", "มูลค่าขาย", "กำไรขั้นต้น", "% (กำไร)");
 	array_push($data, $arr);
-	
+
 	if(dbNumRows($qs) > 0 )
 	{
 		$n = 1;
@@ -865,7 +881,7 @@ if( isset($_GET['sale_profit_item'] ) && isset($_GET['export']) && isset($_GET['
 			$n++;
 		}
 		$arr = array("", "", "", "รวม", $total_qty, $total_cost, $total_amount, $total_profit, $total_amount == 0 ? 0 : number_format(($total_profit / $total_amount), 4));
-		array_push($data, $arr);		
+		array_push($data, $arr);
 	}
 	else
 	{
@@ -882,7 +898,7 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['report']) )
 {
 	$rank		= $_GET['rank'];
 	$year		= $_GET['year'];
-	
+
 	$data 	= array(); /// ไว้เก็บผลลัพธ์เพื่อส่งกลับ
 	if($rank == 2)
 	{
@@ -896,7 +912,7 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['report']) )
 			if($i < $c){ $in .=", "; }
 			$i++;
 		}
-		
+
 		$qm = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category IN($in)");
 	}else{
 		$qm = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category != 0");
@@ -909,7 +925,7 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['report']) )
 								"amount_1"=>"","amount_2"=>"","amount_3"=>"","amount_4"=>"", "amount_5"=>"","amount_6"=>"",
 								"amount_7"=>"", "amount_8"=>"", "amount_9"=>"", "amount_10"=>"", "amount_11"=>"", "amount_12"=>"", "total_amount"=>""
 							);
-		array_push($data, $arr);							
+		array_push($data, $arr);
 		$qs = dbQuery("SELECT id_product, product_code FROM tbl_product WHERE default_category_id =".$rs['id_category']." ORDER BY product_code ASC");
 			$n = 1;
 			$sum_qty = array("1"=>0, "2"=>0, "3"=>0, "4"=>0, "5"=>0, "6"=>0, "7"=>0, "8"=>0, "9"=>0, "10"=>0, "11"=>0, "12"=>0);
@@ -934,7 +950,7 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['report']) )
 						list($qtyx, $amountx)	= dbFetchArray($qr);
 						$qty[$m] 				= number_format($qtyx);
 						$amount[$m] 		= number_format($amountx);
-						$total_qty += $qtyx; 
+						$total_qty += $qtyx;
 						$total_amount += $amountx;
 						$sum_qty[$i] += $qtyx;
 						$sum_amount[$i] += $amountx;
@@ -955,30 +971,30 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['report']) )
 				$all_qty += $total_qty;
 				$all_amount += $total_amount;
 				array_push($data, $arr);
-				
-				$n++;				
+
+				$n++;
 			endwhile;
-			$arr = array("no"=>"", "product"=>"Grand Total", "qty_1"=>number_format($sum_qty['1']), "qty_2"=>number_format($sum_qty['2']), "qty_3"=>number_format($sum_qty['3']), "qty_4"=>number_format($sum_qty['4']), 
-							"qty_5"=>number_format($sum_qty['5']), "qty_6"=>number_format($sum_qty['6']), "qty_7"=>number_format($sum_qty['7']), "qty_8"=>number_format($sum_qty['8']), 
+			$arr = array("no"=>"", "product"=>"Grand Total", "qty_1"=>number_format($sum_qty['1']), "qty_2"=>number_format($sum_qty['2']), "qty_3"=>number_format($sum_qty['3']), "qty_4"=>number_format($sum_qty['4']),
+							"qty_5"=>number_format($sum_qty['5']), "qty_6"=>number_format($sum_qty['6']), "qty_7"=>number_format($sum_qty['7']), "qty_8"=>number_format($sum_qty['8']),
 							"qty_9"=>number_format($sum_qty['9']), "qty_10"=>number_format($sum_qty['10']), "qty_11"=>number_format($sum_qty['11']), "qty_12"=>number_format($sum_qty['12']), "total_qty"=>number_format($all_qty),
-							"amount_1"=>number_format($sum_amount['1']),"amount_2"=>number_format($sum_amount['2']),"amount_3"=>number_format($sum_amount['3']),"amount_4"=>number_format($sum_amount['4']), 
-							"amount_5"=>number_format($sum_amount['5']),"amount_6"=>number_format($sum_amount['6']), "amount_7"=>number_format($sum_amount['7']), "amount_8"=>number_format($sum_amount['8']), 
-							"amount_9"=>number_format($sum_amount['9']), "amount_10"=>number_format($sum_amount['10']), "amount_11"=>number_format($sum_amount['11']), "amount_12"=>number_format($sum_amount['12']), 
+							"amount_1"=>number_format($sum_amount['1']),"amount_2"=>number_format($sum_amount['2']),"amount_3"=>number_format($sum_amount['3']),"amount_4"=>number_format($sum_amount['4']),
+							"amount_5"=>number_format($sum_amount['5']),"amount_6"=>number_format($sum_amount['6']), "amount_7"=>number_format($sum_amount['7']), "amount_8"=>number_format($sum_amount['8']),
+							"amount_9"=>number_format($sum_amount['9']), "amount_10"=>number_format($sum_amount['10']), "amount_11"=>number_format($sum_amount['11']), "amount_12"=>number_format($sum_amount['12']),
 							"total_amount"=>number_format($all_amount)
 							);
-			array_push($data, $arr);	
-			endwhile;				
+			array_push($data, $arr);
+			endwhile;
 			echo json_encode($data);
 		else:
 			echo "fail";
 		endif;
-			
+
 }
 
 
 if( isset($_GET['sale_summary_by_category']) && isset($_GET['export']) )
 {
-	$rank		= $_GET['rank'];	
+	$rank		= $_GET['rank'];
 	$year		= $_GET['year'];
 	$data 	= array(); /// ไว้เก็บผลลัพธ์เพื่อส่งกลับ
 	$arr 		= array("========================================= รายงานยอดขายแยกตามสินค้าเรียงตามหมวดหมู่สินค้าเปรียบเทียบแต่ละเดือน ===========================================");
@@ -998,8 +1014,8 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['export']) )
 			if($i < $c){ $in .=", "; }
 			$i++;
 		}
-		
-		$qm = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category IN($in)");		
+
+		$qm = dbQuery("SELECT id_category, category_name FROM tbl_category WHERE id_category IN($in)");
 		$title	= array("หมวดหมู่สินค้า : บางรายการ   ปี : $year");
 	}
 	if(dbNumRows($qm) > 0 ):
@@ -1008,10 +1024,10 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['export']) )
 		array_push($data, $arr);
 		$arr = array("", "", "Jan", "Feb", "Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Total",  "Jan", "Feb", "Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Total");
 		array_push($data, $arr);
-	
+
 		while($rs = dbFetchArray($qm) ) :
 			$arr = array($rs['category_name'] );
-			array_push($data, $arr);							
+			array_push($data, $arr);
 			$qs = dbQuery("SELECT id_product, product_code FROM tbl_product WHERE default_category_id =".$rs['id_category']." ORDER BY product_code ASC");
 			$n = 1;
 			$sum_qty = array("1"=>0, "2"=>0, "3"=>0, "4"=>0, "5"=>0, "6"=>0, "7"=>0, "8"=>0, "9"=>0, "10"=>0, "11"=>0, "12"=>0, "total"=>0);
@@ -1034,7 +1050,7 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['export']) )
 					list($qtyx, $amountx)	= dbFetchArray($qr);
 					$qty[$m] 				= $qtyx == NULL? 0 : $qtyx;
 					$amount[$m] 		= $amountx == NULL? 0 : $amountx;
-					$total_qty 			+= $qtyx; 
+					$total_qty 			+= $qtyx;
 					$total_amount 		+= $amountx;
 					$sum_qty[$i] 		+= $qtyx;
 					$sum_amount[$i] 	+= $amountx;
@@ -1046,22 +1062,22 @@ if( isset($_GET['sale_summary_by_category']) && isset($_GET['export']) )
 				$all_qty += $total_qty;
 				$all_amount += $total_amount;
 				array_push($data, $arr);
-				
-				$n++;				
+
+				$n++;
 			endwhile;
 			$arr = array("", "Grand Total", $sum_qty['1'], $sum_qty['2'], $sum_qty['3'], $sum_qty['4'], $sum_qty['5'], $sum_qty['6'], $sum_qty['7'], $sum_qty['8'], $sum_qty['9'], $sum_qty['10'], $sum_qty['11'], $sum_qty['12'], $all_qty,
 					$sum_amount['1'], $sum_amount['2'], $sum_amount['3'], $sum_amount['4'], $sum_amount['5'], $sum_amount['6'], $sum_amount['7'], $sum_amount['8'], $sum_amount['9'], $sum_amount['10'], $sum_amount['11'], $sum_amount['12'],	$all_amount
 							);
-			array_push($data, $arr);	
-		endwhile;					
+			array_push($data, $arr);
+		endwhile;
 	else :
 		$arr 		= array("========================================= Error!! ===========================================");
 		array_push($data, $arr);
 	endif;
-	
+
 	$sheet_name = "Sale_summary_by_category";
-	$xls = new Excel_XML('UTF-8', false, $sheet_name); 
-	$xls->addArray ($data); 
+	$xls = new Excel_XML('UTF-8', false, $sheet_name);
+	$xls->addArray ($data);
 	$xls->generateXML( $sheet_name );
 	setToken($_GET['token']);
 }
@@ -1072,9 +1088,9 @@ if( isset($_GET['sale_summary']) && isset($_GET['report']) )
 {
 	$rank		= $_POST['rank'];
 	$p_from	= $_POST['from'];
-	$p_to		= $_POST['to'];	
+	$p_to		= $_POST['to'];
 	$year		= $_POST['year'];
-	
+
 	$data 	= array(); /// ไว้เก็บผลลัพธ์เพื่อส่งกลับ
 	if($rank == 1 )
 	{
@@ -1082,7 +1098,7 @@ if( isset($_GET['sale_summary']) && isset($_GET['report']) )
 	}else if($rank == 2 ){
 		$qs = dbQuery("SELECT id_product, product_code FROM tbl_product WHERE product_code BETWEEN '".$p_from."' AND '".$p_to."' ORDER BY product_code ASC");
 	}
-	
+
 	if(dbNumRows($qs) > 0 )
 	{
 		$n = 1;
@@ -1108,7 +1124,7 @@ if( isset($_GET['sale_summary']) && isset($_GET['report']) )
 					list($qtyx, $amountx)	= dbFetchArray($qr);
 					$qty[$m] 				= number_format($qtyx);
 					$amount[$m] 		= number_format($amountx);
-					$total_qty += $qtyx; 
+					$total_qty += $qtyx;
 					$total_amount += $amountx;
 					$sum_qty[$i] += $qtyx;
 					$sum_amount[$i] += $amountx;
@@ -1129,23 +1145,23 @@ if( isset($_GET['sale_summary']) && isset($_GET['report']) )
 			$all_qty += $total_qty;
 			$all_amount += $total_amount;
 			array_push($data, $arr);
-			
-			$n++;				
+
+			$n++;
 		endwhile;
-		$arr = array("no"=>"", "product"=>"Grand Total", "qty_1"=>number_format($sum_qty['1']), "qty_2"=>number_format($sum_qty['2']), "qty_3"=>number_format($sum_qty['3']), "qty_4"=>number_format($sum_qty['4']), 
-						"qty_5"=>number_format($sum_qty['5']), "qty_6"=>number_format($sum_qty['6']), "qty_7"=>number_format($sum_qty['7']), "qty_8"=>number_format($sum_qty['8']), 
+		$arr = array("no"=>"", "product"=>"Grand Total", "qty_1"=>number_format($sum_qty['1']), "qty_2"=>number_format($sum_qty['2']), "qty_3"=>number_format($sum_qty['3']), "qty_4"=>number_format($sum_qty['4']),
+						"qty_5"=>number_format($sum_qty['5']), "qty_6"=>number_format($sum_qty['6']), "qty_7"=>number_format($sum_qty['7']), "qty_8"=>number_format($sum_qty['8']),
 						"qty_9"=>number_format($sum_qty['9']), "qty_10"=>number_format($sum_qty['10']), "qty_11"=>number_format($sum_qty['11']), "qty_12"=>number_format($sum_qty['12']), "total_qty"=>number_format($all_qty),
-						"amount_1"=>number_format($sum_amount['1']),"amount_2"=>number_format($sum_amount['2']),"amount_3"=>number_format($sum_amount['3']),"amount_4"=>number_format($sum_amount['4']), 
-						"amount_5"=>number_format($sum_amount['5']),"amount_6"=>number_format($sum_amount['6']), "amount_7"=>number_format($sum_amount['7']), "amount_8"=>number_format($sum_amount['8']), 
-						"amount_9"=>number_format($sum_amount['9']), "amount_10"=>number_format($sum_amount['10']), "amount_11"=>number_format($sum_amount['11']), "amount_12"=>number_format($sum_amount['12']), 
+						"amount_1"=>number_format($sum_amount['1']),"amount_2"=>number_format($sum_amount['2']),"amount_3"=>number_format($sum_amount['3']),"amount_4"=>number_format($sum_amount['4']),
+						"amount_5"=>number_format($sum_amount['5']),"amount_6"=>number_format($sum_amount['6']), "amount_7"=>number_format($sum_amount['7']), "amount_8"=>number_format($sum_amount['8']),
+						"amount_9"=>number_format($sum_amount['9']), "amount_10"=>number_format($sum_amount['10']), "amount_11"=>number_format($sum_amount['11']), "amount_12"=>number_format($sum_amount['12']),
 						"total_amount"=>number_format($all_amount)
 						);
-		array_push($data, $arr);						
-		echo json_encode($data);	
+		array_push($data, $arr);
+		echo json_encode($data);
 	}else{
 		echo "fail";
 	}
-	
+
 }
 
 
@@ -1153,9 +1169,9 @@ if( isset($_GET['sale_summary']) && isset($_GET['export']) )
 {
 	$rank		= $_GET['rank'];
 	$p_from	= $_GET['from'];
-	$p_to		= $_GET['to'];	
+	$p_to		= $_GET['to'];
 	$year		= $_GET['year'];
-	
+
 	$data 	= array(); /// ไว้เก็บผลลัพธ์เพื่อส่งกลับ
 	$arr 		= array("========================================= รายงานยอดขายแยกตามสินค้าเปรียบเทียบแต่ละเดือน ===========================================");
 	array_push($data, $arr);
@@ -1195,7 +1211,7 @@ if( isset($_GET['sale_summary']) && isset($_GET['export']) )
 				list($qtyx, $amountx)	= dbFetchArray($qr);
 				$qty[$m] 				= $qtyx == NULL? 0 : $qtyx;
 				$amount[$m] 		= $amountx == NULL? 0 : $amountx;
-				$total_qty 			+= $qtyx; 
+				$total_qty 			+= $qtyx;
 				$total_amount 		+= $amountx;
 				$sum_qty[$i] 		+= $qtyx;
 				$sum_amount[$i] 	+= $amountx;
@@ -1207,21 +1223,21 @@ if( isset($_GET['sale_summary']) && isset($_GET['export']) )
 			$all_qty += $total_qty;
 			$all_amount += $total_amount;
 			array_push($data, $arr);
-			
-			$n++;				
+
+			$n++;
 		endwhile;
 		$arr = array("", "Grand Total", $sum_qty['1'], $sum_qty['2'], $sum_qty['3'], $sum_qty['4'], $sum_qty['5'], $sum_qty['6'], $sum_qty['7'], $sum_qty['8'], $sum_qty['9'], $sum_qty['10'], $sum_qty['11'], $sum_qty['12'], $all_qty,
 				$sum_amount['1'], $sum_amount['2'], $sum_amount['3'], $sum_amount['4'], $sum_amount['5'], $sum_amount['6'], $sum_amount['7'], $sum_amount['8'], $sum_amount['9'], $sum_amount['10'], $sum_amount['11'], $sum_amount['12'],	$all_amount
 						);
-		array_push($data, $arr);						
+		array_push($data, $arr);
 	}else{
 		$arr 		= array("========================================= Error!! ===========================================");
 		array_push($data, $arr);
 	}
-	
+
 	$sheet_name = "Sale_summary";
-	$xls = new Excel_XML('UTF-8', false, $sheet_name); 
-	$xls->addArray ($data); 
+	$xls = new Excel_XML('UTF-8', false, $sheet_name);
+	$xls->addArray ($data);
 	$xls->generateXML($sheet_name);
 	setToken($_GET['token']);
 }

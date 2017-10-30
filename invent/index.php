@@ -17,7 +17,7 @@ switch($page){
 			$content = "orderToComplete.php";
 			$pageTitle = "จัดออเดอร์ย้อนหลัง";
 			break;
-//**********  ระบบคลังสินค้า  **********//	
+//**********  ระบบคลังสินค้า  **********//
 		case "receive_product":
 			$content = "receive_product.php";
 			$pageTitle = "รับสินค้าเข้า";
@@ -46,13 +46,13 @@ switch($page){
 			$content	= 'order_transform.php';
 			$pageTitle	= 'เบิกแปรสภาพ';
 			break;
-		
-		//-- ปิดการใช้งานไว้ก่อน ใช้ order_transform แทน 
+
+		//-- ปิดการใช้งานไว้ก่อน ใช้ order_transform แทน
 		case "requisition";
 			$content = "requisition.php";
 			$pageTitle = "เบิกสินค้า";
 			break;
-		
+
 		case "lend";
 			$content = "lend.php";
 			$pageTitle = "ยืมสินค้า";
@@ -89,16 +89,16 @@ switch($page){
 			$content = "cancle_zone.php";
 			$pageTitle = "ตรวจสอบ CANCLE ZONE";
 			break;
-						
+
 //**********  ระบบขาย  **********//
 		case "order":
 			$content = "order.php";
 			$pageTitle= "ออเดอร์";
 			break;
-		case "order_online" : 
+		case "order_online" :
 			$content = "order_online.php";
 			$pageTitle = "online Sale";
-			break;			
+			break;
 		case "sponsor";
 			$content = "sponsor.php";
 			$pageTitle = "สปอนเซอร์สโมสร";
@@ -139,7 +139,7 @@ switch($page){
 		case "order_closed" :
 			$content = "order_closed.php";
 			$pageTitle = "รายการเปิดบิลแล้ว";
-			break;	
+			break;
 		case "order_monitor" :
 			$content = "order_monitor.php";
 			$pageTitle = "ตรวจสอบออเดอร์";
@@ -164,7 +164,7 @@ switch($page){
 		case "payment_order" :
 			$content 	= 'payment_order.php';
 			$pageTitle	= 'ตรวจสอบยอดชำระ';
-			break;	
+			break;
 		case "checkstock" :
 			$content = "check_stock.php";
 			$pageTitle = "เช็คสต็อก";
@@ -185,7 +185,7 @@ switch($page){
 			$content = "export_consign_stock.php";
 			$pageTitle = "ส่งออกไฟล์ตรวจนับตั้งต้น";
 			break;
-			
+
 //**********  ระบบซื้อ  **********//
 		case "po" :
 			$content		= "po.php";
@@ -193,9 +193,9 @@ switch($page){
 			break;
 		case "po_role" :
 			$content		= "po_role.php";
-			$pageTitle	= "เพิ่ม/แก้ไข ประเภทการสั่งซื้อ";			
+			$pageTitle	= "เพิ่ม/แก้ไข ประเภทการสั่งซื้อ";
 			break;
-			
+
 //**********  รายงาน  **********//
 	//*****  รายงานระบบคลังสินค้า  *****//
 		case "recieved_report":
@@ -233,7 +233,7 @@ switch($page){
 		case "stock_by_warehouse";
 			$content = "report/stock_by_warehouse.php";
 			$pageTitle = " รายงานสินค้าคงเหลือเปรียบเทียบคลัง ";
-			break;	
+			break;
 		case "fifo";
 			$content = "report/stock_fifo_report.php";
 			$pageTitle = " FIFO ";
@@ -245,11 +245,11 @@ switch($page){
 		case "movement_summary":
 			$content = "report/movement_summary.php";
 			$pageTitle = "รายงานความเคลื่อนไหวสินค้า เปรียบเทียบยอด เข้า - ออก";
-			break;	
+			break;
 		case "non_move":
 			$content = "report/stock_non_move.php";
 			$pageTitle = "รายงานสินค้าไม่เคลื่อนไหว";
-			break;			
+			break;
 		case "request_report":
 			$content = "report/request_report.php";
 			$pageTitle = "รายงานการร้องขอสินค้า";
@@ -261,13 +261,13 @@ switch($page){
 		case "received_by_document" :
 			$content	= "report/received_by_document.php";
 			$pageTitle	= "รายงานการรับสินค้าแยกตามเลขที่เอกสาร";
-			break;	
-		case "received_by_product" : 
+			break;
+		case "received_by_product" :
 			$content = "report/received_by_product.php";
 			$pageTitle = "รายงานการรับสินค้าแยกตามรุ่นสินค้า";
 			break;
-			
-			
+
+
 	//*****  รายงานระบบขาย  *****//
 		case "sale_summary" :
 			$content	= "report/sale_summary.php";
@@ -305,20 +305,25 @@ switch($page){
 			$content = "report/sale_by_document.php";
 			$pageTitle = "รายงานยอดขาย แยกตามสินค้า";
 			break;
-		case "sale_by_attribute" : 
+		case "sale_detail_by_customer":
+			$content = "report/sale_detail_by_customer.php";
+			$pageTitle = "รายงานสินค้า แยกตามลูกค้า";
+			break;
+
+		case "sale_by_attribute" :
 			$content = "report/sale_by_attribute.php";
 			$pageTitle = "รายงานจำนวนขาย แยกตามคุณลักษณะสินค้า";
-			break;	
+			break;
 	//*****  รายงานระบบซื้อ  *****//
-		
+
 		case "po_backlog" :
 			$content = "report/po_backlog.php";
 			$pageTitle = "รายงานใบสั่งซื้อค้างรับ";
 			break;
-		case "po_by_product" : 
+		case "po_by_product" :
 			$content = "report/po_by_product.php";
 			$pageTitle = "ประวัติการสั่งซื้อค้นตามสินค้า";
-			break;	
+			break;
 		case "product_summary_backlog_by_product" :
 			$content	= "report/product_summary_backlog_by_product.php";
 			$pageTitle	= "รายงานสรุปสินค้าค้างรับแยกตามรุ่นสินค้า";
@@ -327,7 +332,7 @@ switch($page){
 			$content = "report/product_summary_backlog_by_item.php";
 			$pageTitle 	= "รายงานสินค้าค้างรับแยกตามรายการสินค้า";
 			break;
-		case "product_backlog_by_supplier" : 
+		case "product_backlog_by_supplier" :
 			$content = "report/product_backlog_by_supplier.php";
 			$pageTitle = "รายงานสินค้าค้างรับ แยกตามผู้ขาย";
 			break;
@@ -343,7 +348,7 @@ switch($page){
 		case "order_backlogs" :
 			$content = 'report/order_backlogs.php';
 			$pageTitle = 'รายงานออเดอร์ค้างส่ง';
-			break;	
+			break;
 		case "sponsor_by_customer";
 			$content = "report/sponsor_by_customer.php";
 			$pageTitle = "รายงาน ยอดสปอนเซอร์";
@@ -359,13 +364,13 @@ switch($page){
 		case "support_summary" :
 			$content = "report/support_summary.php";
 			$pageTitle = "รายงานสรุป ยอดเบิกอภินันทนาการ";
-			break;	
-					
+			break;
+
 	//*****  รายงานตรวจสอบ  *****//
 		case "discount_edit":
 			$content = "report/discount_edit_report.php";
 			$pageTitle = "รายงานการแก้ไขส่วนลด";
-			break;			
+			break;
 		case "sponsor_log" :
 			$content = "report/sponsor_log.php";
 			$pageTitle = "Sponsor Log";
@@ -373,27 +378,27 @@ switch($page){
 		case "support_log" :
 			$content = "report/support_log.php";
 			$pageTitle = "Support Log";
-			break;	
-		case 'delivery_fee' : 
+			break;
+		case 'delivery_fee' :
 			$content = 'report/delivery_fee.php';
 			$pageTitle = 'ค่าจัดส่ง';
 			break;
 		case "pdbcd" :  /// product_by_customer_show_document  รายงานสินค้าแยกตามลูกค้าแสดงเลขที่เอกสาร
 			$content = "report/product_by_customer_show_document.php";
 			$pageTitle = "รายงานสินค้าแยกตามลูกค้าแสดงเลขที่เอกสาร";
-			break;	
+			break;
 		case "document_by_customer":
 			$content = "report/document_by_customer.php";
 			$pageTitle = "รายงานเอกสาร แยกตามลูกค้า";
-			break;			
+			break;
 		case "document_by_product_attribute":
 			$content = "report/document_by_product_attribute.php";
 			$pageTitle = "รายงานเอกสาร แยกตามรายการสินค้า";
-			break;	
+			break;
 		case "consignment_by_customer" :
 			$content = "report/consignment_by_customer.php";
 			$pageTitle = "รายงานบิลส่งสินค้าไปฝากขายแยกตามลูกค้า";
-			break;	
+			break;
 		case "consign_by_customer" :
 			$content = "report/consign_by_customer.php";
 			$pageTitle = "รายงานสินค้าฝากขายแยกตามลูกค้า";
@@ -414,8 +419,8 @@ switch($page){
 			$content = "report/lend_by_product.php";
 			$pageTitle = "รายงานใบยืมสินค้า แยกตามสินค้า";
 			break;
-			
-					
+
+
 	//*****  รายงานวิเคราะห์  *****//
 	case "customer_by_product":
 			$content = "report/customer_by_product.php";
@@ -433,7 +438,7 @@ switch($page){
 		case "product_attribute_by_customer":
 			$content = "report/product_attribute_by_customer.php";
 			$pageTitle = "รายงานรายการสินค้า แยกตามลูกค้า";
-			break;	
+			break;
 			/*************** รายงานวิเคราะห์ ****************/
 		case "chart_move_movement_report":
 			$content = "report/stock_move_chart_report.php";
@@ -467,16 +472,16 @@ switch($page){
 		case "attribute_analyz" :
 			$content = "report/attribute_analyz.php";
 			$pageTitle = "วิเคราะคุณลักษณะสินค้า";
-			break;			
-			
+			break;
+
 		case 'sale_product_deep_analyz' :
 			$content 		= 'report/sale_product_deep_analyz.php';
 			$pageTitle	= 'รายงานวิเคราะห์ขายแบบละเอียด';
 			break;
 		case 'sponsor_product_deep_analyz' :
-			$content 		= 'report/sponsor_product_deep_analyz.php';	
+			$content 		= 'report/sponsor_product_deep_analyz.php';
 			$pageTitle	= 'รายงานวิเคราะห์สปอนเซอร์แบบละเอียด';
-			break;	
+			break;
 		case 'stock_product_deep_analyz' :
 			$content		= 'report/stock_product_deep_analyz.php';
 			$pageTitle	= 'รายงานวิเคราะห์สินค้าคงเหลือแบบละเอียด';
@@ -489,7 +494,7 @@ switch($page){
 			$content 		= 'report/received_product_deep_analyz.php';
 			$pageTitle	= 'รายงานการรับสินค้าเข้าแบบละเอียด';
 			break;
-			
+
 	//*****  รายงานผู้บริหาร  *****//
 		case "sale_profit_by_item" :
 			$content		= "report/sale_profit_by_item.php";
@@ -498,13 +503,13 @@ switch($page){
 		case "sale_profit_by_customer" :
 			$content		= "report/sale_profit_by_customer.php";
 			$pageTitle 	= "รายงานยอดขาย แยกตามลูกค้า แสดงกำไรขั้นต้น";
-			break;			
-	
+			break;
+
 	//******  รายงานอื่นๆ  *****//
 		case "order_freq":
 			$content = "report/order_freq.php";
 			$pageTitle = "ความถี่";
-			break;	
+			break;
 		case "sale_amount_report":
 			$content = "report/sale_amount_report.php";
 			$pageTitle = "สรุปยอดขายรวม";
@@ -520,21 +525,21 @@ switch($page){
 		case "sale_calendar" :
 			$content = "report/sale_calendar.php";
 			$pageTitle = "ปฏิทินการขาย";
-			break;	
+			break;
 		case "delivery_ticket" :
 			$content = "report/delivery_ticket.php";
 			$pageTitle = "การจัดส่ง";
-			break;			
+			break;
 
 //**********  การตั้งค่า  **********//
 		case "config";
 			$content = "setting.php";
 			$pageTitle = "การตั้งค่า";
 			break;
-		case "popup" : 
+		case "popup" :
 			$content = "popup.php";
 			$pageTitle = "การแจ้งเตือน";
-			break;		
+			break;
 		case "securable":
 			$content = "securable.php";
 			$pageTitle = "กำหนดสิทธิ์";
@@ -575,9 +580,9 @@ switch($page){
 			$content = "attribute_gen.php";
 			$pageTitle = "สร้างรายการสินค้าอัตโนมัติ";
 			break;
-			
-	
-	
+
+
+
 	//*****  คลังสินค้า  *****//
 		case 'warehouse':
 			$content = 'warehouse.php';
@@ -591,7 +596,7 @@ switch($page){
 			$content = 'import_stock.php';
 			$pageTitle = "นำเข้ารายการสินค้า";
 			break;
-	
+
 	//*****  ลูกค้า  *****//
 		case "customer";
 			$content="customer.php";
@@ -612,7 +617,7 @@ switch($page){
 		case "add_sponsor" :
 			$content = "add_sponsor.php";
 			$pageTitle = "สปอนเซอร์";
-			break;	
+			break;
 	//*****  พนักงาน  *****//
 		case "Employee":
 			$content = "employee.php";
@@ -630,21 +635,21 @@ switch($page){
 			$content = "support.php";
 			$pageTitle = "รายการอภนันทนาการ";
 			break;
-	
+
 	//*****  อื่นๆ  *****//
 		case 'supplier' :
 			$content 		= "supplier.php";
 			$pageTitle	= "ผู้ขาย";
-		break;	
+		break;
 		case "sender" :
 			$content = "sender.php";
 			$pageTitle = "ผู้ให้บริการจัดส่ง";
 			break;
-		case "transport" : 
+		case "transport" :
 			$content = "transport.php";
 			$pageTitle = "เพิ่มการจัดส่ง";
-			break;	
-		case "bank_account" : 
+			break;
+		case "bank_account" :
 			$content = 'bank_account.php';
 			$pageTitle = 'บัญชีธนาคาร';
 			break;
@@ -671,15 +676,14 @@ switch($page){
 }
 
 if( $viewStockOnly === TRUE )
-{ 
-	$content = "view_stock.php"; 
+{
+	$content = "view_stock.php";
 	$pageTitle = "View Stock";
 }
 require_once 'template.php';
 }
 else
 {
-	require_once 'maintenance.php';	
+	require_once 'maintenance.php';
 }
 ?>
-

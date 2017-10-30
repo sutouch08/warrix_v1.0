@@ -1,8 +1,8 @@
 <?php if( $viewStockOnly === FALSE ) : ?>
-<ul class="nav navbar-nav">			
+<ul class="nav navbar-nav">
             <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cubes"></i>&nbsp; ระบบคลังสินค้า</a>
               <ul class="dropdown-menu">
-                
+
                 <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-download"></i>&nbsp; รับสินค้าเข้า</a>
                 	<ul class="dropdown-menu">
                     	<li><a href="index.php?content=receive_product"><i class="fa fa-download"></i>&nbsp; รับสินค้า จากการซื้อ</a></li>
@@ -29,9 +29,9 @@
                 <li><a href="index.php?content=ProductAdjust"><span class="glyphicon glyphicon-tasks"></span>&nbsp; ปรับปรุงยอด</a></li>
                 <li><a href="index.php?content=drop_zero"><span class="glyphicon glyphicon-tasks"></span>&nbsp; เคลียร์ยอดสต็อกที่เป็นศูนย์</a></li>
                 <li><a href="index.php?content=buffer_zone"><span class="glyphicon glyphicon-tasks"></span>&nbsp; ตรวจสอบ BUFFER ZONE</a></li>
-                <li><a href="index.php?content=cancle_zone"><span class="glyphicon glyphicon-tasks"></span>&nbsp; ตรวจสอบ CANCLE ZONE</a></li>                 
+                <li><a href="index.php?content=cancle_zone"><span class="glyphicon glyphicon-tasks"></span>&nbsp; ตรวจสอบ CANCLE ZONE</a></li>
               </ul>
-             
+
             </li>
           <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-shopping-bag"></i>&nbsp; ระบบขาย</a>
               <ul class="dropdown-menu">
@@ -65,7 +65,7 @@
                 	<ul class="dropdown-menu">
                     	<li><a href="index.php?content=checkstock"><i class="fa fa-check-square-o"></i>&nbsp; ตรวจนับสินค้า</a></li>
                         <li><a href="index.php?content=OpenCheck"><i class="fa fa-toggle-on"></i>&nbsp; เปิด/ปิดการตรวจนับ</a></li>
-                        <li><a href="index.php?content=check_stock_moniter"><i class='fa fa-desktop'></i>&nbsp; ภาพรวมการตรวจนับ</a></li> 
+                        <li><a href="index.php?content=check_stock_moniter"><i class='fa fa-desktop'></i>&nbsp; ภาพรวมการตรวจนับ</a></li>
                         <li><a href="index.php?content=ProductCount"><i class="fa fa-exclamation-triangle"></i>&nbsp; ตรวจสอบยอดสินค้าจากการตรวจนับ</a></li>
                     </ul>
                 </li>
@@ -78,15 +78,15 @@
                 </li>
               </ul>
             </li>
-            
+
             <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-archive"></i>&nbsp; ระบบซื้อ</a>
             	<ul class="dropdown-menu">
                 	<li><a href="index.php?content=po"><i class="fa fa-archive"></i>&nbsp; สั่งซื้อ(PO)</a></li>
                     <li><a href="index.php?content=po_role"><i class="fa fa-archive"></i>&nbsp; เพิ่ม/แก้ไข ประเภทการสั่งซื้อ</a></li>
                 </ul>
             </li>
-            
-            
+
+
             <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน</a>
             	<ul class="dropdown-menu">
                 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ระบบคลังสินค้า</a>
@@ -112,7 +112,7 @@
                             <li><a href="index.php?content=stock_summary"><i class="fa fa-bar-chart"></i>&nbsp; รายงานสรุปสินค้าคงเหลือ แยกตามรุ่นสินค้า</a></li>
                             <li><a href="index.php?content=stock_summary_by_category"><i class="fa fa-bar-chart"></i>&nbsp; รายงานสรุปสินค้าคงเหลือ แยกตามหมวดหมู่สินค้า</a></li>
                         </ul>
-                    </li> 
+                    </li>
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ระบบขาย</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=sale_summary"><i class="fa fa-bar-chart"></i>&nbsp; สรุปยอดขาย แยกตามรุ่นสินค้า เปรียบเทียบรายเดือน</a></li>
@@ -121,13 +121,16 @@
                             <li><a href="index.php?content=sale_report_employee"><i class="fa fa-bar-chart"></i>&nbsp; สรุปยอดขาย แยกตามพนักงานขาย</a></li>
                             <li><a href="index.php?content=sale_report_customer"><i class="fa fa-bar-chart"></i>&nbsp; สรุปยอดขาย แยกตามลูกค้า</a></li>
                             <li><a href="index.php?content=sale_report_product"><i class="fa fa-bar-chart"></i>&nbsp; สรุปยอดขาย แยกตามรุ่นสินค้า(ห้ามใช้)</a></li>
+                            <li class="divider"></li>
+                            <li><a href="index.php?content=sale_detail_by_customer"><i class="fa fa-bar-chart"></i>&nbsp; รายงานสินค้า แยกตามลูกค้า</a></li>
+                            <li class="divider"></li>
                             <li><a href="index.php?content=sale_by_document"><i class="fa fa-bar-chart"></i>&nbsp; รายงานยอดขาย แยกตามเลขที่เอกสาร</a></li>
                             <li><a href="index.php?content=sale_amount_detail"><i class="fa fa-bar-chart"></i>&nbsp; รายละเอียดการขาย แยกตามพนักงานขาย</a></li>
-                            <li><a href="index.php?content=sale_amount_document"><i class="fa fa-bar-chart"></i>&nbsp; รายงานยอดขาย แยกตามพนักงานและเอกสาร</a></li> 
+                            <li><a href="index.php?content=sale_amount_document"><i class="fa fa-bar-chart"></i>&nbsp; รายงานยอดขาย แยกตามพนักงานและเอกสาร</a></li>
                             <li class="divider"></li>
-                            <li><a href="index.php?content=sale_by_attribute"><i class="fa fa-bar-chart"></i>&nbsp;รายงานจำนวนขาย แยกตามคุณลักษณะสินค้า</a></li>                          
+                            <li><a href="index.php?content=sale_by_attribute"><i class="fa fa-bar-chart"></i>&nbsp;รายงานจำนวนขาย แยกตามคุณลักษณะสินค้า</a></li>
                         </ul>
-                    </li>  
+                    </li>
                      <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ระบบซื้อ</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=po_backlog"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ใบสั่งซื้อค้างรับ แยกตามผู้ขาย</a></li>
@@ -145,10 +148,10 @@
                             <li><a href="index.php?content=sale_summary"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สรุปยอดการสั่งซื้อ แยกตามผู้ขาย(ห้ามใช้)</a></li>
                             <li class="divider"></li>
                             <li><a href="index.php?content=sale_summary"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สรุปยอดการสั่งซื้อ เปรียบเทียบรายเดือน(ห้ามใช้)</a></li>
-                           
-                            
+
+
                         </ul>
-                    </li>  
+                    </li>
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ติดตาม</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=stock_backlogs"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน สินค้าค้างส่ง</a></li>
@@ -157,9 +160,9 @@
                         	<li><a href="index.php?content=sponsor_by_customer">	<i class="fa fa-bar-chart"></i>&nbsp; รายงาน ยอดสปอนเซอร์ (ให้บุคคลภายนอก)</a></li>
                              <li><a href="index.php?content=sponsor_summary">			<i class="fa fa-bar-chart"></i>&nbsp; รายงานสรุป ยอดสปอนเซอร์ (ให้บุคคลภายนอก)</a></li>
                             <li><a href="index.php?content=support_by_employee">		<i class="fa fa-bar-chart"></i>&nbsp; รายงาน ยอดเบิกอภินันทนาการ (สำหรับพนักงาน) </a></li>
-                            <li><a href="index.php?content=support_summary">			<i class="fa fa-bar-chart"></i>&nbsp; รายงานสรุป ยอดเบิกอภินันทนาการ (สำหรับพนักงาน) </a></li>                            
+                            <li><a href="index.php?content=support_summary">			<i class="fa fa-bar-chart"></i>&nbsp; รายงานสรุป ยอดเบิกอภินันทนาการ (สำหรับพนักงาน) </a></li>
                         </ul>
-                    </li>  
+                    </li>
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ตรวจสอบ</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=discount_edit"><i class="fa fa-bar-chart"></i>&nbsp;รายงานการแก้ไขส่วนลด</a></li>
@@ -168,7 +171,7 @@
                             <li><a href="index.php?content=delivery_fee"><i class="fa fa-bar-chart"></i>&nbsp;รายงาน ค่าจัดส่งสินค้า (ออนไลน์)</a></li>
                             <li class="divider"></li>
                              <li><a href="index.php?content=pdbcd"><i class="fa fa-bar-chart"></i>&nbsp;รายงานสินค้า แยกตามลูกค้า แสดงเลขที่เอกสาร</a></li>
-                            <li class="divider"></li>                           
+                            <li class="divider"></li>
                              <li><a href="index.php?content=document_by_product_attribute"><i class="fa fa-bar-chart"></i>&nbsp;รายงานเอกสาร แยกตามรายการสินค้า</a></li>
                              <li><a href="index.php?content=document_by_customer"><i class="fa fa-bar-chart"></i>&nbsp;รายงานเอกสาร แยกตามลูกค้า</a></li>
                              <li><a href="index.php?content=consignment_by_customer"><i class="fa fa-bar-chart"></i>&nbsp;รายงานบิลส่งของไปฝากขาย แยกตามลูกค้า เรียงตามเลขที่เอกสาร </a></li>
@@ -180,7 +183,7 @@
                              <li><a href="index.php?content=lend_by_product"><i class="fa fa-bar-chart"></i>&nbsp;รายงานใบยืมสินค้า แยกตามสินค้า</a></li>
                         </ul>
                     </li>
-                    
+
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน วิเคราะห์</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=sale_product_deep_analyz"><i class="fa fa-bar-chart"></i>&nbsp;รายงานวิเคราะห์ขายแบบละเอียด</a></li>
@@ -193,7 +196,7 @@
                              <li><a href="index.php?content=customer_by_product_attribute"><i class="fa fa-bar-chart"></i>&nbsp;รายงานลูกค้า แยกตามรายการสินค้า</a></li>
                              <li><a href="index.php?content=product_by_customer"><i class="fa fa-bar-chart"></i>&nbsp;รายงานสินค้า แยกตามลูกค้า</a></li>
                              <li><a href="index.php?content=product_attribute_by_customer"><i class="fa fa-bar-chart"></i>&nbsp;รายงานรายการสินค้า แยกตามลูกค้า</a></li>
-                             
+
                              <li class="divider"></li>
                             <li><a href="index.php?content=chart_movement_report"><i class="fa fa-line-chart"></i>&nbsp;กราฟรายงานภาพรวมการขาย</a></li>
                             <li><a href="index.php?content=sale_chart_zone"><i class="fa fa-line-chart"></i>&nbsp;กราฟรายงานยอดขาย เปรียบเทียบพื้นที่การขาย</a></li>
@@ -202,8 +205,8 @@
                              <li><a href="index.php?content=stock_chart_zone_report"><i class="fa fa-bar-chart"></i>&nbsp;กราฟรายงานการเคลื่อนไหวสินค้า แยกตามพื้นที่การขาย</a></li>
                              <li><a href="index.php?content=attribute_analyz"><i class="fa fa-bar-chart"></i>&nbsp;รายงานวิเคราะห์จำนวนขาย แยกตามคุณลักษณะสินค้า</a></li>
                         </ul>
-                    </li> 
-                    
+                    </li>
+
                      <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน อื่นๆ</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=delivery_ticket"><i class="fa fa-ticket"></i> พิมพ์ตั๋วจัดส่ง</a></li>
@@ -211,20 +214,20 @@
                             <li><a href="index.php?content=sale_amount_report"><i class="fa fa-dashboard"></i>&nbsp;สรุปยอดขาย รวม</a></li>
                             <li><a href="index.php?content=sale_leader_board"><i class="fa fa-dashboard"></i>&nbsp;สรุปยอดขาย แยกตามพนักงาน</a></li>
                             <li><a href="index.php?content=sale_leader_group"><i class="fa fa-dashboard"></i>&nbsp;สรุปยอดขาย แยกตามพื้นที่</a></li>
-                            <li><a href="index.php?content=sale_calendar"><i class="fa fa-dashboard"></i>&nbsp;ปฏิทิน ยอดขาย</a></li>  
+                            <li><a href="index.php?content=sale_calendar"><i class="fa fa-dashboard"></i>&nbsp;ปฏิทิน ยอดขาย</a></li>
                             <li class="divider"></li>
                             <li><a href="index.php?content=order_freq"><i class="fa fa-bar-chart"></i>&nbsp; รายงานความถี่ในการสั่งสินค้า แยกตามช่วงเวลา</a></li>
                         </ul>
-                    </li>       
+                    </li>
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bar-chart"></i>&nbsp; รายงาน ผู้บริหาร</a>
                     	<ul class="dropdown-menu">
                            <li><a href="index.php?content=sale_profit_by_item"><i class="fa fa-bar-chart"></i>&nbsp; รายงานยอดขาย แยกตามรายการสินค้า แสดงกำไรขั้นต้น</a></li>
                            <li><a href="index.php?content=sale_profit_by_customer"><i class="fa fa-bar-chart"></i>&nbsp; รายงานยอดขาย แยกตามลูกค้า แสดงกำไรขั้นต้น</a></li>
                         </ul>
-                    </li>    
+                    </li>
                 </ul>
             </li>
-            
+
              <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cogs"></i>&nbsp; การตั้งค่า</a>
               <ul class="dropdown-menu">
               	<li><a href="index.php?content=config"><i class="fa fa-cogs"></i>&nbsp; การตั้งค่า</a></li>
@@ -235,7 +238,7 @@
                 <li><a href="index.php?content=securable"><i class="fa fa-unlock-alt"></i>&nbsp; กำหนดสิทธิ์</a></li>
               </ul>
             </li>
-            
+
             <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-database"></i>&nbsp; ฐานข้อมูล</a>
             	<ul class="dropdown-menu">
             		<li class="dropdown-submenu"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-tags"></i>&nbsp; สินค้า</a>
@@ -248,14 +251,14 @@
                         <li><a href="index.php?content=attribute"><i class="fa fa-leaf"></i>&nbsp; เพิ่ม/แก้ไข คุณลักษณะ</a></li>
                       </ul>
             		</li>
-                    
+
                     <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-home"></i>&nbsp; คลังสินค้า</a>
                     	<ul class="dropdown-menu">
                         	<li><a href="index.php?content=zone"><i class="fa fa-map-marker"></i>&nbsp; เพิ่ม/แก้ไข โซนสินค้า</a></li>
                 			<li><a href="index.php?content=warehouse"><i class="fa fa-home"></i>&nbsp; เพิ่ม/แก้ไข คลังสินค้า</a></li>
-                        </ul>                    
+                        </ul>
                     </li>
-                    
+
                     <li class="dropdown-submenu"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-users"></i>&nbsp; ลูกค้า</a>
                       <ul class="dropdown-menu">
                         <li><a href="index.php?content=customer"><i class="fa fa-user"></i>&nbsp; เพิ่ม/แก้ไข ลูกค้า</a></li>
@@ -266,7 +269,7 @@
                         <li><a href="index.php?content=add_sponsor"><i class="fa fa-user"></i>&nbsp; เพิ่ม/แก้ไข รายชื่อสปอนเซอร์</a></li>
                       </ul>
                     </li>
-                    
+
                     <li class="dropdown-submenu"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-users"></i>&nbsp; พนักงาน</a>
                       <ul class="dropdown-menu">
                         <li><a href="index.php?content=Employee"><i class="fa fa-user"></i>&nbsp; เพิ่ม/แก้ไข พนักงาน</a></li>
@@ -288,7 +291,7 @@
                     <li><a href="index.php?content=import_stock_zone"><i class='fa fa-database'></i>&nbsp; นำเข้ายอดคงเหลือยกมาต้นงวด</a></li>
             	</ul>
             </li>
-            
+
 <!--            <li><a href="../doc/index.php" target="_blank"><i class="fa fa-book"></i>&nbsp; คู่มือการใช้งาน</a></li> -->
-          </ul>   
-<?php endif; ?>          
+          </ul>
+<?php endif; ?>

@@ -26,15 +26,15 @@ if( isset( $_GET['confirm_order'] ) && isset( $_GET['id_order'] ) )
 	$id_order 		= $_GET['id_order'];
 	$id_employee 	= $_GET['id_employee'];
 	$bill_discount 	= bill_discount($id_order);
-	$order 			= new order($id_order);	
+	$order 			= new order($id_order);
 	$state 			= get_current_state($id_order);
 	$sc				= TRUE;
 	$message		= 'success';
 	if( $state == 10 )
 	{
 		//--- เปลี่ยนเป็นเปิดบิลแล้วก่อน กันคนอื่นมาเปิดซ้ำกัน
-		order_state_change($id_order, 9, $id_employee); 
-		
+		order_state_change($id_order, 9, $id_employee);
+
 		//--------- Query From QC
 		$qr = "SELECT qc.id_product_attribute AS id_pa, SUM( qc.qty ) AS qty, tmp.id_zone, tmp.id_warehouse ";
 		$qr .= "FROM tbl_qc AS qc ";
@@ -42,70 +42,70 @@ if( isset( $_GET['confirm_order'] ) && isset( $_GET['id_order'] ) )
 		$qr .= "USING (id_temp) ";
 		$qr .= "WHERE qc.id_order = ".$id_order." AND qc.valid = 1 ";
 		$qr .= "GROUP BY qc.id_product_attribute, tmp.id_zone";
-		
+
 		$qs = dbQuery($qr);
-		
+
 		//------ กรณีฝากขาย
 		if( $order->role == 5 )
 		{
 			include 'subController/consignProcess.php';
 		}
-		
+
 		//------ กรณีขายทั่วไป
 		if( $order->role == 1 )
 		{
 			include 'subController/orderProcess.php';
 		}
-		
+
 		//----- กรณีสปอนเซอร์สโมสร
 		if( $order->role == 4 )
 		{
-			
+
 			include 'subController/sponsorProcess.php';
 		}
-		
+
 		//----- กรณีเบิกอภินันท์
 		if( $order->role == 7 )
 		{
-			
-			include 'subController/supportProcess.php';	
+
+			include 'subController/supportProcess.php';
 		}
-		
+
 		//----- กรณี ยืมสินค้า
 		if( $order->role == 3 )
 		{
-			
-			include 'subController/lendProcess.php';	
+
+			include 'subController/lendProcess.php';
 		}
-		
+
 		//------ กรณีเบิกแปรสภาพ
 		if( $order->role == 2 OR $order->role == 6 )
 		{
 			include 'subController/orderProcess.php';
-		}		
-		
-		
+		}
+
+
 		//------ ถ้าไม่สำเร็จ ย้อนสถานะไปเป้นรอเปิดบิลเหมือนเดิม
 		if( $sc === FALSE )
 		{
 			//-----  ย้อนสถานะไปเป้นรอเปิดบิลเหมือนเดิม
 			$sc = dbQuery("UPDATE tbl_order SET current_state = 10 WHERE id_order = ".$id_order);
-			
+
 			//------ กันเหนียว
 			if( $sc === FALSE )
 			{
 				dbQuery("UPDATE tbl_order SET current_state = 10 WHERE id_order = ".$id_order);
 			}
-			
+
 			//------ ลบล่องรอยใน order stage change
-			dbQuery("DELETE FROM tbl_order_state_change WHERE id_order = ".$id_order." AND id_order_state = 9 AND id_employee = ".$id_employee);	
+			dbQuery("DELETE FROM tbl_order_state_change WHERE id_order = ".$id_order." AND id_order_state = 9 AND id_employee = ".$id_employee);
 		}
 	}
 	else
 	{
-		$message = 'สถานะเอกสารถูกเปลี่ยนไปแล้ว';	
+		$message = 'สถานะเอกสารถูกเปลี่ยนไปแล้ว';
 	}
-	
+
 	echo $message;
 }
 
@@ -114,7 +114,7 @@ if( isset( $_GET['confirm_order'] ) && isset( $_GET['id_order'] ) )
 
 
 
-if(isset($_GET['clear_buffer'] ) && isset($_GET['id_order']) ){ 
+if(isset($_GET['clear_buffer'] ) && isset($_GET['id_order']) ){
 	clear_buffer($_GET['id_order']);
 	echo "success";
  }
@@ -131,7 +131,7 @@ if(isset($_GET['delete_cancle_item']) && isset($_GET['id_cancle']))
 	}
 	else
 	{
-		echo "fail";	
+		echo "fail";
 	}
 }
 
@@ -193,7 +193,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 	$print->add_subheader($thead);
-	
+
 	//***************************** กำหนด css ของ td *****************************//
 	$pattern = array(
 							"text-align: center; border-top:0px;",
@@ -203,18 +203,18 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
+							);
+	$print->set_pattern($pattern);
+
 	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."), 
+	$footer	= array(
+						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
 						array("ผู้ส่งของ", "","วันที่............................."),
 						array("ผู้ตรวจสอบ", "","วันที่............................."),
 						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
+						);
+	$print->set_footer($footer);
+
 	$n = 1;
 	while($total_page > 0 )
 	{
@@ -224,7 +224,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 				echo $print->table_start();
 				$i = 0;
 				$product = new product();
-				while($i<$row) : 
+				while($i<$row) :
 					$rs = dbFetchArray($detail);
 					if(count($rs) != 0) :
 						$id_product = $product->getProductId($rs['id_product_attribute']);
@@ -233,12 +233,12 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						$final_total	= ($rs['sold_qty'] * $rs['product_price']) - ( ( ($rs['product_price'] * $rs['sold_qty']) * ($rs['reduction_percent'] * 0.01) ) + ($rs['sold_qty'] * $rs['reduction_amount']) );
 						$discount_amount = $total - $final_total;
 						if($rs['reduction_percent'] != 0 )
-						{ 
-							$discount = $rs['reduction_percent']." %"; 
-						}else if($rs['reduction_amount'] != 0){ 
-							$discount = number_format($rs['reduction_amount'],2)." ฿"; 
-						}else{ 
-							$discount = 0.00; 
+						{
+							$discount = $rs['reduction_percent']." %";
+						}else if($rs['reduction_amount'] != 0){
+							$discount = number_format($rs['reduction_amount'],2)." ฿";
+						}else{
+							$discount = 0.00;
 						}
 						$data = array($n, $rs['barcode'], $product_name, $rs['product_price'], number_format($rs['sold_qty']), $discount, number_format($final_total, 2));
 						$total_qty += $rs['sold_qty'];
@@ -248,22 +248,22 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						$data = array("", "", "", "","", "","");
 					endif;
 					echo $print->print_row($data);
-					$n++; $i++;  	
+					$n++; $i++;
 				endwhile;
 				echo $print->table_end();
 				if($print->current_page == $print->total_page)
-				{ 
-					$qty = number_format($total_qty); 
-					$amount = number_format($total_amount,2); 
+				{
+					$qty = number_format($total_qty);
+					$amount = number_format($total_amount,2);
 					$total_discount_amount = number_format($total_discount+$bill_discount,2);
 					$net_amount = number_format($total_amount - ($total_discount + $bill_discount) ,2);
-					$remark = $order->comment; 
-				}else{ 
-					$qty = ""; 
-					$amount = ""; 
+					$remark = $order->comment;
+				}else{
+					$qty = "";
+					$amount = "";
 					$total_discount_amount = "";
 					$net_amount = "";
-					$remark = ""; 
+					$remark = "";
 				}
 				$sub_total = array(
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px; border-left:0px; width:60%; text-align:center;'>**** ส่วนลดท้ายบิล : ".number_format($bill_discount,2)." ****</td>
@@ -277,7 +277,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>ยอดเงินสุทธิ</strong></td>
 						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$net_amount."</td>")
 						);
-			echo $print->print_sub_total($sub_total);				
+			echo $print->print_sub_total($sub_total);
 			echo $print->content_end();
 			echo $print->footer;
 		echo $print->page_end();
@@ -319,7 +319,7 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 						array("มูลค่า", "width:10%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 	$print->add_subheader($thead);
-	
+
 	//***************************** กำหนด css ของ td *****************************//
 	$pattern = array(
 							"text-align: center; border-top:0px;",
@@ -330,18 +330,18 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
+							);
+	$print->set_pattern($pattern);
+
 	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."), 
+	$footer	= array(
+						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
 						array("ผู้ส่งของ", "","วันที่............................."),
 						array("ผู้ตรวจสอบ", "","วันที่............................."),
 						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
+						);
+	$print->set_footer($footer);
+
 	$n = 1;
 	while($total_page > 0 )
 	{
@@ -351,7 +351,7 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 				echo $print->table_start();
 				$i = 0;
 				$product = new product();
-				while($i<$row) : 
+				while($i<$row) :
 					$rs = dbFetchArray($detail);
 					if(count($rs) != 0) :
 						$sold 				= get_sold_data($id_order, $rs['id_product_attribute']);
@@ -367,15 +367,15 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 						$sold_qty		= $sold == false ? 0 : $sold['sold_qty'] ;
 						$final_total		= $sold == false ? 0.00 : ($sold['sold_qty'] * $rs['product_price']) - ( ( ($rs['product_price'] * $sold['sold_qty']) * ($rs['reduction_percent'] * 0.01) ) + ($sold['sold_qty'] * $rs['reduction_amount']) );
 						$discount_amount = $total - $final_total;
-						$discount 		= $sold == false ? show_discount($rs['reduction_percent'], $rs['reduction_amount']) : show_discount($sold['reduction_percent'], $sold['reduction_amount']); 
+						$discount 		= $sold == false ? show_discount($rs['reduction_percent'], $rs['reduction_amount']) : show_discount($sold['reduction_percent'], $sold['reduction_amount']);
 						$data 			= array(
-													$n, 
-													$barcode, 
+													$n,
+													$barcode,
 													$pre. $product_name .$post,
-													$pre. number_format($rs['product_price'],2) .$post, 
-													$pre. number_format($rs['product_qty']) .$post, 
-													$pre. number_format($sold_qty) .$post, 
-													$pre. $discount .$post, 
+													$pre. number_format($rs['product_price'],2) .$post,
+													$pre. number_format($rs['product_qty']) .$post,
+													$pre. number_format($sold_qty) .$post,
+													$pre. $discount .$post,
 													$pre. number_format($final_total, 2) .$post
 													);
 						$total_qty 		+= $sold == false ? 0 : $sold['sold_qty'];
@@ -385,22 +385,22 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 						$data = array("", "", "", "","", "", "","");
 					endif;
 					echo $print->print_row($data);
-					$n++; $i++;  	
+					$n++; $i++;
 				endwhile;
 				echo $print->table_end();
 				if($print->current_page == $print->total_page)
-				{ 
-					$qty = number_format($total_qty); 
-					$amount = number_format($total_amount,2); 
+				{
+					$qty = number_format($total_qty);
+					$amount = number_format($total_amount,2);
 					$total_discount_amount = number_format($total_discount+$bill_discount,2);
 					$net_amount = number_format($total_amount - ($total_discount + $bill_discount) ,2);
-					$remark = $order->comment; 
-				}else{ 
-					$qty = ""; 
-					$amount = ""; 
+					$remark = $order->comment;
+				}else{
+					$qty = "";
+					$amount = "";
 					$total_discount_amount = "";
 					$net_amount = "";
-					$remark = ""; 
+					$remark = "";
 				}
 				$sub_total = array(
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px; border-left:0px; width:60%; text-align:center;'>**** ส่วนลดท้ายบิล : ".number_format($bill_discount,2)." ****</td>
@@ -414,7 +414,7 @@ if( isset( $_GET['print_order_barcode']) && isset( $_GET['id_order'] ) )
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>ยอดเงินสุทธิ</strong></td>
 						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$net_amount."</td>")
 						);
-			echo $print->print_sub_total($sub_total);				
+			echo $print->print_sub_total($sub_total);
 			echo $print->content_end();
 			echo $print->footer;
 		echo $print->page_end();
