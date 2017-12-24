@@ -4,6 +4,50 @@ require "../../library/functions.php";
 require "../function/tools.php";
 require "../function/report_helper.php";
 
+
+if(isset($_GET['exportStockZone']))
+{
+	$excel = new PHPExcel();
+	$excel->setActiveSheetIndex(0);
+	$excel->getActiveSheet()->setTitle('stockZone');
+	$excel->getActiveSheet()->setCellValue('A1', 'zone code');
+	$excel->getActiveSheet()->setCellValue('B1', 'product code');
+	$excel->getActiveSheet()->setCellValue('C1', 'qty');
+
+	$qr  = "SELECT z.barcode_zone, p.reference, s.qty ";
+	$qr .= "FROM tbl_stock AS s LEFT JOIN tbl_zone AS z ON s.id_zone = z.id_zone ";
+	$qr .= "LEFT JOIN tbl_product_attribute AS p ON s.id_product_attribute = p.id_product_attribute";
+
+	//echo $qr;
+
+	$qs = dbQuery($qr);
+
+	if(dbNumRows($qs) > 0)
+	{
+		$row = 2;
+		while($rs = dbFetchObject($qs))
+		{
+			$excel->getActiveSheet()->setCellValue('A'.$row, $rs->barcode_zone);
+			$excel->getActiveSheet()->setCellValue('B'.$row, $rs->reference);
+			$excel->getActiveSheet()->setCellValue('C'.$row, $rs->qty);
+			$row++;
+		}
+	}
+
+	//print_r($excel);
+
+
+	$file_name = "STOCK_FOR_IMPORT.xlsx";
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+	header('Content-Disposition: attachment;filename="'.$file_name.'"');
+	$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+	$writer->save('php://output');
+	setToken($_GET['token']);
+
+}
+
+
+
 function category_name($id_cate)
 {
 	$sc = '';
@@ -30,7 +74,7 @@ if( isset( $_GET['export_all'] ) && isset( $_GET['token'] ) )
 	$excel->getActiveSheet()->setCellValue('F1', 'price');
 	$excel->getActiveSheet()->setCellValue('G1', 'items_group');
 	$excel->getActiveSheet()->setCellValue('H1', 'category');
-	
+
 	$qs 		= dbQuery("SELECT barcode, reference, product_name, product_code, cost, price, default_category_id FROM tbl_product_attribute JOIN tbl_product ON tbl_product_attribute.id_product = tbl_product.id_product ORDER BY tbl_product.id_product ASC");
 	if( dbNumRows($qs) > 0 ) :
 		$row = 2;
@@ -44,7 +88,7 @@ if( isset( $_GET['export_all'] ) && isset( $_GET['token'] ) )
 			$excel->getActiveSheet()->setCellValue('G'.$row, $web_id);
 			$excel->getActiveSheet()->setCellValue('H'.$row, category_name($rs['default_category_id']));
 			$row++;
-		endwhile;	
+		endwhile;
 	endif;
 	$file_name = "items-".$web_id.".xlsx";
 	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
@@ -72,7 +116,7 @@ if( isset( $_GET['export_product'] ) && isset( $_POST['export'] ) )
 	$row = 2;
 	foreach($exp as $id => $val)
 	{
-		
+
 		$qr = "SELECT barcode, reference, product_name, product_code, cost, price, default_category_id FROM tbl_product_attribute JOIN tbl_product ON tbl_product_attribute.id_product = tbl_product.id_product ";
 		$qr .= "WHERE tbl_product_attribute.id_product = ".$id." ORDER BY tbl_product.id_product ASC";
 		$qs = dbQuery($qr);
@@ -92,12 +136,12 @@ if( isset( $_GET['export_product'] ) && isset( $_POST['export'] ) )
 			}
 		}
 	}
-	
+
 	$file_name = "items-".$web_id.".xlsx";
 	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
 	header('Content-Disposition: attachment;filename="'.$file_name.'"');
 	$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-	$writer->save('php://output');	
+	$writer->save('php://output');
 }
 
 
@@ -110,7 +154,7 @@ if( isset( $_GET['stock_in_zone'] ) && isset( $_GET['export'] ) )
 	$excel->getActiveSheet()->setCellValue('A1', 'barcode');
 	$excel->getActiveSheet()->setCellValue('B1', 'item_code');
 	$excel->getActiveSheet()->setCellValue('C1', 'qty');
-	
+
 	$qs			= "SELECT barcode, reference, qty ";
 	$qs 			.= "FROM tbl_stock JOIN tbl_product_attribute ON tbl_stock.id_product_attribute = tbl_product_attribute.id_product_attribute ";
 	$qs			.= "WHERE tbl_stock.id_zone = ".$id_zone;
@@ -150,7 +194,7 @@ if( isset( $_GET['clear_filter'] ) )
 	setcookie("db_search_text", "", time()-3600, "/");
 	setcookie("db_from_date", "", 0, "/");
 	setcookie("db_to_date", "", 0, "/");
-	echo "success";		
+	echo "success";
 }
 
 ?>
