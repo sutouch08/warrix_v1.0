@@ -11,8 +11,8 @@ if( isset( $_GET['updateInvoice'] ) )
 {
 	$sc 			= 'fail';
 	$id_order 	= $_POST['id_order'];
-	$invoice 		= $_POST['invoice'];	
-	
+	$invoice 		= $_POST['invoice'];
+
 	$qs = dbQuery("SELECT invoice FROM tbl_order_invoice WHERE id_order = ".$id_order);
 	if( dbNumRows($qs) == 0 )
 	{
@@ -20,13 +20,13 @@ if( isset( $_GET['updateInvoice'] ) )
 	}
 	else
 	{
-		$qr = dbQuery("UPDATE tbl_order_invoice SET invoice = '".$invoice."' WHERE id_order = ".$id_order);	
+		$qr = dbQuery("UPDATE tbl_order_invoice SET invoice = '".$invoice."' WHERE id_order = ".$id_order);
 	}
 	if( $qr === TRUE )
 	{
 		$sc = 'success';
 	}
-	
+
 	echo $sc;
 }
 
@@ -60,7 +60,7 @@ if( isset( $_GET['saveServiceFee'] ) )
 		}
 		else
 		{
-			$rs = addServiceFee($id_order, $amount);	
+			$rs = addServiceFee($id_order, $amount);
 		}
 	}
 	if( ! $rs ){ $sc = 'fail'; }
@@ -73,13 +73,13 @@ if( isset( $_GET['updateDeliveryNo'] ) )
 {
 	$sc	= 'fail';
 	$ems 			= $_POST['deliveryNo'];
-	$id_order	= $_POST['id_order'];	
+	$id_order	= $_POST['id_order'];
 	$qs	= dbQuery("UPDATE tbl_order_online SET delivery_code = '".$ems."' WHERE id_order = ".$id_order);
 	if( $qs )
 	{
 		$sc = 'success';
 	}
-	echo $sc;	
+	echo $sc;
 }
 
 if( isset( $_GET['closeOrder'] ) )
@@ -112,12 +112,12 @@ if( isset( $_GET['confirmPayment'] ) )
 	$payDate		= dbDate($dhm, TRUE);
 	$date_add 		= date('Y-m-d H:i:s');
 	$order			= new order($id_order);
-	
+
 	$id_emp			= getCookie('user_id');
 	//-------  บันทึกรายการ -----//
 	$payment = isPaymentExists($id_order);
 	if( $payment === FALSE )
-	{	
+	{
 		$qr = "INSERT INTO tbl_payment ( id_order, order_amount, pay_amount, paydate, id_account, acc_no, id_employee, date_add) VALUES ";
 		$qr .= "(".$id_order.", ".$orderAmount.", ".$payAmount.", '".$payDate."', ".$id_acc.", '".$accNo."', ".$id_emp.", '".$date_add."')";
 		$qs = dbQuery($qr);
@@ -132,10 +132,10 @@ if( isset( $_GET['confirmPayment'] ) )
 	{
 		$sc = 'success';
 	}
-	
-	//----- Upload image -----//	
+
+	//----- Upload image -----//
 	if( $file !== FALSE )
-	{	
+	{
 		$image_path 	= "../../img/payment/";
 		$image 			= new upload($file);
 		if($image->uploaded)
@@ -159,7 +159,7 @@ if( isset( $_GET['confirmPayment'] ) )
 if( isset( $_GET['addOnlineAddress'] ) )
 {
 	$sc = 'fail';
-	$id_order 	= $_GET['id_order'];	
+	$id_order 	= $_GET['id_order'];
 	$id_address = $_POST['id_address'] == '' ? FALSE : $_POST['id_address'];
 	$code		= getCustomerOnlineReference($id_order);
 	$isExists		= isAddressExists($code);
@@ -203,7 +203,7 @@ if( isset( $_GET['deleteOnlineAddress'] ) )
 	$order	= new order();
 	$rs 		= $order->deleteOnlineAddress($id_address);
 	if( $rs )
-	{	
+	{
 		$sc = 'success';
 	}
 	echo $sc;
@@ -241,7 +241,7 @@ if( isset( $_GET['getAddressTable'] ) )
 		{
 			while( $data = dbFetchArray($qs) )
 			{
-				$arr	= array( 
+				$arr	= array(
 							'id'			=> $data['id_address'],
 							'name'		=> $data['first_name'].' '.$data['last_name'],
 							'address'	=> $data['address1'].' '.$data['address2'].' '.$data['province'].' '.$data['postcode'],
@@ -255,7 +255,7 @@ if( isset( $_GET['getAddressTable'] ) )
 			$sc = json_encode($ds);
 		}
 	}
-	echo $sc;	
+	echo $sc;
 }
 
 
@@ -267,7 +267,7 @@ if( isset( $_GET['getAddressDetail']) )
 	if( dbNumRows($qs) == 1 )
 	{
 		$rs = dbFetchArray($qs);
-		$sc = $rs['id_address'].' | '.$rs['first_name'].' | '.$rs['last_name'].' | '.$rs['address1'].' | '.$rs['address2'].' | '.$rs['province'].' | '.$rs['postcode'].' | '.$rs['phone'].' | '.$rs['email'].' | '.$rs['alias'];	
+		$sc = $rs['id_address'].' | '.$rs['first_name'].' | '.$rs['last_name'].' | '.$rs['address1'].' | '.$rs['address2'].' | '.$rs['province'].' | '.$rs['postcode'].' | '.$rs['phone'].' | '.$rs['email'].' | '.$rs['alias'];
 	}
 	echo $sc;
 }
@@ -288,8 +288,9 @@ if( isset( $_GET['getOnlineAddress'] ) )
 //------------------------  Add Order ( New code ) ----------------//
 if( isset( $_GET['addNewOrder'] ) )
 {
+	$date_add = dbDate($_POST['doc_date'], true);
 	$data = array(
-						"reference"		=> get_max_role_reference('PREFIX_ORDER', 1),
+						"reference"		=> get_max_role_reference('PREFIX_ORDER', 1, $date_add),
 						"id_customer" 	=> $_POST['id_customer'],
 						"id_employee"	=> $_POST['id_employee'],
 						"id_cart"			=> 0,
@@ -298,7 +299,7 @@ if( isset( $_GET['addNewOrder'] ) )
 						"comment"		=> $_POST['comment'],
 						"valid"				=> 0,
 						"role"				=> $_POST['role'],
-						"date_add"		=> dbDate($_POST['doc_date'], true)						
+						"date_add"		=> $date_add
 						);
 	$order = new order();
 	$rs = $order->add($data);
@@ -338,7 +339,7 @@ if( isset( $_GET['updateEditOrderHeader'] ) )
 		}
 		$sc = 'success';
 	}
-	echo $sc;		
+	echo $sc;
 }
 
 
@@ -363,6 +364,7 @@ if( isset( $_GET['getProductGrid'] ) )
 	if( $id_product !== FALSE )
 	{
 		$id_cus 	= $_POST['id_customer'];
+		$id_order = $_POST['id_order'];
 		$product = new product();
 		$product->product_detail($id_product, $id_cus);
 		$config 	= getConfig("ATTRIBUTE_GRID_HORIZONTAL");
@@ -375,7 +377,7 @@ if( isset( $_GET['getProductGrid'] ) )
 		if($at !=0){ $at = 1;}
 		$count = $co+$si+$at;
 		if($count >1){	$table_w = (70*($colums+1)+100); }else if($count ==1){ $table_w = 800; }
-		$dataset = $product->order_attribute_grid($product->id_product);
+		$dataset = $product->order_attribute_grid($product->id_product, $id_order);
 		$dataset .= "|".$table_w;
 		$dataset .= "|".$product->product_code;
 		echo $dataset;
@@ -386,7 +388,7 @@ if( isset($_GET['viewProductGrid'] ) )
 {
 	$id_product = getIdProductByCode($_POST['product_code']);
 	if( $id_product !== FALSE )
-	{		
+	{
 		$product = new product();
 		$product->product_detail($id_product);
 		$config = getConfig("ATTRIBUTE_GRID_HORIZONTAL");
@@ -437,7 +439,7 @@ if( isset( $_GET['getCategoryProductGrid'] ) )
 	}
 	else
 	{
-		$ds = 'no_product';	
+		$ds = 'no_product';
 	}
 	echo $ds;
 
@@ -474,7 +476,7 @@ if( isset( $_GET['getCategoryGrid'] ) )
 	}
 	else
 	{
-		$ds = 'no_product';	
+		$ds = 'no_product';
 	}
 	echo $ds;
 
@@ -487,7 +489,7 @@ if( isset( $_GET['addToOrder'] ) )
 	$sd			= TRUE;
 	$id_order 	= $_POST['id_order'];
 	$order		= new order($id_order);
-	$qtys			= $_POST['qty'];	
+	$qtys			= $_POST['qty'];
 	startTransection();
 	foreach( $qtys as $co)
 	{
@@ -503,7 +505,7 @@ if( isset( $_GET['addToOrder'] ) )
 				$total_amount	= $qty * $product->product_sell;
 				if( $product->isVisual($id_pd) === FALSE)
 				{
-					$stock	= $product->available_order_qty($id_pa);
+					$stock	= $product->available_order_qty($id_pa, $id_order);
 					if( $qty > $stock )
 					{
 						$sc = 'overstock | '.$product->reference;
@@ -513,10 +515,10 @@ if( isset( $_GET['addToOrder'] ) )
 					{
 						$rs = $order->insertDetail($id_pa, $qty);
 						if( ! $rs )
-						{ 
+						{
 							$sc = 'fail | '.$product->reference;
-							$sd = FALSE; 
-						}	
+							$sd = FALSE;
+						}
 					}
 				}
 				else
@@ -526,14 +528,14 @@ if( isset( $_GET['addToOrder'] ) )
 			}
 		} //-- end foreach --//
 	}//--- end foreach--//
-		
+
 	if( $sd )
 	{
 		commitTransection();
 	}
 	else
 	{
-		dbRollback();	
+		dbRollback();
 	}
 	echo $sc;
 }
@@ -563,9 +565,9 @@ if( isset( $_GET['getOrderProductTable'] ) )
 							"discount"	=> discountLabel($rs['reduction_percent'], $rs['reduction_amount']),
 							"amount"		=> number_format($rs['total_amount'], 2)
 							);
-			array_push($sd, $arr);		
+			array_push($sd, $arr);
 			$tq += $rs['product_qty'];
-			$no++;					
+			$no++;
 		}
 		$arr = array("total_qty" => number_format($tq));
 		array_push($sd, $arr);
@@ -609,7 +611,7 @@ if( isset( $_GET['updateDiscount'] ) )
 	$id_discount_edit = dbInsertId();
 	$disc 		= $_POST['reduction'];
 	$unit 			= $_POST['unit'];
-	foreach ($disc as $id => $val )  /// $id = id_order_detail   
+	foreach ($disc as $id => $val )  /// $id = id_order_detail
 	{
 		$qs = dbQuery("SELECT product_qty AS qty, product_price AS price FROM tbl_order_detail WHERE id_order_detail = ".$id);
 		if( dbNumRows($qs) > 0 )
@@ -634,7 +636,7 @@ if( isset( $_GET['updateDiscount'] ) )
 			}
 			$sqr = "UPDATE tbl_order_detail SET reduction_percent = ".$p_dis.", reduction_amount = ".$a_dis.", discount_amount = ".$discount_amount.", final_price = ".$final_price.", total_amount = ".$total_amount;
 			$sqr .= " WHERE id_order_detail = ".$id;
-			
+
 			$sql = dbQuery("SELECT reduction_percent, reduction_amount FROM tbl_order_detail WHERE id_order_detail = ".$id);
 			if(dbNumRows($sql) > 0 )
 			{
@@ -642,7 +644,7 @@ if( isset( $_GET['updateDiscount'] ) )
 				if($old_percent != 0.00){ $old_dis = $old_percent; $old_unit = "percent"; }else{ $old_dis = $old_amount; $old_unit = "amount"; }
 				$qr = dbQuery($sqr);
 				if( $qr )
-				{	
+				{
 					dbQuery("INSERT INTO tbl_discount_edit_detail(id_discount_edit, id_order_detail, dis_before, dis_after, old_unit, new_unit) VALUES (".$id_discount_edit.", ".$id.", ".$old_dis.", ".$val.", '".$old_unit."', '".$unit[$id]."')");
 				}
 			}
@@ -659,7 +661,7 @@ if( isset( $_GET['validEditPricePassword'] ) )
 	$qs = dbQuery("SELECT tbl_access.view, tbl_access.add, tbl_access.edit, tbl_access.delete FROM tbl_access JOIN tbl_employee ON tbl_access.id_profile = tbl_employee.id_profile WHERE id_tab = ".$tab." AND s_key = '".$key."'");
 	if( dbNumRows($qs) == 1 )
 	{
-		$rs = dbFetchArray($qs);	
+		$rs = dbFetchArray($qs);
 		$sc = $rs['view'] + $rs['add'] + $rs['edit'] + $rs['delete'];
 	}
 	echo $sc;
@@ -678,7 +680,7 @@ if( isset( $_GET['updateEditPrice'] ) )
 			$qty 				= $ds['product_qty'];
 			$p_dis 			= $ds['reduction_percent'];
 			$a_dis 			= $ds['reduction_amount'];
-			$disAmount		= getDiscountAmount($qty, $price, $p_dis, $a_dis); 
+			$disAmount		= getDiscountAmount($qty, $price, $p_dis, $a_dis);
 			$final_price		= getFinalPrice($price, $p_dis, $a_dis);
 			$total_amount	= $qty * $final_price;
 			$qs = dbQuery("UPDATE tbl_order_detail SET product_price = ".$price.", discount_amount = ".$disAmount.", final_price = ".$final_price.", total_amount = ".$total_amount." WHERE id_order_detail = ".$id);
@@ -695,11 +697,11 @@ if( isset( $_GET['checkOrderNotSave'] ) )
 	$sc = $order->checkOrderNotSave($id_employee);  //---- ถ้าไม่มี ได้ค่า FALSE ถ้ามี ได้ id_order กลับมา
 	if( $sc === FALSE )
 	{
-		echo 'ok';	
+		echo 'ok';
 	}
 	else
 	{
-		echo $sc;	
+		echo $sc;
 	}
 }
 
@@ -720,15 +722,15 @@ if( isset( $_GET['updateDeliveryFee'] ) )
 if( isset( $_GET['clearFilter'] ) )
 {
 	$cookie = array(
-							's_ref', 
-							's_cus', 
-							's_emp', 
-							'orderFrom', 
-							'orderTo', 
-							'viewType', 
-							'closed', 
-							'delivered', 
-							'state_1', 
+							's_ref',
+							's_cus',
+							's_emp',
+							'orderFrom',
+							'orderTo',
+							'viewType',
+							'closed',
+							'delivered',
+							'state_1',
 							'state_3',
 							'state_4',
 							'state_5',
@@ -742,7 +744,7 @@ if( isset( $_GET['clearFilter'] ) )
 	{
 		deleteCookie($name);
 	}
-	echo 'success';	
+	echo 'success';
 }
 
 //------------------------------------------------------------          END NEW CODE         -------------------------------------------------------//
@@ -818,7 +820,7 @@ if(isset($_GET['customer_name'])&&isset($_REQUEST['term'])){
 	}
 	$result = dbQuery($qstring);//query the database for entries containing the term
 if ($result->num_rows>0)
-	{ 
+	{
 		$data= array();
 	while($row = $result->fetch_array())//loop through the retrieved values
 		{
@@ -838,7 +840,7 @@ if(isset($_GET['product_code'])&&isset($_REQUEST['term'])){
 	}
 	$result = dbQuery($qstring);//query the database for entries containing the term
 if ($result->num_rows>0)
-	{ 
+	{
 		$data= array();
 	while($row = $result->fetch_array())//loop through the retrieved values
 		{
@@ -863,7 +865,7 @@ if(isset($_GET['add_request'])&&isset($_POST['id_customer'])){
 	}else{
 		$message = "เพิ่มรายการไม่สำเร็จ";
 		header("location: ../index.php?content=request&add=y&error=$message");
-	}		
+	}
 }
 //************************************** Delete Request Detail  *******************************************//
 if(isset($_GET['delete'])&&isset($_GET['id_request_order_detail'])){
@@ -871,7 +873,7 @@ if(isset($_GET['delete'])&&isset($_GET['id_request_order_detail'])){
 	list($id_request_order)=dbFetchArray(dbQuery("SELECT id_request_order FROM tbl_request_order_detail WHERE id_request_order_detail = $id_request_order_detail"));
 	if(dbQuery("DELETE FROM tbl_request_order_detail WHERE id_request_order_detail = $id_request_order_detail")){
 		$message = "ลบรายการเรียบร้อยแล้ว";
-		header("location: ../index.php?content=request&add=y&id_request_order=$id_request_order&message=$message");	
+		header("location: ../index.php?content=request&add=y&id_request_order=$id_request_order&message=$message");
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=request&add=y&id_request_order=$id_request_order&error=$message");
@@ -883,7 +885,7 @@ if(isset($_GET['delete_request'])&&isset($_GET['id_request_order'])){
 	if(dbQuery("DELETE FROM tbl_request_order_detail WHERE id_request_order = $id_request_order")){
 		dbQuery("DELETE FROM tbl_request_order WHERE id_request_order = $id_request_order");
 		$message = "ลบรายการเรียบร้อยแล้ว";
-		header("location: ../index.php?content=request&message=$message");	
+		header("location: ../index.php?content=request&message=$message");
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=request&error=$message");
@@ -934,10 +936,10 @@ if(isset($_GET['add'])&&isset($_POST['id_customer'])){
 	$customer = new customer($id_customer);
 	$reference = get_max_role_reference("PREFIX_ORDER",1);
 	$payment = $_POST['payment'];
-	$role = 1; 
+	$role = 1;
 	$id_employee = $_POST['id_employee'];
 	$id_cart = 0;
-	if($customer->id_address !=""){ $id_address = $customer->id_address; }else{ $id_address = 0; } 
+	if($customer->id_address !=""){ $id_address = $customer->id_address; }else{ $id_address = 0; }
 	$current_state = 1;
 	$shipping_no = 0;
 	$invoice_no = 0;
@@ -960,7 +962,7 @@ if(isset($_GET['add'])&&isset($_POST['id_customer'])){
 		header("location: ../index.php?content=order&add=y&error=$message");
 	}
 	}
-	
+
 }
 
 
@@ -1007,7 +1009,7 @@ if(isset($_GET['edit_order'])&&isset($_POST['new_qty'])&&$_POST['new_qty'] !="")
 		$id_prodcut = $product->getProductId($id_product_attribute);
 		$product->product_detail($id_product, $order->id_customer);
 		$product->product_attribute_detail($id_product_attribute);
-		$total_amount = $qty * $product->product_sell; 
+		$total_amount = $qty * $product->product_sell;
 		$new_total_amount = $total_amount - $old_total_amount;
 		if($qty<$old_qty){
 			if($order->changeQty($id_product_attribute, $qty)){
@@ -1028,7 +1030,7 @@ if(isset($_GET['edit_order'])&&isset($_POST['new_qty'])&&$_POST['new_qty'] !="")
 						header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&error=$message");
 						exit;
 			}
-			
+
 		}else{
 			if($order->check_credit($new_total_amount)){
 				if($order->changeQty($id_product_attribute, $qty)){
@@ -1047,8 +1049,8 @@ if(isset($_GET['edit_order'])&&isset($_POST['new_qty'])&&$_POST['new_qty'] !="")
 			}
 		}
 	}else if($order->changeQty($id_product_attribute, $qty)){
-			if($qty>$old_qty){ 	
-				dbQuery("UPDATE tbl_order_detail SET valid_detail = 0 WHERE id_order = $id_order AND id_product_attribute = $id_product_attribute"); 
+			if($qty>$old_qty){
+				dbQuery("UPDATE tbl_order_detail SET valid_detail = 0 WHERE id_order = $id_order AND id_product_attribute = $id_product_attribute");
 			}else{
 				dbQuery("UPDATE tbl_order_detail SET valid_detail = 1 WHERE id_order = $id_order AND id_product_attribute = $id_product_attribute");
 			}
@@ -1084,7 +1086,7 @@ if(isset($_GET['edit_order'])&&isset($_GET['insert_detail'])){
 	}else{
 		$message = "เพิ่มสินค้าไม่สำเร็จ";
 		header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&error=$message");
-	}	
+	}
 }
 
 if(isset($_GET['add'])&&isset($_GET['insert_detail'])){
@@ -1102,7 +1104,7 @@ if(isset($_GET['add'])&&isset($_GET['insert_detail'])){
 	}else{
 		$message = "เพิ่มสินค้าไม่สำเร็จ";
 		header("location: ../index.php?content=order&add=y&id_order=$id_order&error=$message");
-	}	
+	}
 }
 
 
@@ -1182,7 +1184,7 @@ if(isset($_GET['edit_order'])&&isset($_GET['add_detail'])&& $_POST['qty']!=""){
 			if($order->insertDetail($id_product_attribute, $qty)){
 				$message = "เพิ่มสินค้าเรียบร้อยแล้ว";
 				header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&message=$message");
-		
+
 			}else{
 				$message = "เพิ่มสินค้าไม่สำเร็จ";
 				header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&error=$message");
@@ -1197,14 +1199,14 @@ if(isset($_GET['edit_order'])&&isset($_GET['add_detail'])&& $_POST['qty']!=""){
 		if($order->insertDetail($id_product_attribute, $qty)){
 				$message = "เพิ่มสินค้าเรียบร้อยแล้ว";
 				header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&message=$message");
-		
+
 			}else{
 				$message = "เพิ่มสินค้าไม่สำเร็จ";
 				header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&error=$message");
 				exit;
 			}
 	}
-		
+
 }
 /// ลบในหน้า แก้ไข
 if(isset($_GET['delete'])&&isset($_GET['id_order'])&&isset($_GET['id_product_attribute'])){
@@ -1216,7 +1218,7 @@ if(isset($_GET['delete'])&&isset($_GET['id_order'])&&isset($_GET['id_product_att
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=order&edit=y&id_order=$id_order&view_detail=y&error=$message");
-	}	
+	}
 }
 
 /// ลบในหน้า เพิ่ม //
@@ -1225,7 +1227,7 @@ if(isset($_GET['delete'])&&isset($_GET['id_order_detail'])){
 	list($id_order)=dbFetchArray(dbQuery("SELECT id_order FROM tbl_order_detail WHERE id_order_detail = $id_order_detail"));
 	if(dbQuery("DELETE FROM tbl_order_detail WHERE id_order_detail = $id_order_detail")){
 		$message = "ลบรายการเรียบร้อยแล้ว";
-		header("location: ../index.php?content=order&add=y&id_order=$id_order&message=$message");	
+		header("location: ../index.php?content=order&add=y&id_order=$id_order&message=$message");
 	}else{
 		$message = "ลบรายการไม่สำเร็จ";
 		header("location: ../index.php?content=order&add=y&id_order=$id_order&error=$message");
@@ -1240,17 +1242,17 @@ if(isset($_GET['add_to_order'])){
 	$i = 0;
 	$n = 0;
 	$missing = "";
-	foreach ($order_qty as $id=>$qty ){	
+	foreach ($order_qty as $id=>$qty ){
 		if($qty !=""){
 			$product = new product();
 			$customer = new customer($id_customer);
 			$id_product = $product->getProductId($id);
 			$product->product_detail($id_product, $order->id_customer);
 			$product->product_attribute_detail($id);
-			$total_amount = $qty*$product->product_sell;		
+			$total_amount = $qty*$product->product_sell;
 			if(!ALLOW_UNDER_ZERO){
 				list($qty_moveing) = dbFetchArray(dbQuery("SELECT qty_move FROM tbl_move WHERE id_product_attribute = '$id' AND id_warehouse = 1"));
-				$instock = $product->available_order_qty($id); 
+				$instock = $product->available_order_qty($id);
 				if($qty>$instock){
 					$missing .= $product->reference." มียอดคงเหลือไม่เพียงพอ &nbsp;<br/>";
 				}else{
@@ -1281,14 +1283,14 @@ if(isset($_GET['add_to_order'])){
 	$message = "เพิ่ม $n รายการเรียบร้อย";
 	header("location: ../index.php?content=order&add=y&id_order=$id_order&id_customer=$id_customer&message=$message&missing=$missing");
 	}
-		
+
 }
 
 //********************************  เพิ่มรายการในหน้า request_product *************************************//
 if(isset($_GET['add_to_request_order'])){
 	$id_request_order= $_POST['id_request_order'];
 	$order_qty = $_POST['qty'];
-	foreach ($order_qty as $id=>$qty ){	
+	foreach ($order_qty as $id=>$qty ){
 		if($qty !=""){
 			$product = new product();
 			$id_product = $product->getProductId($id);
@@ -1308,7 +1310,7 @@ if(isset($_GET['add_to_request_order'])){
 			// do nothing
 		}
 	}
-		header("location: ../index.php?content=request&add=y&id_request_order=$id_request_order");			
+		header("location: ../index.php?content=request&add=y&id_request_order=$id_request_order");
 }
 //// ปริ๊นออเดอร์ไปนำเข้า  formula
 
@@ -1352,7 +1354,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						array("มูลค่า", "width:15%; text-align:center; border-left: solid 1px #ccc; border-top:0px; border-top-right-radius:10px")
 						);
 	$print->add_subheader($thead);
-	
+
 	//***************************** กำหนด css ของ td *****************************//
 	$pattern = array(
 							"text-align: center; border-top:0px;",
@@ -1362,18 +1364,18 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:center; border-left: solid 1px #ccc; border-top:0px;",
 							"text-align:right; border-left: solid 1px #ccc; border-top:0px;"
-							);					
-	$print->set_pattern($pattern);	
-	
+							);
+	$print->set_pattern($pattern);
+
 	//*******************************  กำหนดช่องเซ็นของ footer *******************************//
-	$footer	= array( 
-						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."), 
+	$footer	= array(
+						array("ผู้รับของ", "ได้รับสินค้าถูกต้องตามรายการแล้ว","วันที่............................."),
 						array("ผู้ส่งของ", "","วันที่............................."),
 						array("ผู้ตรวจสอบ", "","วันที่............................."),
 						array("ผู้อนุมัติ", "","วันที่.............................")
-						);						
-	$print->set_footer($footer);		
-	
+						);
+	$print->set_footer($footer);
+
 	$n = 1;
 	while($total_page > 0 )
 	{
@@ -1383,10 +1385,10 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 				echo $print->table_start();
 				$i = 0;
 				$product = new product();
-				while($i<$row) : 
+				while($i<$row) :
 					$rs = dbFetchArray($detail);
 					if(count($rs) != 0) :
-						
+
 						$barcode			= "<img src='".WEB_ROOT."library/class/barcode/barcode.php?text=".$rs['barcode']."' style='height:8mm;' />";
 						$product_name 	= "<input type='text' style='border:0px; width:100%;' value='".$product->product_reference($rs['id_product_attribute'])." : ".$product->product_name($rs['id_product'])."' />";
 						$amount				= $rs['total_amount'];
@@ -1402,22 +1404,22 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						$data = array("", "", "", "", "", "","");
 					endif;
 					echo $print->print_row($data);
-					$n++; $i++;  	
+					$n++; $i++;
 				endwhile;
 				echo $print->table_end();
 				if($print->current_page == $print->total_page)
-				{ 
-					$qty 			= number_format($total_qty); 
-					$amount 		= number_format($total_price,2); 
+				{
+					$qty 			= number_format($total_qty);
+					$amount 		= number_format($total_price,2);
 					$all_disc		= number_format($total_discount+$bill_discount,2);
 					$net_amount	= number_format($total_amount - $bill_discount ,2);
-					$remark 		= $order->comment; 
-				}else{ 
-					$qty 			= ""; 
+					$remark 		= $order->comment;
+				}else{
+					$qty 			= "";
 					$amount		= "";
 					$all_disc		= "";
 					$net_amount	= "";
-					$remark 		= ""; 
+					$remark 		= "";
 				}
 				$sub_total = array(
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px; border-left:0px; width:60%; text-align:center;'>**** ส่วนลดท้ายบิล : ".number_format($bill_discount,2)." ****</td>
@@ -1431,7 +1433,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 						array("<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-bottom:0px;'><strong>ยอดเงินสุทธิ</strong></td>
 						<td style='height:".$print->row_height."mm; border: solid 1px #ccc; border-right:0px; border-bottom:0px; border-bottom-right-radius:10px; text-align:right;'>".$net_amount."</td>")
 						);
-			echo $print->print_sub_total($sub_total);				
+			echo $print->print_sub_total($sub_total);
 			echo $print->content_end();
 			echo $print->footer;
 		echo $print->page_end();
@@ -1440,7 +1442,7 @@ if( isset( $_GET['print_order']) && isset( $_GET['id_order'] ) )
 	echo $print->doc_footer();
 }
 
-	
+
 //// ปริ๊นออเดอร์ไปนำจัดสินค้า
 if(isset($_GET['print_prepare'])&&isset($_GET['id_order'])){
 	$id_order = $_GET['id_order'];
@@ -1468,7 +1470,7 @@ if(isset($_GET['print_prepare'])&&isset($_GET['id_order'])){
 					 <link rel='stylesheet' href='/invent/library/css/jquery-ui-1.10.4.custom.min.css' />
 					 <script src='/invent/library/js/jquery.min.js'></script>
 					<script src='/invent/library/js/jquery-ui-1.10.4.custom.min.js'></script>
-					<script src='/invent/library/js/bootstrap.min.js'></script>  
+					<script src='/invent/library/js/bootstrap.min.js'></script>
 					<!-- SB Admin CSS - Include with every page -->
 					<link href='/invent/library/css/sb-admin.css' rel='stylesheet'>
 					<link href='/invent/library/css/template.css' rel='stylesheet'>
@@ -1477,8 +1479,8 @@ if(isset($_GET['print_prepare'])&&isset($_GET['id_order'])){
 				<div class=\"hidden-print\">
 				<button  class='btn btn-primary pull-right' onClick=\"print();\" type='button' />พิมพ์</button>
 				<a href='../index.php?content=$content&edit=y&id_order=$id_order&view_detail=y' ><button  class='btn btn-primary pull-right' type='button' style='margin-right:20px;' />ยกเลิก</button></a>
-</div> 
-				
+</div>
+
 	<h4 style='float:left'>$title</h4>
 	<table style='width:100%; border:solid 1px #CCC;'>
 		<tr>
@@ -1492,11 +1494,11 @@ if(isset($_GET['print_prepare'])&&isset($_GET['id_order'])){
 		<td style='width:20%px; padding:10px; vertical-align:text-top; text-align:right;'><h4>วันที่ : </h4></td>
 		<td style='padding:10px; text-align:left; vertical-align:text-top;'><h4>".thaiDate($order->date_add)."</h4></td>
 		</tr>
-	</table>	
+	</table>
 	</div></body></html>";
 	 }
-	 
-	 
+
+
 /*if(isset($_GET['getData'])&&isset($_GET['id_product'])){
 			$id_product = $_GET['id_product'];
 			$id_cus = $_GET['id_customer'];
@@ -1521,14 +1523,15 @@ if(isset($_GET['print_prepare'])&&isset($_GET['id_order'])){
 if( isset( $_GET['getData'] ) && isset( $_GET['id_product'] ) )
 {
 	$id_pd		= $_GET['id_product'];
-	$id_cus		= $_GET['id_customer'];	
+	$id_cus		= $_GET['id_customer'];
+	$id_order = $_GET['id_order'];
 	$tableWidth	= countAttribute($id_pd) == 1 ? 800 : getOrderTableWidth($id_pd);
 	$pd			= new product();
 	$pd->product_detail($id_pd, $id_cus);
-	$ds 			= $pd->order_attribute_grid($id_pd);
+	$ds 			= $pd->order_attribute_grid($id_pd, $id_order);
 	$ds			.= '|'.$tableWidth;
 	$ds			.= '|'.$pd->product_code;
-	echo $ds;	
+	echo $ds;
 }
 
 
@@ -1556,7 +1559,7 @@ if(isset($_GET['get_request_data'])&&isset($_GET['id_product'])){
 
 if(isset($_GET['view_stock_data'])&&isset($_GET['id_product'])){
 			$id_product = $_GET['id_product'];
-			
+
 			$product = new product();
 			$product->product_detail($id_product);
 			$config = getConfig("ATTRIBUTE_GRID_HORIZONTAL");
@@ -1611,14 +1614,14 @@ if( isset( $_GET['edit_discount'] ) )
 		if($unit == "percent") :
 			$reduction_percent = $reduction_array[$i];
 			$reduction_amount = 0.00;
-			$rate = $reduction_array[$i]/100;			
+			$rate = $reduction_array[$i]/100;
 			$discount = $product_price * $rate;
 			$discount_amount = ($product_price * $product_qty) * $rate;
 			$final_price = $product_price - $discount;
 			$total_amount = $product_qty * $final_price;
 		elseif($unit == "amount") :
 			$reduction_percent = 0.00;
-			$reduction_amount = $reduction_array[$i];		
+			$reduction_amount = $reduction_array[$i];
 			$discount = $reduction_amount;
 			$discount_amount = $discount * $product_qty;
 			$final_price = $product_price - $discount;
@@ -1662,7 +1665,7 @@ if( isset($_GET['insert_bill_discount']) )
 	}
 	if($qs)
 	{
-		echo "success"; 
+		echo "success";
 	}else{
 		echo "fail";
 	}
@@ -1679,7 +1682,7 @@ if( isset($_GET['update_bill_discount']) )
 	$qs = dbQuery("UPDATE tbl_order_discount SET discount_amount = ".$discount_amount.", em_add = '".$em_add."', em_approve = '".$em_app."' WHERE id_order = ".$id_order);
 	if($qs)
 	{
-		echo "success"; 
+		echo "success";
 	}else{
 		echo "fail";
 	}
@@ -1687,7 +1690,7 @@ if( isset($_GET['update_bill_discount']) )
 
 if( isset($_GET['delete_bill_discount']) && isset($_GET['id_order']) )
 {
-	$id_order = $_GET['id_order'];	
+	$id_order = $_GET['id_order'];
 	$qs = dbQuery("DELETE FROM tbl_order_discount WHERE id_order = ".$id_order);
 	if($qs)
 	{
@@ -1737,7 +1740,7 @@ if(isset($_GET['search-text'])&&isset($_GET['filter'])){
 			$i++;
 			if($i<$rs){ $in_cause .=","; 	}
 		}
-		$where = "WHERE id_customer IN($in_cause) AND role IN(1,4) AND order_status = 1 ORDER BY id_order DESC" ; 
+		$where = "WHERE id_customer IN($in_cause) AND role IN(1,4) AND order_status = 1 ORDER BY id_order DESC" ;
 		}else{
 			$where = "WHERE id_order = NULL";
 		}
@@ -1772,10 +1775,10 @@ if(isset($_GET['search-text'])&&isset($_GET['filter'])){
 		case "reference" :
 			$where = "WHERE reference LIKE'%$text%' AND role IN(1,4) AND order_status = 1 ORDER BY id_order DESC ";
 		break;
-		
+
 	}
 		//$paginator->Per_Page("tbl_order",$where,$get_rows);
-		//$limit = "LIMIT ".$paginator->Page_Start." , ".$paginator->Per_Page; 
+		//$limit = "LIMIT ".$paginator->Page_Start." , ".$paginator->Per_Page;
 		//$paginator->display($get_rows,"index.php?content=order");
 
 $html .="
@@ -1788,7 +1791,7 @@ $html .="
 			<th style='width:10%; text-align:center;'>วันที่เพิ่ม</th><th style='width:10%; text-align:center;'>วันที่ปรับปรุง</th>
         </thead>";
 		//$result = getOrderTable($view,$from, $to,$paginator->Page_Start,$paginator->Per_Page);
-		
+
 		$result = dbQuery("SELECT id_order,reference,id_customer,id_employee,payment,tbl_order.date_add,current_state,tbl_order.date_upd FROM tbl_order $where");
 		$i=0;
 		$row = dbNumRows($result);
@@ -1828,7 +1831,7 @@ if(isset($_GET['clear_filter'])){
 		setcookie("order_filter",$filter, time() - 3600,"/");
 		header("location: ../index.php?content=order");
 	}
-	
+
 function doc_type($role)
 {
 	switch($role){
@@ -1836,7 +1839,7 @@ function doc_type($role)
 			$content="order";
 			$title = "Packing List";
 			break;
-		case 2 : 
+		case 2 :
 			$content = "requisition";
 			$title = "ใบเบิกสินค้า / Requisition Product";
 			break;
@@ -1864,11 +1867,11 @@ function doc_type($role)
 			$content = "order";
 			$title = "ใบส่งของ / ใบแจ้งหนี้";
 			break;
-	}	
+	}
 	$type = array("content"=>$content, "title"=>$title);
 	return $type;
-}	
+}
 
 
-	
+
 ?>

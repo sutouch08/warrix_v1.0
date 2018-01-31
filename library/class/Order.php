@@ -34,7 +34,7 @@ class order{
 	public $reduction_amount;
 	public $discount_amount;
 	public $final_price;
-	
+
 	public function __construct($id_order="")
 	{
 		if( $id_order != '' )
@@ -63,7 +63,7 @@ class order{
 			$this->state_color 	= $this->state_color();
 		}
 	}
-	
+
 	public function updateDeliveryFee($id, $amount)
 	{
 		if( ! $this->isFeeExists($id) )
@@ -83,11 +83,11 @@ class order{
 		}
 		return $qs;
 	}
-	
+
 	public function isFeeExists($id)
 	{
 		$qs = dbQuery("SELECT id FROM tbl_delivery_fee WHERE id_order = ".$id);
-		return dbNumRows($qs);	
+		return dbNumRows($qs);
 	}
 	//------- ตรวจสอบว่าพนักงานมีการเปิดออเดอร์ค้างไว้หรือไม่----//
 	public function checkOrderNotSave($id_employee)
@@ -96,38 +96,38 @@ class order{
 		$qs = dbQuery("SELECT id_order FROM tbl_order WHERE id_employee = ".$id_employee." AND order_status = 0 AND valid != 2 AND role = 1");
 		if( dbNumRows($qs) > 0 )
 		{
-			list( $sc ) = dbFetchArray($qs);	
+			list( $sc ) = dbFetchArray($qs);
 		}
 		return $sc;
 	}
-	
+
 	//--------- Add new order ------//
 	public function add(array $ds)
 	{
 		$fields 	= '';
-		$values 	= '';	
+		$values 	= '';
 		$n 		= count($ds);
 		$i 			= 1;
 		foreach( $ds as $key => $val )
 		{
-			$fields .=	 $key; 
+			$fields .=	 $key;
 			if( $i < $n ){ $fields .= ', '; }
 			$values .= "'".$val."'";
 			if( $i < $n ){ $values .= ', '; }
 			$i++;
 		}
-		
+
 		$qs = dbQuery("INSERT INTO tbl_order (".$fields.") VALUES (".$values.")");
 		if( $qs )
 		{
-			return dbInsertId();	
+			return dbInsertId();
 		}
 		else
 		{
-			return FALSE;	
+			return FALSE;
 		}
 	}
-	
+
 	//-------------------- Update order -----------------------//
 	public function updateOrder($id, array $ds)
 	{
@@ -138,11 +138,11 @@ class order{
 		{
 			$set .= $key." = '".$val."'";
 			if( $i < $n ){ $set .= ", "; }
-			$i++;	
+			$i++;
 		}
-		return dbQuery("UPDATE tbl_order SET ".$set." WHERE id_order = ".$id);	
+		return dbQuery("UPDATE tbl_order SET ".$set." WHERE id_order = ".$id);
 	}
-	
+
 	//---------------------  Add OR Update online order  customer reference --------------//
 	public function updateOnlineOrderCustomer ($id_order, $customer)
 	{
@@ -151,27 +151,27 @@ class order{
 		if( dbNumRows($qs) == 1 )
 		{
 			$rs = dbFetchArray( $qs );
-			$sc = dbQuery("UPDATE tbl_order_online SET customer = '".$customer."' WHERE id = ".$rs['id']);
+			$sc = dbQuery("UPDATE tbl_order_online SET customer = '".addslashes($customer)."' WHERE id = ".$rs['id']);
 		}
 		else
 		{
-			$sc = dbQuery("INSERT INTO tbl_order_online ( id_order, customer ) VALUES (".$id_order.", '".$customer."')");
+			$sc = dbQuery("INSERT INTO tbl_order_online ( id_order, customer ) VALUES (".$id_order.", '".addslashes($customer)."')");
 		}
 		return $sc;
 	}
-	
+
 	//-------------------- Save Order -------------------//
 	public function saveOrder($id)
 	{
-		return dbQuery("UPDATE tbl_order SET order_status = 1 WHERE id_order = ".$id);	
+		return dbQuery("UPDATE tbl_order SET order_status = 1 WHERE id_order = ".$id);
 	}
-	
+
 	//---------------------- Delete 1 Order detail  ---------------------//
 	public function deleteOrderDetail($id)
 	{
-		return dbQuery("DELETE FROM tbl_order_detail WHERE id_order_detail = ".$id);	
+		return dbQuery("DELETE FROM tbl_order_detail WHERE id_order_detail = ".$id);
 	}
-	
+
 	//----------------------- สรุปยอดท้ายบิล ---------------//
 	public function getOrderSummary($id)
 	{
@@ -179,8 +179,8 @@ class order{
 		$rs = dbFetchArray($qs);
 		$sc = array( "total_price" => $rs['amount'] + $rs['disc'], "total_discount" => $rs['disc'], "total_amount" => $rs['amount'], "bill_discount" => bill_discount($id) );
 		return $sc;
-	}	
-	
+	}
+
 	public function qc_qty( $id_order = "")
 	{
 		$qty = 0;
@@ -192,33 +192,33 @@ class order{
 		}
 		return $qty;
 	}
-	
+
 	public function addOnlineAddress($ds)
 	{
 		$fields 	= '';
-		$values 	= '';	
+		$values 	= '';
 		$n 		= count($ds);
 		$i 			= 1;
 		foreach( $ds as $key => $val )
 		{
-			$fields .=	 $key; 
+			$fields .=	 $key;
 			if( $i < $n ){ $fields .= ', '; }
 			$values .= "'".$val."'";
 			if( $i < $n ){ $values .= ', '; }
 			$i++;
 		}
-		
+
 		$qs = dbQuery("INSERT INTO tbl_address_online (".$fields.") VALUES (".$values.")");
 		if( $qs )
 		{
-			return dbInsertId();	
+			return dbInsertId();
 		}
 		else
 		{
-			return FALSE;	
-		}	
+			return FALSE;
+		}
 	}
-	
+
 	public function updateOnlineAddress($id, $ds)
 	{
 		$set = '';
@@ -228,16 +228,16 @@ class order{
 		{
 			$set .= $key." = '".$val."'";
 			if( $i < $n ){ $set .= ", "; }
-			$i++;	
+			$i++;
 		}
-		return dbQuery("UPDATE tbl_address_online SET ".$set." WHERE id_address = ".$id);	
+		return dbQuery("UPDATE tbl_address_online SET ".$set." WHERE id_address = ".$id);
 	}
-	
+
 	public function deleteOnlineAddress($id)
 	{
-		return dbQuery("DELETE FROM tbl_address_online WHERE id_address = ".$id);	
+		return dbQuery("DELETE FROM tbl_address_online WHERE id_address = ".$id);
 	}
-	
+
 	public function get_detail_total_amount($id_product_attribute, $id_order="")
 	{
 		$amount = 0;
@@ -250,36 +250,36 @@ class order{
 		}
 		return $amount;
 	}
-	
-	
+
+
 	public function isExists($id_order, $id_pa)
 	{
 		$sc = FALSE;
 		$qs = dbQuery("SELECT id_order_detail FROM tbl_order_detail WHERE id_order = ".$id_order." AND id_product_attribute = ".$id_pa);
 		if( dbNumRows($qs) == 1 )
 		{
-			list( $sc ) = dbFetchArray($qs);	
+			list( $sc ) = dbFetchArray($qs);
 		}
 		return $sc;
 	}
-	
-	//---------------------------------  get a state name  ---------------------//		
+
+	//---------------------------------  get a state name  ---------------------//
 	public function stateName($id)
 	{
 		$sc = FALSE;
 		$qs = dbQuery("SELECT state_name FROM tbl_order_state WHERE id_order_state = ".$id);
 		if( dbNumRows($qs) == 1 )
 		{
-			list( $sc ) = dbFetchArray($qs);	
+			list( $sc ) = dbFetchArray($qs);
 		}
 		return $sc;
 	}
-	
+
 	public function validOrder($id)
 	{
-		return dbQuery("UPDATE tbl_order SET valid = 1 WHERE id_order = ".$id);	
+		return dbQuery("UPDATE tbl_order SET valid = 1 WHERE id_order = ".$id);
 	}
-	
+
 	//-------------------------------------- END NEW CODE  -----------------------------------------------------------//
 	public function getDetailOrder($id_order){
 		$sql = dbQuery("SELECT * FROM tbl_order_detail WHERE id_order = $id_order");
@@ -291,7 +291,7 @@ class order{
 		$data = dbFetchArray($sql);
 		return $data[$field];
 	}
-		
+
 	public function getTotalOrder($id_order){
 		$sql = dbQuery("SELECT product_qty, discount_amount, total_amount FROM tbl_order_detail WHERE id_order = $id_order");
 		$row = dbNumRows($sql);
@@ -307,30 +307,30 @@ class order{
 		$this->total_qty = $total_qty;
 		$this->total_amount = $total_amount;
 	}
-	
-	
+
+
 	public function getIdSale(){
 		$sql = dbQuery("SELECT id_sale FROM tbl_customer WHERE id_customer ='".$this->id_customer."'");
 		list($id_sale) = dbFetchArray($sql);
 		if($id_sale !=""){ $result = $id_sale; }else{ $result = 0; }
 		return $result;
 	}
-	
-	
+
+
 	public function currentState(){
 		$id_order = $this->id_order;
 		$sql = dbQuery("SELECT state_name FROM tbl_order LEFT JOIN tbl_order_state ON tbl_order.current_state = tbl_order_state.id_order_state WHERE id_order = $id_order");
 		list($current_state) = dbFetchArray($sql);
 		return $current_state;
 	}
-	
-	
+
+
 	public function orderState(){
 		$id_order = $this->id_order;
 		$sql = dbQuery("SELECT tbl_order_state_change.id_order_state, state_name, first_name, last_name, date_add FROM tbl_order_state_change LEFT JOIN tbl_order_state ON tbl_order_state_change.id_order_state = tbl_order_state.id_order_state LEFT JOIN tbl_employee ON tbl_order_state_change.id_employee = tbl_employee.id_employee WHERE tbl_order_state_change.id_order = $id_order ORDER BY tbl_order_state_change.date_add DESC");
 		return $sql;
-	}	
-	
+	}
+
 	public function state_change($id_order, $id_order_state, $id_employee){
 	if($id_order_state == 2){
 		dbQuery("UPDATE tbl_order SET current_state = $id_order_state, valid = 1 WHERE id_order = $id_order");
@@ -344,7 +344,7 @@ class order{
 }
 
 
-	public function changeQty($id_product_attribute, $qty){	
+	public function changeQty($id_product_attribute, $qty){
 		$id_order = $this->id_order;
 		$id_customer = $this->id_customer;
 		$product = new product();
@@ -354,7 +354,7 @@ class order{
 		$reduction_percent = $this->productDetail($id_product_attribute,"reduction_percent");
 		$reduction_amount = $this->productDetail($id_product_attribute, "reduction_amount");
 		$total_amount = $product->product_sell * $qty;
-		if($product->discount_type =="percentage"){ 
+		if($product->discount_type =="percentage"){
 		$discount_amount = $qty * ($product->product_price * ($reduction_percent/100)) ;
 			}else if($product->discount_type=="cus_percentage"){
 						$discount_amount = $qty * ($product->product_price * ($product->dis/100)) ;
@@ -362,7 +362,7 @@ class order{
 						$discount_amount = $qty * $reduction_amount;
 		}
 		$sql = dbQuery("UPDATE tbl_order_detail SET product_qty = $qty, reduction_percent = $reduction_percent, reduction_amount = $reduction_amount, discount_amount = $discount_amount, total_amount = $total_amount WHERE id_product_attribute = $id_product_attribute AND id_order = $id_order");
-		return true;	
+		return true;
 	}
 	//-------------------  เพิ่มสินค้าในออเดอร์ขาย -----------------//
 	private function insertOrderDetail($id_pa, $qty)
@@ -378,7 +378,7 @@ class order{
 		$dis_type	= $product->discount_type;
 		$p_dis		= $dis_type == 'percentage' ? $product->product_discount1 : ( $dis_type == 'cus_percentage' ? $product->product_discount1 : 0.00 ) ;
 		$a_dis		= $dis_type == 'amount'	? $product->product_discount1 : 0.00 ;
-		
+
 		$id			= $this->isExists($this->id_order, $id_pa);  //// ตรวจสอบว่ามีสินค้านี้อยู่ในออเดอร์แล้วหรือยัง ถ้ามีจะได้ id_order_detail กลับมา ถ้าไม่มีจะได้ FALSE;
 		if( $id !== FALSE ) //------- มีอยู่แล้ว Update ---//
 		{
@@ -393,7 +393,7 @@ class order{
 				$total_amount 	= $qty * $final_price;
 				$q = "UPDATE tbl_order_detail SET product_qty = ".$qty.", reduction_percent = ".$p_dis.", reduction_amount = ".$a_dis.", discount_amount = ".$total_dis.", final_price = ".$final_price.", total_amount = ".$total_amount;
 				$q .= " WHERE id_order_detail = ".$id;
-				$sc = dbQuery($q);	
+				$sc = dbQuery($q);
 			}
 		}
 		else		//-------  ยังไม่มี Insert ใหม่ ----//
@@ -411,10 +411,10 @@ class order{
 			$q .= " (". $id_order .", ". $id_pd .", ". $id_pa .", '". $pName ."', ". $qty .", '". $reference ."', '". $barcode ."', ". $price .", ". $p_dis .", ". $a_dis .", ".$total_dis.", ".$final_price.", ". $total_amount .", 0 )";
 			$sc = dbQuery($q);
 		}
-		
+
 		return $sc;
 	}
-	
+
 	//-----------------------------  เพิ่มสินค้าในออเดอร์ฝากขาย  ---------------------//
 	private function insertConsignmentDetail($id_pa, $qty)
 	{
@@ -428,7 +428,7 @@ class order{
 		$barcode 	= $product->barcode;
 		$p_dis		= 0.00;
 		$a_dis		= 0.00;
-		
+
 		$id				= $this->isExists($this->id_order, $id_pa);  //// ตรวจสอบว่ามีสินค้านี้อยู่ในออเดอร์แล้วหรือยัง ถ้ามีจะได้ id_order_detail กลับมา ถ้าไม่มีจะได้ FALSE;
 		if( $id !== FALSE ) //------- มีอยู่แล้ว Update ---//
 		{
@@ -443,7 +443,7 @@ class order{
 				$total_amount = $qty * $final_price;
 				$q = "UPDATE tbl_order_detail SET product_qty = ".$qty.", reduction_percent = ".$p_dis.", reduction_amount = ".$a_dis.", discount_amount = ".$total_dis.", final_price = ".$final_price.", total_amount = ".$total_amount;
 				$q .= " WHERE id_order_detail = ".$id;
-				$sc = dbQuery($q);	
+				$sc = dbQuery($q);
 			}
 		}
 		else		//-------  ยังไม่มี Insert ใหม่ ----//
@@ -461,13 +461,13 @@ class order{
 			$q .= " (". $id_order .", ". $id_pd .", ". $id_pa .", '". $pName ."', ". $qty .", '". $reference ."', '". $barcode ."', ". $price .", ". $p_dis .", ". $a_dis .", ".$total_dis.", ".$final_price.", ". $total_amount .", 0 )";
 			$sc = dbQuery($q);
 		}
-		
+
 		return $sc;
 	}
-	
+
 	/****************************  สำหรับเพิ่มรายการสินค้าในออเดอร์ที่มีลูกค้าเท่านั้น ***************************/
 	public function insertDetail($id_pa, $qty)
-	{	
+	{
 		switch( $this->role )
 		{
 			//----------  กรณีขายสินค้า  ------//
@@ -475,7 +475,7 @@ class order{
 				$rs = $this->insertOrderDetail($id_pa, $qty);
 			break;
 			//---------  กรณีสปอนเซอร์สโมสร  -------//
-			case 4 : 
+			case 4 :
 				$rs = $this->insert_support_detail($id_pa, $qty);
 			break;
 			//----------  กรณีฝากขาย  -----------//
@@ -483,7 +483,7 @@ class order{
 				$rs = $this->insertConsignmentDetail($id_pa, $qty);
 			break;
 			//------------  กรณีอภินันท์ของบุคคลภายใน  -----------//
-			case 7 : 
+			case 7 :
 				$rs = $this->insert_support_detail($id_pa, $qty);
 			break;
 			default :
@@ -492,10 +492,10 @@ class order{
 		}
 		return $rs;
 	}
-	
+
 	//---------------------  สำหรับ เบิก อภินันทนาการ และ สปอนเซอร์สโมสร  --------------------//
 	public function insert_support_detail($id_product_attribute, $qty)
-	{	
+	{
 		$id_order 		= $this->id_order;
 		$product 		= new product();
 		$id_product 	= $product->getProductId($id_product_attribute);
@@ -516,12 +516,12 @@ class order{
 			list($old_qty, $old_discount_amount, $old_total_amount) = dbFetchArray($qr);
 			$qty = $qty + $old_qty;
 			$discount_amount = $discount_amount+$old_discount_amount;
-			$total_amount = $total_amount+$old_total_amount;	
-			$qs = dbQuery("UPDATE tbl_order_detail SET product_qty = $qty, reduction_percent = $reduction_percent, reduction_amount = $reduction_amount, discount_amount = $discount_amount, total_amount = $total_amount WHERE id_product_attribute = $id_product_attribute AND id_order = $id_order");	
+			$total_amount = $total_amount+$old_total_amount;
+			$qs = dbQuery("UPDATE tbl_order_detail SET product_qty = $qty, reduction_percent = $reduction_percent, reduction_amount = $reduction_amount, discount_amount = $discount_amount, total_amount = $total_amount WHERE id_product_attribute = $id_product_attribute AND id_order = $id_order");
 		}
 		else
-		{	
-			$qs = dbQuery("INSERT INTO tbl_order_detail 
+		{
+			$qs = dbQuery("INSERT INTO tbl_order_detail
 			(id_order, id_product, id_product_attribute, product_name, product_qty, product_reference, barcode, product_price, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, valid_detail ) VALUES
 			($id_order, $id_product, $id_product_attribute, '$product_name', $qty, '$reference', '$barcode', $product_price, $reduction_percent, $reduction_amount, $discount_amount, $final_price, $total_amount, 0 )");
 		}
@@ -534,10 +534,10 @@ class order{
 			return false;
 		}
 	}
-			
-	
+
+
 	//---------------------- สำหรับ เบิก ยืม ที่ไม่ไมีลูกค้า  ---------------------------------//
-	public function insert_detail($id_product_attribute, $qty){	
+	public function insert_detail($id_product_attribute, $qty){
 		$id_order = $this->id_order;
 		$product = new product();
 		$id_product = $product->getProductId($id_product_attribute);
@@ -558,22 +558,22 @@ class order{
 						list($old_qty, $old_discount_amount, $old_total_amount) = dbFetchArray($qr);
 						$qty = $qty + $old_qty;
 						$discount_amount = $discount_amount+$old_discount_amount;
-						$total_amount = $total_amount+$old_total_amount;	
+						$total_amount = $total_amount+$old_total_amount;
 					dbQuery("UPDATE tbl_order_detail SET product_qty = $qty, reduction_percent = $reduction_percent, reduction_amount = $reduction_amount, discount_amount = $discount_amount, total_amount = $total_amount WHERE id_product_attribute = $id_product_attribute AND id_order = $id_order");
-					return true;		
-					}else{	
-					dbQuery("INSERT INTO tbl_order_detail 
+					return true;
+					}else{
+					dbQuery("INSERT INTO tbl_order_detail
 					(id_order, id_product, id_product_attribute, product_name, product_qty, product_reference, barcode, product_price, reduction_percent, reduction_amount, discount_amount, final_price, total_amount, valid_detail ) VALUES
 					($id_order, $id_product, $id_product_attribute, '$product_name', $qty, '$reference', '$barcode', $product_price, $reduction_percent, $reduction_amount, $discount_amount, $final_price, $total_amount, 0 )");
-					return true;	
+					return true;
 					}
 			}
-	
+
 	public function orderProductTable($can_edit = "",$can_delete=""){ //แสดงรายการสินค้า
 		 if($this->valid==1 || $this->current_state !=1 && $this->current_state !=3){ $active = "disabled='disabled'";}else{$active = ""; }
 		$id_order = $this->id_order;
 		$role = $this->role;
-		switch($role){ 
+		switch($role){
 		case 1 :
 			$content = "order";
 			break;
@@ -629,7 +629,7 @@ class order{
 					$unit = "%";
 				}
 				$input_reduction = "<div class='input_reduction' style='display:none;'><div class='input-group input-group-sm'  ><input type='text' class='form-control' id='reduction$n' value='$reduction' /><span class='input-group-addon'>$unit</span>
-</div></div>"; 
+</div></div>";
 				echo"<tr>
 				<td style='text-align:center; vertical-align:middle;'><img src='".$product->get_product_attribute_image($i['id_product_attribute'],1)."' /></td>
 				<td style='vertical-align:middle;'>".$i['product_reference']." : ".$i['product_name']." : ".$i['barcode']."</td>
@@ -640,10 +640,10 @@ class order{
 
 				<td style='text-align:center; vertical-align:middle;'>".number_format($total,2)." </td>
 				<td style='text-align:center; vertical-align:middle;'>";
-				if($this->current_state == 1 || $this->current_state == 3 ){ 
+				if($this->current_state == 1 || $this->current_state == 3 ){
 				echo "
 				<button type='button' id='edit".$i['id_order'].$i['id_product_attribute']."' class='btn btn-warning' onclick='edit_product(".$i['id_order'].",".$i['id_product_attribute'].") ' $active $can_edit><i class='fa fa-pencil'></i></button>
-				<button type='button' id='update".$i['id_order'].$i['id_product_attribute']."' onclick='update(".$i['id_order'].",".$i['id_product_attribute'].")' class='btn btn-default' style='display:none;' $active>Update</button>					
+				<button type='button' id='update".$i['id_order'].$i['id_product_attribute']."' onclick='update(".$i['id_order'].",".$i['id_product_attribute'].")' class='btn btn-default' style='display:none;' $active>Update</button>
 				<a href='controller/".$content."Controller.php?delete=y&id_order=".$i['id_order']."&id_product_attribute=".$i['id_product_attribute']."'>
 					<button type='button' id='delete".$i['id_order'].$i['id_product_attribute']."' class='btn btn-danger btn-sx' onclick=\"return confirm('คุณแน่ใจว่าต้องการลบ ".$i['product_reference']." : ".$i['product_name']." : ".$i['barcode']." ? '); \" $active $can_delete><i class='fa fa-trash'></i></button>
 				</a>"; }
@@ -666,7 +666,7 @@ class order{
 			<td style='border-left:1px solid #ccc'><b>สินค้า</b></td><td colspan='2' align='right'><b>".number_format($total_amount,2)." </b></td></tr>
 			<tr><td style='border-left:1px solid #ccc'><b>ส่วนลด</b></td><td colspan='2' align='right'><b>".number_format($discount,2)." </b></td></tr>
 			<tr><td style='border-left:1px solid #ccc'><b>สุทธิ </b></td><td colspan='2' align='right'><b>".number_format($total_amount - $discount,2)." </b></td></tr></table>";
-			
+
 		}else{
 			echo" <tr id='new_row' style='display:none;'>
 			<td>เลือกสินค้า : &nbsp;</td><input type='hidden' name='id_order' id='id_order' value='$id_order' />
@@ -677,14 +677,14 @@ class order{
 			</tr>
 			<tr><td><button type='button' id='add_product' class='btn btn-success' $active ><span class='glyphicon glyphicon-plus'></span>เพิ่มสินค้า</button></td><td colspan='5' align='center'><h4>ไม่มีรายการสินค้า</h4></td></tr></table>";
 		}
-				
+
 	}
 	///**********************************  Sale Order Tracking  *****************************************//
 		public function saleOrderProductTable(){ //แสดงรายการสินค้า
 		 if($this->valid==1 || $this->current_state !=1 && $this->current_state !=3){ $active = "disabled='disabled'";}else{$active = ""; }
 		$id_order = $this->id_order;
 		$role = $this->role;
-		switch($role){ 
+		switch($role){
 		case 1 :
 			$content = "order";
 			break;
@@ -727,20 +727,20 @@ class order{
 					$total_amount += $total;
 					$amount += $i['total_amount'];
 			}
-			echo" 
+			echo"
 			<tr>
 			<td rowspan='3' colspan='3'>&nbsp;</td>
 			<td style='border-left:1px solid #ccc'><b>สินค้า</b></td><td colspan='2' align='right'><b>".number_format($total_amount,2)." </b></td></tr>
 			<tr><td style='border-left:1px solid #ccc'><b>ส่วนลด</b></td><td colspan='2' align='right'><b>".number_format($discount,2)." </b></td></tr>
 			<tr><td style='border-left:1px solid #ccc'><b>สุทธิ </b></td><td colspan='2' align='right'><b>".number_format($amount,2)." </b></td></tr></table>";
-			
+
 		}else{
-			echo" 
+			echo"
 			<tr><td colspan='6' align='center'><h4>ไม่มีรายการสินค้า</h4></td></tr></table>";
 		}
-				
+
 	}
-	
+
 	public function order_customer($id_customer,$valid){
 		 echo "<div class='col-xs-12 col-sm-12'>
 	<table class='table' width='100%'>
@@ -800,7 +800,7 @@ class order{
 		}
 		return $amount;
 	}
-	
+
 	public function get_final_price($id_product_attribute, $id_order = ""){
 		$price = 0;
 		if($id_order == ""){ $id_order = $this->id_order; }
@@ -811,7 +811,7 @@ class order{
 		}
 		return $price;
 	}
-	
+
 	public function qc_amount($id_order=""){
 		$amount = 0;
 		if($id_order == ""){ $id_order = $this->id_order; }
@@ -823,9 +823,9 @@ class order{
 			$amount += $t_amount;
 			}
 		}
-		return $amount;			
+		return $amount;
 	}
-	
+
 	public function check_credit($new_order_amount){
 		$id_order = $this->id_order;
 		$customer = new customer($this->id_customer);
@@ -838,7 +838,7 @@ class order{
 			return true;
 		}
 	}
-	
+
 	public function check_limit_amount($new_order_amount){
 		$id_order = $this->id_order;
 		$customer = new customer($this->id_customer);
@@ -853,7 +853,7 @@ class order{
 			return true;
 		}
 	}
-	
+
 	//////////////// ***************** แสดงรายละเอียดก่อนพิมพ์ในหน้ารอเปิดบิล ************************/////////////
 	public function page_summary($total_order_amount, $total_discount_amount, $net_total, $remark){
 		if($total_order_amount !=""){ $total_order_amount = number_format($total_order_amount,2);}
@@ -919,15 +919,15 @@ class order{
 		</tr>";
 				$total_order += $total;
 				$total_discount_order += $total_discount;
-				$i++; 
-				if($n==$row){ 
+				$i++;
+				if($n==$row){
 				$total_order_amount = $total_order;
 				$total_discount_amount = $total_discount_order;
 				$net_total = $total_order_amount - $total_discount_amount;
 				$this->page_summary($total_order_amount, $total_discount_amount, $net_total, $remark);
 					}
-				$n++; 
-			}			
+				$n++;
+			}
 		}
 	}
 	public function order_detail_qc_table(){ //แสดงรายการสินค้า
@@ -979,15 +979,15 @@ class order{
 		</tr>";
 				$total_order += $total;
 				$total_discount_order += $total_discount_amount1;
-				$i++; 
-				if($n==$row){ 
+				$i++;
+				if($n==$row){
 				$total_order_amount = $total_order;
 				$total_discount_amount = $total_discount_order;
 				$net_total = $total_order_amount - $total_discount_amount;
 				$this->page_summary_detail($total_order_amount, $total_discount_amount, $net_total, $remark);
 					}
-				$n++; 
-			}			
+				$n++;
+			}
 		}
 	}
 	public function order_product_detail($id_product_attribute){

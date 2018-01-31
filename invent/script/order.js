@@ -448,7 +448,7 @@ function getViewCategory(id) {
             }
         });
     }
-	
+
 	output.addClass('active');
 }
 
@@ -456,6 +456,7 @@ function getViewCategory(id) {
 function getProduct() {
     var st = $("#sProduct").val();
     var id_cus = $("#id_customer").val();
+    var id_order = $('#id_order').val();
 
     if (st == '') { swal("กรุณาระบุรหัสสินค้า"); return false; }
 
@@ -464,7 +465,11 @@ function getProduct() {
         url: "controller/orderController.php?getProductGrid",
         type: "POST",
         cache: "false",
-        data: { "product_code": st, "id_customer": id_cus },
+        data: {
+          "product_code": st,
+          "id_customer": id_cus,
+          "id_order" : id_order 
+        },
         success: function(dataset) {
             load_out();
             if (dataset != "") {
@@ -810,8 +815,9 @@ $("#deliveryFee").keyup(function(e) {
 
 function getData(id_product) {
     var id_cus = $("#id_customer").val();
+    var id_order = $('#id_order').val();
     $.ajax({
-        url: "controller/orderController.php?getData&id_product=" + id_product + "&id_customer=" + id_cus,
+        url: "controller/orderController.php?getData&id_product=" + id_product + "&id_customer=" + id_cus +"&id_order="+id_order,
         type: "GET",
         cache: false,
         success: function(dataset) {
@@ -888,5 +894,5 @@ function toggleState(state)
 		$("#"+state).val(1);
 		$("#btn-"+state).addClass('btn-info');
 	}
-	getSearch();	
+	getSearch();
 }

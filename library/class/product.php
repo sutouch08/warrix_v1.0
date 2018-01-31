@@ -38,7 +38,7 @@ class product {
 	public $product_discount1;
 	public $id_customer; // เก็บ id_customer ตอนที่เรียกใช้ function product_detail เอาไว้ใช้กับตัวอื่นต่อ
 	public $error;
-  
+
 public function __construct()
 {
 
@@ -157,11 +157,11 @@ public function deleteItem($id_pa)
 
 		//---- ตรวจสอบความเคลื่อนไหว
 		$trans	= $this->transectionExists($id_pa);
-		
+
 		if( $stock === TRUE OR $order === TRUE OR $trans === TRUE )
 		{
 			$sc = FALSE;
-			$error	= $stock === TRUE ? 'stockExists' : ( $order == TRUE ? 'orderExists' : 'transectionExists');		
+			$error	= $stock === TRUE ? 'stockExists' : ( $order == TRUE ? 'orderExists' : 'transectionExists');
 			$this->error = $error;
 		}
 		else
@@ -171,7 +171,7 @@ public function deleteItem($id_pa)
 			$ra = dbQuery("DELETE FROM tbl_product_attribute_image WHERE id_product_attribute = ".$id_pa);
 			$sc = TRUE;
 		}
-		
+
 		return $sc;
 }
 
@@ -553,11 +553,11 @@ public function productDetail($id_pd)
 	$qs = dbQuery("SELECT * FROM tbl_product WHERE id_product = ".$id_pd);
 	if( dbNumRows($qs) == 1 )
 	{
-		return dbFetchObject($qs);	
+		return dbFetchObject($qs);
 	}
 	else
 	{
-		return FALSE;	
+		return FALSE;
 	}
 }
 
@@ -572,7 +572,7 @@ public function productAttributeDetail($id_pa)
 	}
 	else
 	{
-		return FALSE;	
+		return FALSE;
 	}
 }
 
@@ -876,13 +876,30 @@ public function buff_qty($id_product_attribute)
 	return $qty;
 }
 
+
+public function buffer_qty_by_order($id_pa, $id_order)
+{
+	$sc = 0;
+	if($id_order != '')
+	{
+		$qs = dbQuery("SELECT SUM(qty) AS qty FROM tbl_buffer WHERE id_product_attribute = '".$id_pa."' AND id_order = '".$id_order."'");
+		list($qty) = dbFetchArray($qs);
+
+		$sc = is_null($qty) ? 0 : $qty;
+	}
+
+	return $qty;
+}
+
+
 /// ส่งกลับยอดคงเหลือสินค้าที่สามารถสั่งซื้อได้เท่านั้น  ////
-public function available_order_qty($id_product_attribute)
+public function available_order_qty($id_product_attribute, $id_order='')
 {
 	$qty = 0;
 	$move = $this->move_qty($id_product_attribute);
 	$cancle = $this->cancle_qty($id_product_attribute);
 	$order_qty = $this->orderQty($id_product_attribute);
+	$buffer_qty = $id_order == '' ? 0 : $this->buffer_qty_by_order($id_product_attribute, $id_order);
 	$sql = dbQuery("SELECT SUM(qty) AS qty FROM tbl_stock JOIN tbl_zone ON tbl_stock.id_zone = tbl_zone.id_zone WHERE id_product_attribute = ".$id_product_attribute." AND id_warehouse != 2");
 	$row = dbNumRows($sql);
 	if($row > 0){
@@ -891,6 +908,7 @@ public function available_order_qty($id_product_attribute)
 	}
 	$qty += $move;
 	$qty += $cancle;
+	$qty += $buffer_qty;
 	$qty -= $order_qty;
 
 	return $qty;
@@ -1566,7 +1584,7 @@ private function colorAttributeGrid($id_product)
 	$qs = "SELECT id_product_attribute, tbl_product_attribute.id_color AS id, color_code AS code, active  ";
 	$qs .= "FROM tbl_product_attribute JOIN tbl_color ON tbl_product_attribute.id_color = tbl_color.id_color ";
 	$qs .= "WHERE id_product = ".$id_product." AND tbl_product_attribute.id_color != 0 ";
-	
+
 	return dbQuery($qs);
 
 }
@@ -1576,7 +1594,7 @@ private function sizeAttributeGrid($id_product)
 	$qs = "SELECT id_product_attribute, tbl_product_attribute.id_size AS id, size_name AS code, active ";
 	$qs .= "FROM tbl_product_attribute JOIN tbl_size ON tbl_product_attribute.id_size = tbl_size.id_size ";
 	$qs .= "WHERE id_product = ".$id_product." AND tbl_product_attribute.id_size != 0";
-	
+
 	return dbQuery($qs);
 }
 
@@ -1655,12 +1673,12 @@ private function getIdProductAttributeByAttrs($id_pd, $id_color = 0, $id_size = 
 	$qs = dbQuery("SELECT id_product_attribute FROM tbl_product_attribute WHERE id_product = ".$id_pd." AND id_color = ".$id_color." AND id_size = ".$id_size." AND id_attribute = ".$id_attribute);
 	if(dbNumRows($qs) == 1)
 	{
-		list( $sc ) = dbFetchArray($qs); 
+		list( $sc ) = dbFetchArray($qs);
 	}
 	return $sc;
 }
 
-private function orderAttributeGridOneAttribute($id_pd, $attr, $isVisual)
+private function orderAttributeGridOneAttribute($id_pd, $attr, $isVisual, $id_order = '')
 {
 	$sc 	= '';
 	$data 	= $attr === 'color' ? $this->colorAttributeGrid($id_pd) : ($attr === 'size' ? $this->sizeAttributeGrid($id_pd) : $this->attrAttributeGrid($id_pd));
@@ -1670,14 +1688,14 @@ private function orderAttributeGridOneAttribute($id_pd, $attr, $isVisual)
 	{
 		$id_pa 		= $rs['id_product_attribute'];
 		$active		= $rs['active'];
-		$sc 		.= $i%2 == 0 ? '<tr>' : ''; 
+		$sc 		.= $i%2 == 0 ? '<tr>' : '';
 		$stock 		= $isVisual === FALSE ? ( $active == 1 ? $this->stock_qty($id_pa) : 0 ) : 0; //--- สต็อกทุกคลัง
 		$orderQty 	= $isVisual === FALSE ? ( $active == 1 ? $this->orderQty($id_pa) : 0 ) : 0; //--- ออเดอร์ค้างส่ง
-		$all_qty 		= $isVisual === FALSE ? ( $active == 1 ? $stock - $orderQty : 0 ) : 0;
-		$qty        	= $isVisual === FALSE ? ( $active == 1 ? $this->available_order_qty($id_pa) : FALSE ) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
-		
+		$all_qty 		= $isVisual === FALSE ? ( $active == 1 ? (($stock - $orderQty) < 0 ? 0 : $stock - $orderQty) : 0) : 0;
+		$qty        = $isVisual === FALSE ? ( $active == 1 ? $this->available_order_qty($id_pa, $id_order) : FALSE ) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
 
-		$disabled 	= $isVisual === TRUE  && $active == 1 ? '' : ($qty < 1 ? 'disabled' : ''); 
+
+		$disabled 	= $isVisual === TRUE  && $active == 1 ? '' : ($qty < 1 ? 'disabled' : '');
 
 		$sc 	.= '<td class="middle" style="border-right:0px;">';
 		$sc 	.= '<strong>' .	$rs['code'] . '</strong>';
@@ -1689,9 +1707,9 @@ private function orderAttributeGridOneAttribute($id_pd, $attr, $isVisual)
 		$sc 	.= $isVisual === FALSE ? '<center><span style="color:blue; font-size:10px;">('.$all_qty.')</span></center>':'';
 		$sc 	.= '<input type="text" class="form-control" title="'.$id_pa.'" name="qty[0]['.$id_pa.']" id="qty_'.$id_pa.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
 		$sc 	.= '</td>';
-			
+
 		$i++;
-			
+
 		$sc 	.= $i%2 == 0 ? '</tr>' : '';
 
 	}// end while
@@ -1703,13 +1721,13 @@ private function orderAttributeGridOneAttribute($id_pd, $attr, $isVisual)
 
 
 
-private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $isVisual)
+private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $isVisual, $id_order = '')
 {
 	$sc 	= '';
 	$attrs 	= $color === TRUE ? 'color' : ($attr === TRUE ? 'attribute' : 'size');
 	$sc 	.= '<table class="table table-bordered">';
 	$sc 	.= $this->gridHeader($id_pd, $attrs);
-	
+
 	if( $color === TRUE )  //---- กรณีมีสี ใช้สีเป็น column ไซส์ หรือ อื่นๆ เป็น row
 	{
 		$qs = $size === TRUE ? $this->getSizeGridQuery($id_pd) : $this->getAttributeGridQuery($id_pd);
@@ -1719,7 +1737,7 @@ private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $i
 			$label 		= $size === TRUE ? get_size_name($rs['id']) : get_attribute_name($rs['id']);
 			$id_size 		= $size === TRUE ? $rs['id'] : 0;
 			$id_attr 		= $attr === TRUE ? $rs['id'] : 0;
-			
+
 			$sc 		.= '<tr style="font-size:12px;">';
 			$sc 		.= '<td class="text-center middle" style="width:70px;"><strong>'.$label.'</strong></td>';
 
@@ -1733,11 +1751,11 @@ private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $i
 				{
 					$stock 		= $isVisual === FALSE && $active == 1 ? $this->stock_qty($id_pa) : 0; //--- สต็อกทุกคลัง
 					$orderQty 	= $isVisual === FALSE && $active == 1 ? $this->orderQty($id_pa) : 0; //--- ออเดอร์ค้างส่ง
-					$all_qty 		= $isVisual === FALSE && $active == 1 ? $stock - $orderQty : 0;
-					$qty        	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
-					$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : ( $active == 1 ? '' : 'disabled' )); 
+					$all_qty 		= $isVisual === FALSE && $active == 1 ? (($stock - $orderQty) < 0 ? 0 : $stock - $orderQty ) : 0;
+					$qty        	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa, $id_order) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
+					$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : ( $active == 1 ? '' : 'disabled' ));
 					$available 	= $qty === FALSE && $active == 1 ? '' : (($qty < 1 || $active == 0) ? '<span style="color:red;">สินค้าหมด</span>' : $qty);
-						
+
 					$sc 	.= '<td class="middle text-center" style="width:70px; padding:5px;">';
 					$sc 	.= $isVisual === FALSE ? '<center><span style="color:blue; font-size:10px;">('.$all_qty.')</span></center>' : '';
 					$sc 	.= '<input type="text" class="form-control" title="'. $id_pa .'" name="qty['.$rd['id'].']['.$id_pa.']" id="qty_'.$id_pa.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
@@ -1775,11 +1793,11 @@ private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $i
 				{
 					$stock 		= $isVisual === FALSE && $active == 1 ? $this->stock_qty($id_pa) : 0; //--- สต็อกทุกคลัง
 					$orderQty 	= $isVisual === FALSE && $active == 1 ? $this->orderQty($id_pa) : 0; //--- ออเดอร์ค้างส่ง
-					$all_qty 		= $isVisual === FALSE && $active == 1 ? $stock - $orderQty : 0;
-					$qty       	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
-					$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : ''); 
+					$all_qty 		= $isVisual === FALSE && $active == 1 ? (($stock - $orderQty) < 0 ? 0 : $stock - $orderQty) : 0;
+					$qty       	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa, $id_order) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
+					$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : '');
 					$available 	= $qty === FALSE && $active == 1 ? '' : (($qty < 1 OR $active == 0) ? '<span style="color:red;">สินค้าหมด</span>' : $qty);
-						
+
 					$sc 	.= '<td class="middle text-center" style="width:70px; padding:5px;">';
 					$sc 	.= $isVisual === FALSE ? '<center><span style="color:blue; font-size:10px;">('.$all_qty.')</span></center>' : '';
 					$sc 	.= '<input type="text" class="form-control" title="'.$id_pa.'" name="qty['.$rd['id'].']['.$id_pa.']" id="qty_'.$id_pa.'" onkeyup="valid_qty($(this), '.$qty === FALSE ? 1000000 : $qty.')" '.$disabled.' />';
@@ -1804,19 +1822,19 @@ private function orderAttributeGridTwoAttribute($id_pd, $color, $size, $attr, $i
 }
 
 
-private function orderAttributeGridThreeAttribute($id_pd, $id_attr, $isVisual)
+private function orderAttributeGridThreeAttribute($id_pd, $id_attr, $isVisual, $id_order = '')
 {
 	$sc 	 = '';
 	$attrs 	 = 'color';
 	$sc 	.= '<table class="table table-bordered">';
 	$sc 	.= $this->gridHeader($id_pd, $attrs);
-	
+
 	$qs 	 = $this->getSizeGridQuery($id_pd);
 
 	while($rs = dbFetchArray($qs))
 	{
 		$label 		= get_size_name($rs['id']);
-		$id_size 	= $rs['id'];		
+		$id_size 	= $rs['id'];
 		$sc 		.= '<tr>';
 		$sc 		.= '<td class="text-center middle" style="width:70px;"><strong>'.$label.'</strong></td>';
 
@@ -1830,11 +1848,11 @@ private function orderAttributeGridThreeAttribute($id_pd, $id_attr, $isVisual)
 			{
 				$stock 		= $isVisual === FALSE && $active == 1 ? $this->stock_qty($id_pa) : 0; //--- สต็อกทุกคลัง
 				$orderQty 	= $isVisual === FALSE && $active == 1 ? $this->orderQty($id_pa) : 0; //--- ออเดอร์ค้างส่ง
-				$all_qty 		= $isVisual === FALSE && $active == 1 ? $stock - $orderQty : 0;
-				$qty        	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
-				$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : ''); 
+				$all_qty 		= $isVisual === FALSE && $active == 1 ? (($stock - $orderQty) < 0 ? 0 : $stock - $orderQty ) : 0;
+				$qty        	= $isVisual === FALSE && $active == 1 ? $this->available_order_qty($id_pa, $id_order) : FALSE; //---- ถ้าเป็นสินค้าเสมือนไม่ต้องมีสต็อก
+				$disabled 	= $isVisual === TRUE && $active == 1 ? '' : ($qty < 1 ? 'disabled' : '');
 				$available 	= $qty === FALSE && $active == 1 ? '' : (($qty < 1 OR $active == 0) ? '<span style="color:red;">สินค้าหมด</span>' : $qty);
-						
+
 				$sc 	.= '<td class="middle text-center" style="width:70px; padding:5px;">';
 				$sc 	.= '<center><span style="color:blue; font-size:10px;">('.$all_qty.')</span></center>';
 				$sc 	.= '<input type="text" class="form-control" title="'.$id_pa.'" name="qty['.$rd['id'].']['.$id_pa.']" id="qty_'.$id_pa.'" onkeyup="valid_qty($(this), '.($qty === FALSE ? 1000000 : $qty).')" '.$disabled.' />';
@@ -1856,7 +1874,7 @@ private function orderAttributeGridThreeAttribute($id_pd, $id_attr, $isVisual)
 
 
 ///******************  test  ***********************///
-public function order_attribute_grid($id_product)
+public function order_attribute_grid($id_product, $id_order = '')
 {
 	$sc = '';
     $isVisual 	= $this->isVisual($id_product);
@@ -1872,29 +1890,29 @@ public function order_attribute_grid($id_product)
 	$ra			= $this->hasAttribute($id_product, 'attribute') === TRUE ? 1 : 0 ;
 
 	$c_count	= $rc . $rs . $ra;
-	
+
 	if($c_count == "100" || $c_count == "010" || $c_count == "001") /// กรณีมี คุณลักษณะเดียว
 	{
-		$attr = $rc == 1 ? 'color' : ($rs == 1 ? 'size' : 'attribute'); 
-		$sc .= $this->orderAttributeGridOneAttribute($id_product, $attr, $isVisual);
+		$attr = $rc == 1 ? 'color' : ($rs == 1 ? 'size' : 'attribute');
+		$sc .= $this->orderAttributeGridOneAttribute($id_product, $attr, $isVisual, $id_order);
 	}
 
 	else if($c_count == "110" || $c_count == "101" || $c_count == "011") /// กรณีมี 2 คุณลักษณะ
-	
+
 	{
 		$color 	= ($c_count === '110' OR $c_count === '101') ? TRUE : FALSE;
 		$size 	= ($c_count === '110' OR $c_count === '011') ? TRUE : FALSE;
 		$attr 	= ($c_count === '011' OR $c_count === '101') ? TRUE : FALSE;
 
-		$sc .= $this->orderAttributeGridTwoAttribute($id_product, $color, $size, $attr, $isVisual);
+		$sc .= $this->orderAttributeGridTwoAttribute($id_product, $color, $size, $attr, $isVisual, $id_order);
 	}
 	else if($c_count == "111") /// กรณีมี 3 คุณลักษณะ
 	{
-				
+
 		$sc .= '<ul class="nav nav-tabs">';
 
 		$tab = dbQuery("SELECT tbl_product_attribute.id_attribute AS id, attribute_name AS name FROM tbl_product_attribute JOIN tbl_attribute ON tbl_product_attribute.id_attribute = tbl_attribute.id_attribute WHERE id_product = ".$id_product." AND tbl_product_attribute.id_attribute != 0 GROUP BY tbl_product_attribute.id_attribute ORDER BY position ASC" );
-		
+
 		$n = 1;
 
 		while($cs = dbFetchArray($tab) )
@@ -1902,7 +1920,7 @@ public function order_attribute_grid($id_product)
 			$sc .= '<li role="presentation" class="'.($n == 1 ? 'active' : '').'">';
 			$sc .= '<a href="#'.$cs['id'].'" aria-controls="'.$cs['id'].'" role="tab" data-toggle="tab">'.$cs['name'].'</a>';
 			$sc .= '</li>';
-			
+
 			$n++;
 
 		}//end while
@@ -1921,7 +1939,7 @@ public function order_attribute_grid($id_product)
 			$id_attr = $cs['id'];
 			$sc .= '<div role="tabpanel" class="tab-pane'.($n == 1 ? ' active' : '').'" id="'.$id_attr.'">';
 
-			$sc .= $this->orderAttributeGridThreeAttribute($id_product, $id_attr, $isVisual);
+			$sc .= $this->orderAttributeGridThreeAttribute($id_product, $id_attr, $isVisual, $id_order);
 
 			$sc .= '</div>';
 
